@@ -1,0 +1,99 @@
+{% extends 'layout/base.html' %}
+{% from 'macros/bungalow.html' import render_bungalow_link %}
+{% from 'macros/icons.html' import render_icon %}
+{% from 'macros/user.html' import render_user_avatar, render_user_link %}
+{% set current_page = 'bungalows' %}
+{% set page_title = ['Bewohner', 'Bungalow %d'|format(bungalow.number)] %}
+
+{% block head %}
+<style>
+.occupants-grid {
+  --border-color: #dddddd;
+  --border-radius: 15px;
+
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.occupant-card {
+  align-items: center;
+  border: var(--border-color) solid 1px;
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8125rem; /* 13px / 16px */
+  height: 100%;
+  overflow: hidden;
+  padding: 20px 10px;
+  text-align: center;
+}
+
+.occupant-card:hover {
+  border-color: #999999;
+}
+
+.occupant-card .user {
+  display: block;
+  flex: 1 0 auto;
+}
+
+.occupant-card .user-name {
+  display: block;
+  padding-bottom: 20px;
+  padding-top: 0.2rem;
+}
+
+.occupant-card .user-avatar-available {
+  border: var(--border-color) dashed 1px;
+  border-radius: var(--border-radius);
+  display: block;
+  height: 96px;
+  width: 96px;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+  <nav class="breadcrumbs">
+    <ol>
+      <li><a href="{{ url_for('bungalow.index') }}">Belegungsplan</a></li>
+      <li>{{ render_bungalow_link(bungalow) }}</li>
+    </ol>
+  </nav>
+  <h1>{{ render_icon('users') }} Bewohner</h1>
+
+  <ol class="occupants-grid">
+    {%- for occupant_slot, ticket in occupant_slots_and_tickets %}
+    <li>
+      <div class="occupant-card">
+        <div class="user">
+        {%- if occupant_slot.occupant -%}
+          {%- with occupant = occupant_slot.occupant %}
+          {{ render_user_avatar(occupant, size=96, orga=occupant.id in orga_ids) }}
+          <div class="user-name"><strong>{{ render_user_link(occupant) }}</strong></div>
+          {%- endwith %}
+        {%- else -%}
+          <div class="user-avatar-available"></div>
+          <div class="user-name">{{ 'frei'|dim }}</div>
+        {%- endif -%}
+        </div>
+        <div class="button-row button-row--compact">
+        {%- if ticket and ticket.is_user_managed_by(g.user.id) %}
+          {%- if not ticket.used_by %}
+          <a class="button button--compact" href="{{ url_for('.occupant_add_form', ticket_id=ticket.id) }}">{{ render_icon('add') }} <span>Hinzufügen</span></a>
+          {%- else %}
+          <a class="button button--compact" href="{{ url_for('.occupant_remove_form', ticket_id=ticket.id) }}">{{ render_icon('delete') }} <span>Rauswerfen</span></a>
+          {%- endif %}
+        {%- endif %}
+        </div>
+      </div>
+    </li>
+    {%- endfor %}
+  </ol>
+
+{%- endblock %}

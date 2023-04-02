@@ -1,0 +1,20 @@
+{% extends 'layout/base.html' %}
+{% from 'macros/forms.html' import form_buttons %}
+{% set current_page = 'shop' %}
+{% set page_title = 'Bestellen' %}
+
+{% block body %}
+
+  <h1>{{ page_title }}</h1>
+
+{%- if bungalow %}
+  <form action="{{ url_for('.order', bungalow_id=bungalow.id) }}" method="post">
+
+{%- include 'site/shop/order/_order_form_orderer.html' %}
+{%- include 'site/shop/order/_order_form_articles.html' %}
+
+    {{ form_buttons('Kostenpflichtig bestellen') }}
+  </form>
+{%- endif %}
+
+{%- endblock %}

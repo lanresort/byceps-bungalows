@@ -1,0 +1,27 @@
+{%- from 'macros/bungalow.html' import render_bungalow_avatar %}
+{%- from 'macros/misc.html' import render_tag %}
+
+
+<div class="user-profile-detail-block">
+  <h2>Bungalow</h2>
+
+  {%- if bungalow %}
+  <div class="row row--vertically-centered">
+    <div>
+      {{ render_bungalow_avatar(bungalow, 48) }}
+    </div>
+    <div>
+      <a href="{{ url_for('bungalow.view', number=bungalow.number) }}" style="font-size: 1.4rem;">{{ bungalow.number }}</a>
+      <br>
+      {{ bungalow.occupancy.title or '' }}
+    </div>
+  </div>
+    {%- with ticket = current_party_tickets[0] %}
+      {%- if ticket.user_checked_in %}
+  <div style="margin-top: 0.5rem;">{{ render_tag(_('checked in')) }}</div>
+      {%- endif %}
+    {%- endwith %}
+  {%- else %}
+  <span class="dimmed">keiner</span>
+  {%- endif %}
+</div>

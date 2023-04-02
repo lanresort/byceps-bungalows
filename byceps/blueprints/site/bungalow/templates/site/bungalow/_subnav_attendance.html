@@ -1,0 +1,8 @@
+{%- from 'macros/subnav.html' import render_subnav, render_subnav_item %}
+
+
+{%- call render_subnav() %}
+      {{ render_subnav_item(url_for('bungalow.index'), 'Belegungsplan', 'bungalows', current_page) }}
+      {{ render_subnav_item(url_for('bungalow.occupant_index_all'), 'Parkbewohner', 'occupants', current_page) }}
+      {#{ render_subnav_item(url_for('shop_order.order_form'), 'Extras buchen', 'shop_order', current_page) }#}
+{%- endcall %}

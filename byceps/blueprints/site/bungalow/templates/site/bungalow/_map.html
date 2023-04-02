@@ -1,0 +1,45 @@
+<h2>Karte</h2>
+
+<style>
+  .map {
+    background-color: #f4f4f4;
+    border-color: #cccccc;
+    border-style: solid;
+    border-width: 1px 0;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    margin: 0 -40px 40px -40px;
+  }
+  .map svg {
+    display: block;
+  }
+  .map figcaption {
+    border-top: #cccccc solid 1px;
+    padding: 8px 40px;
+  }
+
+  .map a {
+    color: #888888;
+  }
+  .map a:hover {
+    color: #2233ee;
+  }
+
+{%- set state_colors = {
+    'available': '#11aa22',
+    'occupied': '#ee3322',
+    'reserved': '#eecc00',
+} %}
+{%- for number in bungalows_by_number %}
+  {%- with state = bungalows_by_number[number].occupation_state.name %}
+  .map .bungalow-{{ number }} { color: {{ state_colors[state] }}; }
+  {%- endwith %}
+{%- endfor %}
+
+  .map #numbers {
+    font-size: 1rem;
+  }
+</style>
+
+<div class="map">
+{% include 'site/bungalow/_map.svg' %}
+</div>

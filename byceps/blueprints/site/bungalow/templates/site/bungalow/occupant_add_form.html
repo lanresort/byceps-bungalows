@@ -1,0 +1,25 @@
+{% extends 'layout/base.html' %}
+{% from 'macros/bungalow.html' import render_bungalow_link %}
+{% from 'macros/forms.html' import form_buttons, form_field %}
+{% from 'macros/icons.html' import render_icon %}
+{% set current_page = 'bungalows' %}
+{% set page_title = 'Bewohner hinzufügen' %}
+
+{% block body %}
+
+  <nav class="breadcrumbs">
+    <ol>
+      <li><a href="{{ url_for('bungalow.index') }}">Belegungsplan</a></li>
+      <li>{{ render_bungalow_link(bungalow) }}</li>
+      <li><a href="{{ url_for('.occupant_index', number=bungalow.number) }}">Bewohner</a></li>
+    </ol>
+  </nav>
+  <h1>{{ render_icon('add') }} {{ page_title }}</h1>
+
+  <form action="{{ url_for('.occupant_add', ticket_id=occupant_slot.ticket_id) }}" method="post">
+    {{ form_field(form.occupant, maxlength=40, autofocus='autofocus') }}
+
+    {{ form_buttons(_('Add'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
+  </form>
+
+{%- endblock %}

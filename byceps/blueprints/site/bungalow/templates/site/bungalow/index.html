@@ -1,0 +1,33 @@
+{% extends 'layout/base.html' %}
+{% set current_page = 'bungalows' %}
+{% set page_title = 'Belegungsplan' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/bungalow/bungalow.css') }}">
+{%- endblock %}
+
+{% block subnav %}
+{% include 'site/bungalow/_subnav_attendance.html' ignore missing %}
+{%- endblock %}
+
+{% block body %}
+
+  <h1>{{ page_title }}</h1>
+
+{{ render_snippet('bungalows_intro', ignore_if_unknown=True)|safe }}
+
+{% include 'site/bungalow/_map.html' %}
+
+  <h2>Bungalows</h2>
+{% include 'site/bungalow/_list.html' %}
+{{ render_snippet('bungalows_hinweise', ignore_if_unknown=True)|safe }}
+
+{%- if bungalows %}
+{% include 'site/bungalow/_categories.html' %}
+{%- endif %}
+
+{%- endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='behavior/bungalow/bungalow.js') }}"></script>
+{%- endblock %}

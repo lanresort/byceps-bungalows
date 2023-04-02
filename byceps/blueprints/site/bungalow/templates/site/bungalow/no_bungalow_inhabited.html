@@ -1,0 +1,15 @@
+{% extends 'layout/base.html' %}
+{% from 'macros/icons.html' import render_icon %}
+{% set page_title = 'Dein Bungalow' %}
+
+{% block body %}
+
+  <h1>{{ render_icon('bungalow') }} {{ page_title }}</h1>
+  <p>Du bist derzeit <em>keinem</em> Bungalow als Bewohner/in zugeordnet.</p>
+  <p>Es gibt zwei Möglichkeiten, einen Bungalow zu bewohnen:</p>
+  <ul>
+    <li>Über die <a href="{{ url_for('bungalow.index') }}">Bungalow-Liste</a> kannst du – sofern noch verfügbar – einen Bungalow buchen. Dann fungierst du als Hauptmieter/in und kannst weitere Personen in den Bungalow aufnehmen.</li>
+    <li>Du lässt dich in einen Bungalow als Bewohner/in aufnehmen.</li>
+  </ul>
+
+{%- endblock %}

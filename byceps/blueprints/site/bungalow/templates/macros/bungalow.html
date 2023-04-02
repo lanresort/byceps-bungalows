@@ -1,0 +1,31 @@
+{%- from 'macros/icons.html' import render_icon %}
+{%- from 'macros/misc.html' import render_tag %}
+
+
+{% macro render_bungalow_link(bungalow, label=None, with_icon=False) -%}
+  {%- if label is none %}
+    {%- set label %}
+      {%- if with_icon %}{{ render_icon('bungalow') }} {% endif -%}
+      Bungalow {{ bungalow.number -}}
+    {%- endset %}
+  {%- endif %}
+  <a href="{{ url_for('bungalow.view', number=bungalow.number) }}">{{ label|safe }}</a>
+{%- endmacro %}
+
+
+{% macro render_bungalow_occupation_state(bungalow) -%}
+  {%- if bungalow.occupied -%}
+    {{ render_tag('belegt', class='occupied') }}
+  {%- elif bungalow.reserved -%}
+    {{ render_tag('reserviert', class='reserved') }}
+  {%- else -%}
+    {{ render_tag('verfügbar', class='available') }}
+  {%- endif -%}
+{%- endmacro %}
+
+
+{% macro render_bungalow_avatar(bungalow, size) -%}
+  <div class="avatar size-{{ size }}">
+    <img src="{{ bungalow.avatar_url or url_for('static', filename='style/bungalow/avatar_fallback.svg') }}" alt="Avatar von Bungalow {{ bungalow.number }}">
+  </div>
+{%- endmacro %}

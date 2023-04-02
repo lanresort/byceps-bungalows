@@ -1,0 +1,168 @@
+.bungalow-tip {
+  background-color: #ffffff;
+  border: #cccccc solid 1px;
+  border-radius: 11px;
+  display: none;
+  font-size: 0.8rem;
+  left: 0;
+  margin: 20px 0 0 20px;
+  padding: 8px 12px;
+  position: absolute;
+  text-align: center;
+  top: 0;
+}
+
+.bungalow-tip.visible {
+  display: block;
+}
+
+.bungalow-tip table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.bungalow-tip th,
+.bungalow-tip td,
+.bungalow-tip .seats li {
+  padding-bottom: 0.1em;
+  padding-top: 0.1em;
+}
+
+.bungalow-tip img {
+  margin: 4px auto;
+  max-width: 150px;
+}
+
+.bungalow-list [id|=bungalow]:target {
+  background-color: #f8f888;
+  position: relative;
+}
+
+.bungalow-list [id|=bungalow]:target td:first-child:before,
+.bungalow-list [id|=bungalow]:target td:last-child:after {
+  background-color: #f8f888;
+  content: "";
+  display: block;
+  height: 100%;
+  position: absolute;
+  top: 0;
+}
+
+.bungalow-list [id|=bungalow]:target td:first-child:before {
+  left: -40px;
+  width: 40px;
+}
+
+.bungalow-list [id|=bungalow]:target td:last-child:after {
+  right: -40px;
+  width: 40px;
+}
+
+
+/* bungalow profile */
+
+.bungalow-profile-background {
+  background-color: #f4f4f4;
+  border-bottom: #dddddd solid 1px;
+  height: 104px;
+}
+
+.bungalow-profile-header {
+  display: flex;
+  margin-top: -104px;
+  padding: 40px;
+}
+
+.bungalow-profile-header-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.bungalow-profile-header-column + .bungalow-profile-header-column {
+  margin-left: 1rem;
+}
+
+.bungalow-profile-header-column.number-and-name {
+  flex-grow: 1;
+}
+
+.bungalow-profile-header-cell-top {
+  font-size: 1.25rem; /* 20px / 16px */
+  padding-bottom: 3px;
+}
+
+.bungalow-profile-header-cell-bottom {
+  font-size: 0.875rem; /* 14px / 16px */
+  font-weight: bold;
+  height: 50%;
+  opacity: 0.7;
+  padding-top: 4px;
+}
+
+.bungalow-profile-body {
+  padding: 0 40px 40px 40px;
+}
+
+
+/* occupant slots */
+
+ol.occupant-slots-horizontal,
+ol.occupant-slots-vertical {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.occupant-slots-horizontal {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.occupant-slots-horizontal li {
+  display: inline-block;
+  margin: 0;
+}
+
+.occupant-slots-vertical li {
+  align-items: center;
+  column-gap: 0.375rem;
+  display: flex;
+}
+
+.occupant-slots-vertical li + li {
+  margin-top: 0.25rem;
+}
+
+.occupant-slot--available {
+  background-color: #f8f8f8;
+  border-radius: 3px;
+  border: #cccccc dashed 1px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.occupant-slots-horizontal .occupant-slot--available {
+  height: 16px;
+  width: 16px;
+}
+
+.occupant-slots-vertical .occupant-slot--available {
+  height: 24px;
+  width: 24px;
+}
+
+
+/* occupants */
+
+table.bungalow-occupants-all {
+  margin: 2rem 0;
+}
+
+table.bungalow-occupants-all td {
+  vertical-align: middle;
+}
+
+table.bungalow-occupants-all td.bungalow {
+  font-size: 1.6em;
+}

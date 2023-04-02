@@ -1,0 +1,154 @@
+{% extends 'layout/base.html' %}
+{% from 'macros/bungalow.html' import render_bungalow_avatar, render_bungalow_occupation_state %}
+{% from 'macros/icons.html' import render_icon %}
+{% from 'macros/misc.html' import render_notification %}
+{% from 'macros/user.html' import render_user_avatar, render_user_avatar_and_link, render_user_link %}
+{% set current_page = 'bungalows' %}
+{% set page_title = 'Bungalow %d'|format(bungalow.number) %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/bungalow/bungalow.css') }}">
+    <style>
+      main {
+        padding: 0;
+      }
+    </style>
+{%- endblock %}
+
+{% block body %}
+
+  <div class="bungalow-profile">
+
+    <div class="bungalow-profile-background"></div>
+
+    <div class="bungalow-profile-header">
+
+      <div class="bungalow-profile-header-column">
+        {{ render_bungalow_avatar(bungalow, 128) }}
+      </div>
+
+      <div class="bungalow-profile-header-column number-and-name">
+        <div class="bungalow-profile-header-cell-top">
+          <nav class="breadcrumbs">
+            <ol>
+              <li><a href="{{ url_for('bungalow.index') }}">Belegungsplan</a></li>
+            </ol>
+          </nav>
+          <strong>Bungalow {{ bungalow.number }}</strong>
+        </div>
+        <div class="bungalow-profile-header-cell-bottom">
+          {%- if bungalow.occupancy %}
+          {{- bungalow.occupancy.title or '' -}}
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- if bungalow_customization_enabled and current_user_is_manager %}
+      <div class="bungalow-profile-header-column">
+
+        <div class="dropdown">
+          <button class="dropdown-toggle button"><span>Aktionen</span> {{ render_icon('caret-down') }}</button>
+          <ol class="dropdown-menu dropdown-menu--right">
+            <li><a class="dropdown-item" href="{{ url_for('bungalow.description_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('edit') }} <span>Name und Beschreibung bearbeiten</span></a></li>
+            <li class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('bungalow.avatar_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('edit') }} <span>Avatar hochladen</span></a></li>
+            {%- if bungalow.occupancy.avatar %}
+            <li><a class="dropdown-item" href="{{ url_for('bungalow.avatar_remove', occupancy_id=bungalow.occupancy.id, _method='DELETE') }}" data-action="avatar-remove">{{ render_icon('delete') }} <span>Avatar entfernen</span></a></li>
+            {%- endif %}
+          </ol>
+        </div>
+
+      </div>
+      {%- endif %}
+
+    </div>
+    <div class="bungalow-profile-body">
+
+      {%- if current_user_is_main_occupant and not current_user_is_manager %}
+      <div style="margin-bottom: 2rem;">
+        {{ render_notification('Die Verwaltung dieses Bungalows ist an <strong>%s</strong> übertragen worden.'|format(render_user_link(manager))|safe) }}
+      </div>
+      {%- endif %}
+
+      <div class="row row--wrap" style="gap: 2rem;">
+        {%- if bungalow.category.image_filename %}
+        <div>
+
+          <figure>
+            <div style="background-image: url(/data/parties/{{ bungalow.party_id }}/floorplans/{{ bungalow.category.image_filename }}); background-repeat: no-repeat; height: {{ bungalow.category.image_height }}px; width: {{ bungalow.category.image_width }}px;"></div>
+            <figcaption class="centered">Grundriss (Abbildung ähnlich)</figcaption>
+          </figure>
+
+        </div>
+        {%- endif %}
+        <div>
+
+          <div class="row row--wrap" style="column-gap: 2rem;">
+            <div>
+
+              <div class="data-label">Kategorie</div>
+              <div class="data-value">{{ bungalow.category.title }}</div>
+
+              <div class="data-label">Plätze</div>
+              <div class="data-value">{{ bungalow.category.capacity }}</div>
+
+              <div class="data-label">Status</div>
+              <div class="data-value">
+                {{- render_bungalow_occupation_state(bungalow) }}
+                {%- if reserved_by is not none %} durch {{ render_user_avatar_and_link(reserved_by, size=16) }}{% endif -%}
+              </div>
+
+            </div>
+            {%- if bungalow.occupied %}
+            <div>
+
+              <div class="data-label">Bewohner</div>
+              <div class="data-value">
+                <ol class="occupant-slots-vertical">
+                  {%- for occupant_slot in occupant_slots %}
+                  <li>
+                    {%- if occupant_slot.occupant -%}
+                      {{ render_user_avatar(occupant_slot.occupant, size=24) }}
+                      {{ render_user_link(occupant_slot.occupant) }}
+                    {%- else -%}
+                      <span class="occupant-slot--available" title="frei"></span> <span>{{ 'frei'|dim }}</span>
+                    {%- endif -%}
+                  </li>
+                  {%- endfor %}
+                </ol>
+
+                {%- if ticket_management_enabled and current_user_is_manager %}
+                <div class="button-row" style="margin: 0.5rem 0;">
+                  <a class="button button--compact" href="{{ url_for('bungalow.occupant_index', number=bungalow.number) }}">{{ render_icon('administrate') }} <span>Verwalten</span></a>
+                </div>
+                {%- endif -%}
+              </div>
+
+            </div>
+            {%- endif -%}
+          </div>
+
+        </div>
+      </div>
+
+      {%- if bungalow.occupied and bungalow.occupancy.description %}
+      <h2>Grußwort der Bewohner</h2>
+
+      <div class="bungalow-description">
+{{ bungalow.occupancy.description|bbcode|safe }}
+      </div>
+      {%- endif %}
+
+    </div>
+
+  </div>
+
+{%- endblock %}
+
+{% block scripts %}
+    <script>
+      onDomReady(() => {
+        confirmed_delete_on_click_then_reload('[data-action="avatar-remove"]', 'Avatarbild entfernen?');
+      });
+    </script>
+{% endblock %}

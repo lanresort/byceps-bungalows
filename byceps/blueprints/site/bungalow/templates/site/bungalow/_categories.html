@@ -1,0 +1,71 @@
+{%- from 'macros/misc.html' import render_distribution_bar %}
+
+
+{% macro render_availability_text(summary) -%}
+  {{ summary.available }} von {{ summary.total }} verfügbar
+{%- endmacro %}
+
+
+  <h2>Kategorien</h2>
+
+  {%- with party_is_over = g.party.is_over %}
+  <table class="index">
+    <tbody>
+      {%- for bungalow_category in bungalow_categories_by_id.values()|sort(attribute='title') %}
+        {%- with counts = occupation_summaries_by_ticket_category_id[bungalow_category.ticket_category_id] %}
+      <tr>
+        <td>{{ bungalow_category.ticket_category_title }}</td>
+        <td class="nowrap number">
+        {%- if not party_is_over %}
+          {%- with total_amount = total_amounts_by_article_id[bungalow_category.article.id] %}
+          {{ total_amount|moneyformat }}
+          {%- endwith %}
+        {%- endif %}
+        </td>
+        <td style="width: 6rem;">
+{{ render_distribution_bar(
+  [
+    (counts.occupied, 'bungalow-total-bar-occupied'),
+    (counts.reserved, 'bungalow-total-bar-reserved'),
+    (counts.available, 'bungalow-total-bar-available'),
+  ],
+  counts.total,
+) }}
+        </td>
+        <td class="number nowrap">{{ render_availability_text(counts) }}</td>
+      </tr>
+        {%- endwith %}
+      {%- endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>Gesamt</th>
+        <td colspan="3" class="number nowrap"><strong>{{ render_availability_text(statistics_total) }}</strong></td>
+      </tr>
+    </tfoot>
+  </table>
+  {%- endwith %}
+
+  <small>
+    <p><strong>Legende</strong></p>
+    <div class="row">
+      <div>
+        <div class="progress" style="display: inline-flex;">
+          <div class="progress-bar bungalow-total-bar-occupied" style="width: 1rem;"></div>
+        </div>
+        belegt
+      </div>
+      <div>
+        <div class="progress" style="display: inline-flex;">
+          <div class="progress-bar bungalow-total-bar-reserved" style="width: 1rem;"></div>
+        </div>
+        reserviert
+      </div>
+      <div>
+        <div class="progress" style="display: inline-flex;">
+          <div class="progress-bar bungalow-total-bar-available" style="width: 1rem;"></div>
+        </div>
+        verfügbar
+      </div>
+    </div>
+  </small>

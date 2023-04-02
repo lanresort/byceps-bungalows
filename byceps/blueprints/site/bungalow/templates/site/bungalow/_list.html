@@ -1,0 +1,62 @@
+{%- from 'macros/bungalow.html' import render_bungalow_avatar, render_bungalow_link, render_bungalow_occupation_state %}
+{%- from 'macros/icons.html' import render_icon %}
+{%- from 'macros/user.html' import render_user_avatar, render_user_avatar_and_link %}
+
+  {%- if bungalows %}
+  <table class="index index--v-centered index--wide bungalow-list">
+    <tbody>
+      {%- for bungalow in bungalows %}
+        {%- with category = bungalow_categories_by_id[bungalow.category_id] %}
+      <tr id="bungalow-{{ bungalow.number }}"{% if bungalow.id == my_bungalow_id %} class="mine"{% endif %}>
+        <td class="bignumber">{{ render_bungalow_link(bungalow, label=bungalow.number) }}</td>
+        <td class="nowrap">{{ category.title }}<br>{{ category.capacity }} Personen</td>
+        <td class="centered">
+          {%- if bungalow.distributes_network -%}
+            {{ render_icon('move', title='Netzwerk-Verteiler') }}
+          {%- endif -%}
+        </td>
+        <td class="bungalow-state-column centered">{{ render_bungalow_occupation_state(bungalow) }}</td>
+        {%- if bungalow.available %}
+          {%- with article = category.article %}
+            {%- with total_amount = total_amounts_by_article_id[category.article.id] %}
+        <td class="nowrap number">{{ total_amount|moneyformat }}</td>
+            {%- endwith %}
+        <td class="nowrap number">
+            {%- if article and article.quantity > 0 and is_article_available_now(article) -%}
+          <a class="button color-primary" href="{{ url_for('.order', bungalow_id=bungalow.id) }}">{{ render_icon('shopping-cart') }} <span>Jetzt buchen</span></a>
+            {%- endif -%}
+        </td>
+          {%- endwith %}
+        {%- elif bungalow.reserved %}
+        <td colspan="2" class="nowrap">
+          durch {{ render_user_avatar_and_link(users_by_id[bungalow.occupancy.occupied_by_id], size=16) }}
+        </td>
+        {%- elif bungalow.occupied %}
+        <td colspan="2" class="nowrap">
+          <div class="row">
+            <div>{{ render_bungalow_avatar(bungalow, 36) }}</div>
+            <div>
+              {{ bungalow.occupancy.title|fallback('namenlos') }}<br>
+              <ol class="occupant-slots-horizontal">
+                {%- for occupant_slot in occupant_slots_by_occupancy_id[bungalow.occupancy.id] %}
+                <li>
+                  {%- if occupant_slot.occupant -%}
+                  {{ render_user_avatar(occupant_slot.occupant, size=16) }}
+                  {%- else -%}
+                  <span class="occupant-slot--available" title="frei"></span>
+                  {%- endif -%}
+                </li>
+                {%- endfor %}
+              </ol>
+            </div>
+          </div>
+        </td>
+        {%- endif %}
+      </tr>
+        {%- endwith %}
+      {%- endfor %}
+    </tbody>
+  </table>
+  {%- else %}
+  <p class="dimmed">Es werden derzeit keine Bungalows angeboten.</p>
+  {%- endif %}
