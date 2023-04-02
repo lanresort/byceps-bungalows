@@ -1,0 +1,12 @@
+{%- from 'macros/misc.html' import render_tag %}
+
+
+{% macro render_bungalow_occupation_state(bungalow) %}
+  {%- if bungalow.occupied -%}
+    {{ render_tag('belegt', class='occupied') }}
+  {%- elif bungalow.reserved -%}
+    {{ render_tag('reserviert', class='reserved') }}
+  {%- else -%}
+    {{ render_tag('verfügbar', class='available') }}
+  {%- endif -%}
+{% endmacro %}

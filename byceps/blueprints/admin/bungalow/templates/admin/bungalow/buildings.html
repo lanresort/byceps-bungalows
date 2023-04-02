@@ -1,0 +1,89 @@
+{% extends 'layout/admin/base.html' %}
+{% from 'macros/admin.html' import render_extra_in_heading %}
+{% from 'macros/icons.html' import render_icon %}
+{% from 'macros/misc.html' import render_tag %}
+{% set current_page = 'bungalow_building_admin' %}
+{% set current_page_brand = brand %}
+{% set page_title = ['Gebäude', brand.title] %}
+
+{% block body %}
+
+  <h1>{{ render_icon('bungalow') }} Bungalows</h1>
+
+  <div class="row row--wrap">
+    <div class="column--grow">
+
+      <div class="row row--space-between">
+        <div>
+          <h2>Gebäude {{ render_extra_in_heading(buildings|length) }}</h2>
+        </div>
+        <div>
+          <div class="button-row button-row--right">
+            <a class="button" href="{{ url_for('.building_create_form', brand_id=brand.id) }}">{{ render_icon('add') }} <span>Gebäude hinzufügen</span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="box">
+        {%- if buildings %}
+        <table class="index">
+          <thead>
+            <tr>
+              <th>Nr.</th>
+              <th>Typ</th>
+              <th class="centered">Kapazität</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for building in buildings %}
+            <tr>
+              <td>{{ building.number }}</td>
+              <td>{{ building.layout.title }}</td>
+              <td class="centered">{{ building.layout.capacity }}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+        {%- else %}
+        <div class="dimmed-box centered">Es sind keine Gebäude definiert.</div>
+        {%- endif %}
+      </div>
+
+    </div>
+    <div class="column--grow">
+
+      <h2>Typen {{ render_extra_in_heading(layouts|length) }}</h2>
+
+      <div class="box">
+        {%- if layouts %}
+        <table class="index index--v-centered index--wide">
+          <thead>
+            <tr>
+              <th>Titel</th>
+              <th class="centered">Kapazität</th>
+              <th>Bild-Dateiname</th>
+              <th class="number">Bildbreite</th>
+              <th class="number">Bildhöhe</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for layout in layouts|sort(attribute='capacity')|sort(attribute='title') %}
+            <tr>
+              <td>{{ layout.title }}</td>
+              <td class="centered">{{ layout.capacity }}</td>
+              <td>{{ layout.image_filename|fallback }}</td>
+              <td class="number">{{ layout.image_width|fallback }}</td>
+              <td class="number">{{ layout.image_height|fallback }}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+        {%- else %}
+        <div class="dimmed-box centered">Es sind keine Typen definiert.</div>
+        {%- endif %}
+      </div>
+
+    </div>
+  </div>
+
+{%- endblock %}

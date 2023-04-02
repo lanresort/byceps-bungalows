@@ -1,0 +1,134 @@
+{% extends 'layouts/admin/bungalow.html' %}
+{% from 'macros/admin/user.html' import render_user_avatar_and_admin_link %}
+{% from 'macros/icons.html' import render_icon %}
+{% set current_page_party = party %}
+{% set current_tab = 'occupants' %}
+{% set page_title = 'Belegung' %}
+
+{% block head %}
+    <style>
+      tbody.bungalow tr:first-child th,
+      tbody.bungalow tr:first-child td {
+        border-top-style: double;
+        border-top-width: 3px;
+      }
+
+      @media print {
+        tbody.bungalow {
+          page-break-inside: avoid;
+        }
+
+        #footer {
+          display: none;
+        }
+      }
+    </style>
+{%- endblock %}
+
+{% block body %}
+
+  <div class="row row--space-between">
+    <div>
+      <h1>{{ page_title }}</h1>
+    </div>
+    <div>
+
+      <div class="button-row button-row--right">
+        <div class="dropdown">
+          <button class="dropdown-toggle button">
+            <div class="block-with-icon">
+              <div class="block-with-icon-icon">{{ render_icon('download') }}</div>
+              <div class="block-with-icon-body">Exportieren {{ render_icon('caret-down') }}</div>
+            </div>
+          </button>
+          <ol class="dropdown-menu dropdown-menu--right">
+            <li><a class="dropdown-item" href="{{ url_for('.export_occupants', party_id=party.id) }}">{{ render_icon('download') }} Bewohnernamen</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('.export_bungalow_numbers_and_titles', party_id=party.id) }}">{{ render_icon('download') }} Nummern und Namen belegter Bungalows</a></li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="box">
+
+    <div class="row row--space-between mb">
+      <div>
+        Es sind <strong>{{ bungalows|length }}</strong> Bungalows belegt.
+      </div>
+      <div>
+        <div class="data-label">{{ _('As at') }}</div>
+        <div class="data-value">{{ now|datetimeformat }}</div>
+      </div>
+    </div>
+
+    {%- if bungalows %}
+    <table class="index index--wide">
+      <thead>
+        <tr>
+          <th>{{ render_icon('bungalow') }} Bungalow</th>
+          <th>{{ render_icon('user') }} Bewohner (Alias)</th>
+          <th>{{ render_icon('user') }} Bewohner (Name)</th>
+          <th>{{ render_icon('info') }} Bemerkung</th>
+        </tr>
+      </thead>
+      {%- for bungalow in bungalows %}
+      <tbody class="bungalow">
+        {%- with occupant_slots = occupant_slots_by_occupancy_id[bungalow.occupancy.id] %}
+          {%- with occupant_slot_count = occupant_slots|length %}
+            {%- for occupant_slot in occupant_slots %}
+        <tr>
+              {%- if loop.first %}
+          <td rowspan="{{ occupant_slot_count + (1 if bungalow.occupancy.internal_remark else 0) }}">
+            <strong>Nummer {{ bungalow.number }}</strong><br>
+            {{ occupant_slot_count }} Plätze
+          </td>
+              {%- endif %}
+              {%- if occupant_slot.occupant -%}
+                {%- with occupant = occupant_slot.occupant -%}
+          <td>{{ render_user_avatar_and_admin_link(occupant, size=16) }}</td>
+          <td>
+                  {%- with full_name = occupant.detail.full_name|default('', true)|trim %}
+                    {%- if full_name -%}
+              {{ full_name }}
+                    {%- else -%}
+              {{ 'nicht angegeben'|dim }}
+                    {%- endif -%}
+                  {%- endwith -%}
+          </td>
+          <td>
+                  {%- with is_main_occupant = (bungalow.occupancy and bungalow.occupancy.manager_id == occupant.id) %}
+                    {%- if is_main_occupant %}
+                Hauptmieter/in
+                    {%- endif %}
+                  {%- endwith %}
+                {%- endwith -%}
+          </td>
+              {%- else %}
+          <td colspan="3">{{ 'frei'|dim }}</td>
+              {%- endif %}
+        </tr>
+            {%- endfor %}
+          {%- endwith %}
+        {%- endwith %}
+        {%- if bungalow.occupancy.internal_remark %}
+        <tr>
+          <td colspan="3">
+            {%- if bungalow.occupancy and bungalow.occupancy.pinned %}
+            {{ render_icon('pin') }} <em>Wechsel blockiert</em><br>
+            {%- endif -%}
+            <strong>Anmerkung:</strong> {{ bungalow.occupancy.internal_remark }}
+          </td>
+        </tr>
+        {%- endif %}
+      </tbody>
+      {%- endfor %}
+    </table>
+    {%- else %}
+    <div class="dimmed-box centered">Es sind keine Bungalows belegt.</div>
+    {%- endif %}
+
+  </div>
+
+{%- endblock %}

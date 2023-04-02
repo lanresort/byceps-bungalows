@@ -1,0 +1,26 @@
+{% extends 'layout/admin/base.html' %}
+{% from 'macros/admin.html' import render_backlink %}
+{% from 'macros/forms.html' import form_buttons, form_field %}
+{% from 'macros/icons.html' import render_icon %}
+{% set current_page = 'bungalow_building_admin' %}
+{% set current_page_brand = brand %}
+{% set page_title = 'Gebäude hinzufügen' %}
+
+{% block before_body %}
+{{ render_backlink(url_for('.buildings', brand_id=brand.id), 'Gebäude') }}
+{%- endblock %}
+
+{% block body %}
+
+  <h1>{{ render_icon('add') }} {{ page_title }}</h1>
+
+  <form action="{{ url_for('.building_create', brand_id=brand.id) }}" method="post">
+    <div class="box">
+      {{ form_field(form.layout_id, autofocus='autofocus') }}
+      {{ form_field(form.number, type='number', min=1, max=999, style='width: 3.5rem;') }}
+    </div>
+
+    {{ form_buttons(_('Create')) }}
+  </form>
+
+{%- endblock %}

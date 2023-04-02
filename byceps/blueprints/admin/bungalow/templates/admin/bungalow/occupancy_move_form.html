@@ -1,0 +1,25 @@
+{% extends 'layout/admin/base.html' %}
+{% from 'macros/admin.html' import render_backlink %}
+{% from 'macros/forms.html' import form_buttons, form_field_radio %}
+{% from 'macros/icons.html' import render_icon %}
+{% set current_page = 'bungalow_admin' %}
+{% set current_page_brand = brand %}
+{% set page_title = 'Belegung verschieben' %}
+
+{% block before_body %}
+{{ render_backlink(url_for('.index_for_party', party_id=party.id), 'Bungalows') }}
+{%- endblock %}
+
+{% block body %}
+
+  <h1>{{ render_icon('arrow-right') }} Belegung von Bungalow {{ bungalow.number }} verschieben</h1>
+
+  <form action="{{ url_for('.occupancy_move', occupancy_id=occupancy.id) }}" method="post">
+    <div class="box">
+      {{ form_field_radio(form.target_bungalow_id, autofocus='autofocus') }}
+    </div>
+
+    {{ form_buttons(_('Create')) }}
+  </form>
+
+{%- endblock %}

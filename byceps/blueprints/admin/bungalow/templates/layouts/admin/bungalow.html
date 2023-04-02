@@ -1,0 +1,17 @@
+{% extends 'layout/admin/base.html' %}
+{% from 'macros/admin.html' import render_main_tabs %}
+{% set current_page = 'bungalow_admin' %}
+
+{% block before_body %}
+  {%- with party = current_page_party %}
+{{
+  render_main_tabs(
+    Navigation(None)
+      .add_item(url_for('.index_for_party', party_id=party.id), 'Angebotene Bungalows', id='offers', required_permission='bungalow.view')
+      .add_item(url_for('.categories', party_id=party.id), 'Kategorien', id='categories', required_permission='bungalow.view')
+      .add_item(url_for('.occupants', party_id=party.id), 'Belegung', id='occupants', required_permission='bungalow.view')
+    , current_tab
+  )
+}}
+  {%- endwith %}
+{%- endblock %}

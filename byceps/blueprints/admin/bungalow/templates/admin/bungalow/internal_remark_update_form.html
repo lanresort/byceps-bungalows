@@ -1,0 +1,25 @@
+{% extends 'layout/admin/base.html' %}
+{% from 'macros/admin.html' import render_backlink %}
+{% from 'macros/forms.html' import form_buttons, form_field %}
+{% from 'macros/icons.html' import render_icon %}
+{% set current_page = 'bungalow_admin' %}
+{% set current_page_party = party %}
+{% set page_title = 'Anmerkung zu Bungalow %d bearbeiten'|format(bungalow.number) %}
+
+{% block before_body %}
+{{ render_backlink(url_for('.index_for_party', party_id=party.id), 'Bungalows') }}
+{%- endblock %}
+
+{% block body %}
+
+  <h1>{{ render_icon('edit') }} {{ page_title }}</h1>
+
+  <form action="{{ url_for('.internal_remark_update', occupancy_id=bungalow.occupancy.id) }}" method="post">
+    <div class="box">
+      {{ form_field(form.internal_remark, maxlength=200, autofocus='autofocus') }}
+      </div>
+
+    {{ form_buttons(_('Save')) }}
+  </form>
+
+{%- endblock %}

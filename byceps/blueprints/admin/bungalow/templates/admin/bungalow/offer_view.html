@@ -1,0 +1,254 @@
+{% extends 'layouts/admin/bungalow.html' %}
+{% from 'macros/admin.html' import render_extra_in_heading %}
+{% from 'macros/admin/bungalow.html' import render_bungalow_occupation_state %}
+{% from 'macros/admin/log.html' import render_log_entry, render_log_reason, render_log_user %}
+{% from 'macros/admin/shop/order.html' import render_order_link %}
+{% from 'macros/admin/user.html' import render_user_avatar_and_admin_link %}
+{% from 'macros/icons.html' import render_icon %}
+{% set current_page_party = party %}
+{% set current_tab = 'offers' %}
+{% set page_title = ['Angebotener Bungalow', bungalow.number, party.title] %}
+
+{% macro render_bungalow_link(bungalow_id, label) -%}
+  <a href="{{ url_for('.offer_view', bungalow_id=bungalow_id) }}">{{ label }}</a>
+{%- endmacro %}
+
+{% block head %}
+    <style>
+      .tag.available {
+        background-color: #11aa22;
+      }
+      .tag.reserved {
+        background-color: #eecc00;
+      }
+      .tag.occupied {
+        background-color: #ee3322;
+      }
+    </style>
+{%- endblock %}
+
+{% block body %}
+
+  <div class="row row--space-between">
+    <div>
+      <h1>{{ render_bungalow_occupation_state(bungalow) }} Bungalow {{ bungalow.number }}</h1>
+    </div>
+    <div>
+      <div class="button-row button-row--right">
+        <div class="dropdown">
+          <button class="dropdown-toggle button"><span>{{ _('Actions') }}</span> {{ render_icon('chevron-down') }}</button>
+          <ol class="dropdown-menu dropdown-menu--right">
+          {%- if bungalow.distributes_network %}
+            <li><a class="dropdown-item" data-action="unset-distributes-network" href="{{ url_for('.unset_distributes_network_flag', bungalow_id=bungalow.id, _method='DELETE') }}">{{ render_icon('move') }} Nicht mehr als Netzwerk-Verteiler markieren</a></li>
+          {%- else %}
+            <li><a class="dropdown-item" data-action="set-distributes-network" href="{{ url_for('.set_distributes_network_flag', bungalow_id=bungalow.id, _method='POST') }}">{{ render_icon('move') }} Als Netzwerk-Verteiler markieren</a></li>
+          {%- endif %}
+          {%- if bungalow.reserved_or_occupied %}
+            <li><a class="dropdown-item" href="{{ url_for('.internal_remark_update_form', occupancy_id=occupancy.id) }}">{{ render_icon('note') }} Anmerkung bearbeiten</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('.occupancy_move_form', occupancy_id=occupancy.id) }}">{{ render_icon('arrow-right') }} Belegung verschieben</a></li>
+          {%- else %}
+            <li class="dropdown-divider"></li>
+            <li><a class="dropdown-item" data-action="offer-delete" href="{{ url_for('.offer_delete', offer_id=bungalow.id) }}">{{ render_icon('delete') }} Nicht mehr anbieten</a></li>
+          {%- endif %}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="row">
+
+      <div>
+        <div class="data-label">{{ _('Category') }}</div>
+        <div class="data-value">{{ bungalow.category.title }}</div>
+      </div>
+
+      <div>
+        <div class="data-label">Plätze</div>
+        <div class="data-value">{{ bungalow.category.capacity }}</div>
+      </div>
+
+      <div>
+        <div class="data-label">{{ render_icon('move') }} Netzwerk-Verteiler</div>
+        <div class="data-value">{{ 'ja' if bungalow.distributes_network else 'nein' }}</div>
+      </div>
+
+    </div>
+  </div>
+
+  {%- if bungalow.reserved_or_occupied %}
+  <h2>Reservierung</h2>
+
+  <div class="box">
+    <div class="row">
+
+      <div>
+        <div class="data-label">Reserviert von</div>
+        <div class="data-value">
+          {{ render_user_avatar_and_admin_link(users_by_id[occupancy.occupied_by_id], size=16) }}
+        </div>
+      </div>
+
+      <div>
+        <div class="data-label">{{ _('Order') }}</div>
+        <div class="data-value">
+          {%- if occupancy.order_number %}
+          {{ render_order_link(order) }}
+          {%- else %}
+          {{ 'liegt nicht vor'|dim }}
+          {%- endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="data-label">{{ render_icon('pin') }} Wechsel blockiert</div>
+        <div class="data-value">{{ 'ja' if occupancy.pinned else 'nein' }}</div>
+      </div>
+
+      <div>
+        <div class="data-label">{{ render_icon('note') }} Anmerkung</div>
+        <div class="data-value">
+          {%- if occupancy.internal_remark %}
+          <blockquote>{{ occupancy.internal_remark }}<blockquote>
+          {%- else %}
+          {{ 'keine'|dim }}
+          {%- endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {%- endif %}
+
+  {%- if bungalow.occupied %}
+  <h2>Belegung</h2>
+
+  <div class="box">
+    <div class="row">
+
+      <div>
+        <div class="data-label">{{ _('Ticket bundle') }}</div>
+        <div class="data-value">
+          {%- with ticket_bundle_id = occupancy.ticket_bundle_id %}
+            {%- if ticket_bundle_id %}
+          <a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=ticket_bundle_id) }}">{{ ticket_bundle_id|string|truncate(9, end='…') }}</a>
+            {%- else %}
+          {{ _('not assigned')|dim }}
+            {%- endif %}
+          {%- endwith %}
+        </div>
+      </div>
+
+      {%- with manager_id = occupancy.manager_id %}
+        {%- if manager_id != occupancy.occupied_by_id %}
+      <div>
+        <div class="data-label">Verwaltung übertragen an</div>
+        <div class="data-value">
+          {{ render_user_avatar_and_admin_link(users_by_id[manager_id], size=16) }}
+        </div>
+      </div>
+        {%- endif %}
+      {%- endwith %}
+
+    </div>
+    <div class="row mt">
+
+      <div>
+        <div class="data-label">{{ _('Avatar') }}</div>
+        <div class="data-value">
+          <div class="avatar size-32">
+            <img src="{{ bungalow.avatar_url or url_for('static', filename='style/bungalow/avatar_fallback.svg') }}" alt="Avatar von Bungalow {{ bungalow.number }}">
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="data-label">{{ _('Title') }}</div>
+        <div class="data-value">{{ bungalow.occupancy.title or '' }}</div>
+      </div>
+
+      {%- if bungalow.occupancy.description %}
+      <div>
+        <div class="data-label">{{ _('Description') }}</div>
+        <div class="data-value">{{ bungalow.occupancy.description|bbcode|safe }}</div>
+      </div>
+      {%- endif %}
+
+    </div>
+  </div>
+  {%- endif %}
+
+  <h2>{{ _('Events') }} {{ render_extra_in_heading(log_entries|length) }}</h2>
+
+  <div class="box">
+    <div class="events">
+      {%- for log_entry in log_entries|sort(attribute='occurred_at', reverse=True) %}
+        {%- if log_entry.event_type == 'bungalow-occupied' %}
+          {%- call render_log_entry('success', log_entry.occurred_at) %}
+            {{ _(
+              '%(initiator)s hat diesen Bungalow <strong>belegt</strong>.',
+              initiator=render_log_user(log_entry.initiator),
+            ) }}
+          {%- endcall %}
+        {%- elif log_entry.event_type == 'bungalow-released' %}
+          {%- call render_log_entry('success', log_entry.occurred_at) %}
+            {{ _(
+              '%(initiator)s hat diesen Bungalow <strong>freigegeben</strong>.',
+              initiator=(render_log_user(log_entry.initiator) if (log_entry.initiator is defined) else _('Someone')),
+            ) }}
+          {%- endcall %}
+        {%- elif log_entry.event_type == 'bungalow-reserved' %}
+          {%- call render_log_entry('success', log_entry.occurred_at) %}
+            {{ _(
+              '%(initiator)s hat diesen Bungalow <strong>reserviert</strong>.',
+              initiator=render_log_user(log_entry.initiator),
+            ) }}
+          {%- endcall %}
+        {%- elif log_entry.event_type == 'manager-appointed' %}
+          {%- call render_log_entry('role', log_entry.occurred_at) %}
+            {{ _(
+              '%(initiator)s hat %(new_manager_link)s als <strong>neuen Verwalter</strong> eingetragen.',
+              initiator=render_log_user(log_entry.initiator),
+              new_manager_link=render_log_user(log_entry.new_manager),
+            ) }}
+          {%- endcall %}
+        {%- elif log_entry.event_type == 'occupancy-moved-away' %}
+          {%- call render_log_entry('arrow-right', log_entry.occurred_at) %}
+            {{ _(
+              '%(initiator)s hat die Belegung von hier zu %(target_link)s <strong>verschoben</strong>.',
+              initiator=render_log_user(log_entry.initiator),
+              target_link=render_bungalow_link(log_entry.data.target_bungalow_id, 'Bungalow ' ~ log_entry.data.target_bungalow_number),
+            ) }}
+          {%- endcall %}
+        {%- elif log_entry.event_type == 'occupancy-moved-here' %}
+          {%- call render_log_entry('arrow-down', log_entry.occurred_at) %}
+            {{ _(
+              '%(initiator)s hat die Belegung von %(source_link)s <strong>hierher verschoben</strong>.',
+              initiator=render_log_user(log_entry.initiator),
+              source_link=render_bungalow_link(log_entry.data.source_bungalow_id, 'Bungalow ' ~ log_entry.data.source_bungalow_number),
+            ) }}
+          {%- endcall %}
+        {%- else %}
+          {%- call render_log_entry('disabled', log_entry.occurred_at) %}
+            {{ _(
+              '<strong>Unknown event</strong> "%(event_type)s" has occurred.',
+              event_type=log_entry.event_type,
+            ) }}
+          {%- endcall %}
+        {%- endif %}
+      {%- endfor %}
+    </div>
+  </div>
+
+{%- endblock %}
+
+{% block scripts %}
+    <script>
+      onDomReady(() => {
+        post_on_click_then_reload('[data-action="set-distributes-network"]');
+        delete_on_click_then_reload('[data-action="unset-distributes-network"]');
+        confirmed_post_on_click_then_reload('[data-action="offer-delete"]', 'Bungalow nicht mehr anbieten?');
+      });
+    </script>
+{%- endblock %}
