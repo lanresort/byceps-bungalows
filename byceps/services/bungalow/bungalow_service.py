@@ -1,0 +1,235 @@
+"""
+byceps.services.bungalow.bungalow_service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:Copyright: 2014-2023 Jochen Kupperschmidt
+:License: Revised BSD (see `LICENSE` file for details)
+"""
+
+from typing import Optional
+
+from sqlalchemy import select
+
+from ...database import db, paginate, Pagination
+from ...typing import BrandID, PartyID, UserID
+
+from ..brand import brand_setting_service
+from ..party.models import Party
+from ..party import party_service
+from ..shop.article.dbmodels.article import DbArticle
+from ..ticketing.dbmodels.ticket import DbTicket
+from ..ticketing.dbmodels.ticket_bundle import DbTicketBundle
+from ..ticketing import ticket_service
+from ..user.dbmodels.user import DbUser
+
+from .dbmodels.bungalow import DbBungalow
+from .dbmodels.category import DbBungalowCategory
+from .dbmodels.occupancy import DbBungalowOccupancy
+from .model_converters import _db_entity_to_bungalow
+from .models.bungalow import Bungalow, BungalowID
+
+
+def get_active_bungalow_parties() -> list[Party]:
+    """Return active parties that use bungalows."""
+    return [
+        party
+        for party in party_service.get_active_parties()
+        if has_brand_bungalows(party.brand_id)
+    ]
+
+
+# -------------------------------------------------------------------- #
+# bungalow
+
+
+def has_brand_bungalows(brand_id: BrandID) -> bool:
+    """Return `True` if the brand's parties are built on bungalows."""
+    has_bungalows = brand_setting_service.find_setting_value(
+        brand_id, 'has_bungalows'
+    )
+
+    return has_bungalows == 'true'
+
+
+def find_bungalow(bungalow_id: BungalowID) -> Optional[Bungalow]:
+    """Return the bungalow with that id, or `None` if not found."""
+    db_bungalow = db.session.execute(
+        select(DbBungalow)
+        .options(
+            db.joinedload(DbBungalow.category),
+            db.joinedload(DbBungalow.occupancy),
+        )
+        .filter_by(id=bungalow_id)
+    ).scalar_one_or_none()
+
+    if db_bungalow is None:
+        return None
+
+    return _db_entity_to_bungalow(db_bungalow)
+
+
+def find_db_bungalow(bungalow_id: BungalowID) -> Optional[DbBungalow]:
+    """Return the bungalow with that id, or `None` if not found."""
+    return db.session.get(DbBungalow, bungalow_id)
+
+
+def get_db_bungalow(bungalow_id: BungalowID) -> DbBungalow:
+    """Return the bungalow with that id."""
+    db_bungalow = find_db_bungalow(bungalow_id)
+
+    if db_bungalow is None:
+        raise ValueError('Unknown bungalow ID')
+
+    return db_bungalow
+
+
+def find_db_bungalow_by_number(
+    party_id: PartyID, number: int
+) -> Optional[DbBungalow]:
+    """Return the bungalow with that number during that party, or `None`
+    if not found.
+    """
+    return db.session.scalars(
+        select(DbBungalow).filter_by(party_id=party_id).filter_by(number=number)
+    ).one_or_none()
+
+
+def get_bungalow_numbers_for_party(party_id: PartyID) -> set[int]:
+    """Return the numbers of all bungalows that are offered for the party."""
+    numbers = db.session.scalars(
+        select(DbBungalow.number).filter_by(party_id=party_id)
+    ).all()
+
+    return set(numbers)
+
+
+def get_bungalows_for_party(party_id: PartyID) -> list[DbBungalow]:
+    """Return all bungalows for the party, ordered by number."""
+    return db.session.scalars(
+        select(DbBungalow)
+        .filter_by(party_id=party_id)
+        .options(
+            db.load_only(
+                DbBungalow.party_id,
+                DbBungalow.number,
+                DbBungalow._occupation_state,
+                DbBungalow.distributes_network,
+            ),
+            db.joinedload(DbBungalow.category).load_only(
+                DbBungalowCategory.title, DbBungalowCategory.capacity
+            ),
+            db.joinedload(DbBungalow.category)
+            .joinedload(DbBungalowCategory.article)
+            .load_only(
+                DbArticle.id, DbArticle.item_number, DbArticle.description
+            ),
+            db.joinedload(DbBungalow.occupancy).joinedload(
+                DbBungalowOccupancy.ticket_bundle
+            ),
+        )
+        .order_by(DbBungalow.number)
+    ).all()
+
+
+def get_bungalows_extended_for_party(party_id: PartyID) -> list[DbBungalow]:
+    """Return all bungalows for the party, ordered by number."""
+    return db.session.scalars(
+        select(DbBungalow)
+        .filter_by(party_id=party_id)
+        .options(db.joinedload(DbBungalow.occupancy))
+        .order_by(DbBungalow.number)
+    ).all()
+
+
+# -------------------------------------------------------------------- #
+# ticket
+
+
+def get_first_ticket_in_bundle(db_bundle: DbTicketBundle) -> DbTicket:
+    """Return the first ticket in the bundle."""
+    db_tickets = list(sorted(db_bundle.tickets, key=lambda t: t.created_at))
+    return db_tickets[0]
+
+
+class UserAlreadyUsesATicketException(Exception):
+    pass
+
+
+def assign_ticket_to_main_occupant(
+    db_ticket: DbTicket, main_occupant_id: UserID
+) -> None:
+    """Mark a ticket as being used by the bungalow's main occupant (as
+    long as there are no other tickets used by the user).
+    """
+    party_id = db_ticket.category.party_id
+
+    already_uses_ticket = ticket_service.uses_any_ticket_for_party(
+        main_occupant_id, party_id
+    )
+
+    if already_uses_ticket:
+        raise UserAlreadyUsesATicketException()
+
+    db_ticket.used_by_id = main_occupant_id
+    db.session.commit()
+
+
+def find_bungalow_inhabited_by_user(
+    user_id: UserID, party_id: PartyID
+) -> Optional[DbBungalow]:
+    """Try to find the bungalow the current user resides (i.e. uses a
+    ticket) in.
+    """
+    return db.session.execute(
+        select(DbBungalow)
+        .join(DbBungalowOccupancy)
+        .join(DbTicketBundle)
+        .join(DbTicket)
+        .filter(DbTicket.party_id == party_id)
+        # A user should not be able to occupy
+        # more than one occupant slot.
+        .filter(DbTicket.used_by_id == user_id)
+        .filter(DbTicket.revoked == False)  # noqa: E712
+    ).scalar_one_or_none()
+
+
+def is_user_allowed_to_manage_any_occupant_slots(
+    user_id: UserID, db_occupancy: DbBungalowOccupancy
+) -> bool:
+    """Return `True` if the given user is entitled to manage at least
+    one of the bungalow's occupant slots.
+    """
+    db_tickets = db_occupancy.ticket_bundle.tickets
+    return any(
+        db_ticket.is_user_managed_by(user_id) for db_ticket in db_tickets
+    )
+
+
+def get_all_occupant_tickets_paginated(
+    party_id: PartyID,
+    page: int,
+    items_per_page: int,
+    *,
+    search_term: Optional[str] = None,
+) -> Pagination:
+    """Return tickets for which a user has been assigned for all
+    bungalows of the party.
+    """
+    stmt = (
+        select(DbTicket)
+        .filter(DbTicket.party_id == party_id)
+        .filter(DbTicket.revoked == False)  # noqa: E712
+        .join(DbTicket.used_by)
+        .options(
+            db.joinedload(DbTicket.used_by).joinedload(DbUser.avatar),
+            db.joinedload(DbTicket.used_by).joinedload(
+                DbUser.orga_team_memberships
+            ),
+        )
+        .order_by(db.func.lower(DbUser.screen_name))
+    )
+
+    if search_term:
+        stmt = stmt.filter(DbUser.screen_name.ilike(f'%{search_term}%'))
+
+    return paginate(stmt, page, items_per_page)
