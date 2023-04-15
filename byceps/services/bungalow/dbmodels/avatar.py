@@ -39,13 +39,11 @@ class DbBungalowAvatar(db.Model):
 
     @hybrid_property
     def image_type(self) -> ImageType:
-        image_type_str = self._image_type
-        if image_type_str is not None:
-            return ImageType[image_type_str]
+        return ImageType[self._image_type]
 
     @image_type.setter
     def image_type(self, image_type: ImageType) -> None:
-        self._image_type = image_type.name if (image_type is not None) else None
+        self._image_type = image_type.name
 
     @property
     def filename(self) -> Path:
