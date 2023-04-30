@@ -15,7 +15,9 @@
             {{ render_icon('move', title='Netzwerk-Verteiler') }}
           {%- endif -%}
         </td>
+        {%- if not g.site.is_intranet %}
         <td class="bungalow-state-column centered">{{ render_bungalow_occupation_state(bungalow) }}</td>
+        {%- endif %}
         {%- if bungalow.available %}
           {%- with article = category.article %}
             {%- with total_amount = total_amounts_by_article_id[category.article.id] %}
