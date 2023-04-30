@@ -799,11 +799,11 @@ def avatar_update(occupancy_id):
         abort(400, 'No file to upload has been specified.')
 
     try:
-        bungalow_occupancy_avatar_service.update_avatar_image(
+        update_result = bungalow_occupancy_avatar_service.update_avatar_image(
             occupancy.id, manager.id, image.stream
         )
-    except bungalow_occupancy_avatar_service.ImageTypeProhibited as e:
-        abort(400, str(e))
+        if update_result.is_err():
+            abort(400, update_result.unwrap_err())
     except FileExistsError:
         abort(409, 'File already exists, not overwriting.')
 
