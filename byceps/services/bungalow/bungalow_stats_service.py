@@ -8,7 +8,7 @@ byceps.services.bungalow.bungalow_stats_service
 
 from collections import defaultdict
 from operator import attrgetter
-from typing import Callable, Iterable, Iterator, Optional, Tuple
+from typing import Callable, Iterable, Iterator, Optional
 
 from sqlalchemy import select
 
@@ -26,7 +26,7 @@ from .models.occupation import CategoryOccupationSummary, OccupationStateTotals
 
 
 BungalowCountByCategoryAndState = list[
-    Tuple[TicketCategory, BungalowOccupationState, int]
+    tuple[TicketCategory, BungalowOccupationState, int]
 ]
 
 
