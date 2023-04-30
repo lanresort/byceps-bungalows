@@ -6,8 +6,8 @@ byceps.blueprints.admin.bungalow.views
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from collections.abc import Iterable, Iterator
 from datetime import datetime
-from typing import Iterable, Iterator
 
 from flask import abort, g, request
 from flask_babel import gettext

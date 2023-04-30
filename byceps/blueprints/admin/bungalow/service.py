@@ -6,7 +6,8 @@ byceps.blueprints.admin.bungalow.service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from ....services.bungalow import bungalow_log_service
 from ....services.bungalow.models.bungalow import BungalowID

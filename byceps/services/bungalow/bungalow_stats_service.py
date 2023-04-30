@@ -7,8 +7,9 @@ byceps.services.bungalow.bungalow_stats_service
 """
 
 from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from operator import attrgetter
-from typing import Callable, Iterable, Iterator, Optional
+from typing import Callable, Optional
 
 from sqlalchemy import select
 
