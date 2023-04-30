@@ -20,6 +20,7 @@ from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.user.dbmodels.user import DbUser
 from byceps.typing import BrandID, PartyID, UserID
+from byceps.util.result import Err, Ok, Result
 
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
@@ -150,13 +151,13 @@ def get_first_ticket_in_bundle(db_bundle: DbTicketBundle) -> DbTicket:
     return db_tickets[0]
 
 
-class UserAlreadyUsesATicketException(Exception):
+class UserAlreadyUsesATicketException:
     pass
 
 
 def assign_ticket_to_main_occupant(
     db_ticket: DbTicket, main_occupant_id: UserID
-) -> None:
+) -> Result[None, UserAlreadyUsesATicketException]:
     """Mark a ticket as being used by the bungalow's main occupant (as
     long as there are no other tickets used by the user).
     """
@@ -167,10 +168,12 @@ def assign_ticket_to_main_occupant(
     )
 
     if already_uses_ticket:
-        raise UserAlreadyUsesATicketException()
+        return Err(UserAlreadyUsesATicketException())
 
     db_ticket.used_by_id = main_occupant_id
     db.session.commit()
+
+    return Ok(None)
 
 
 def find_bungalow_inhabited_by_user(

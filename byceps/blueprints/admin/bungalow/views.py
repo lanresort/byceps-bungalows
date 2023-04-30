@@ -23,6 +23,9 @@ from byceps.services.bungalow import (
     bungalow_order_service,
     bungalow_service,
 )
+from byceps.services.bungalow.bungalow_service import (
+    UserAlreadyUsesATicketException,
+)
 from byceps.services.bungalow.dbmodels.occupancy import DbBungalowOccupancy
 from byceps.services.bungalow.models.building import BungalowBuilding
 from byceps.services.bungalow.models.bungalow import Bungalow, BungalowID
@@ -154,17 +157,22 @@ def occupy_bungalow(sender, *, event: ShopOrderPaid):
             ticket_bundle
         )
 
-        try:
-            bungalow_service.assign_ticket_to_main_occupant(
-                first_ticket, main_occupant.id
-            )
-        except bungalow_service.UserAlreadyUsesATicketException:
-            flash_notice(
-                f'Benutzer {main_occupant.screen_name} '
-                'nutzt bereits ein Ticket. '
-                f'Kein Ticket aus Bungalow {bungalow.number} '
-                'wurde einem Nutzer zugewiesen.'
-            )
+        assignment_result = bungalow_service.assign_ticket_to_main_occupant(
+            first_ticket, main_occupant.id
+        )
+        if assignment_result.is_err():
+            err = assignment_result.unwrap_err()
+            if isinstance(err, UserAlreadyUsesATicketException):
+                flash_notice(
+                    f'Benutzer {main_occupant.screen_name} '
+                    'nutzt bereits ein Ticket. '
+                    f'Kein Ticket aus Bungalow {bungalow.number} '
+                    'wurde einem Nutzer zugewiesen.'
+                )
+            else:
+                flash_error(
+                    f'Fehler beim zuweisen eines Tickets an Benutzer {main_occupant.screen_name}.'
+                )
         else:
             flash_success(
                 f'Benutzer {main_occupant.screen_name} wurde '
