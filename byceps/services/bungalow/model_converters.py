@@ -8,7 +8,6 @@ byceps.services.bungalow.model_converters
 
 from __future__ import annotations
 
-
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
 from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation

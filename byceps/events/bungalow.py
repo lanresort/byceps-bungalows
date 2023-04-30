@@ -9,8 +9,8 @@ byceps.events.bungalow
 from dataclasses import dataclass
 from typing import Optional
 
-from ..services.bungalow.models.bungalow import BungalowID
-from ..typing import UserID
+from byceps.services.bungalow.models.bungalow import BungalowID
+from byceps.typing import UserID
 
 from .base import _BaseEvent
 

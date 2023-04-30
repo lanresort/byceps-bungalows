@@ -8,16 +8,16 @@ byceps.services.bungalow.bungalow_occupancy_avatar_service
 
 from typing import BinaryIO
 
-from ...database import db
-from ...typing import UserID
-from ...util.image import create_thumbnail
-from ...util.image.models import Dimensions, ImageType
-from ...util import upload
-
-from ..image import image_service
-from ..image.image_service import (
+from byceps.database import db
+from byceps.services.image import image_service
+from byceps.services.image.image_service import (
+    # Provide to view functions.
     ImageTypeProhibited,  # noqa: F401
-)  # Provide to view functions.
+)
+from byceps.typing import UserID
+from byceps.util import upload
+from byceps.util.image import create_thumbnail
+from byceps.util.image.models import Dimensions, ImageType
 
 from . import bungalow_occupancy_service
 from .dbmodels.avatar import DbBungalowAvatar

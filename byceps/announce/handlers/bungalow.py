@@ -8,7 +8,9 @@ Announce bungalow events.
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from ...events.bungalow import (
+from byceps.announce.helpers import call_webhook
+from byceps.announce.text_assembly import bungalow
+from byceps.events.bungalow import (
     _BungalowEvent,
     BungalowOccupancyAvatarUpdated,
     BungalowOccupancyDescriptionUpdated,
@@ -19,10 +21,7 @@ from ...events.bungalow import (
     BungalowReleased,
     BungalowReserved,
 )
-from ...services.webhooks.models import OutgoingWebhook
-
-from ..helpers import call_webhook
-from ..text_assembly import bungalow
+from byceps.services.webhooks.models import OutgoingWebhook
 
 
 def announce_bungalow_reserved(

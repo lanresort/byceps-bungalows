@@ -7,12 +7,13 @@ byceps.services.bungalow.models.bungalow
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
 from typing import NewType, Optional
 from uuid import UUID
 
-from ....typing import PartyID
+from byceps.typing import PartyID
 
 from .category import BungalowCategory
 

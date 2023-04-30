@@ -10,11 +10,10 @@ from typing import Optional
 
 from sqlalchemy import select
 
-from ...database import db
-from ...typing import PartyID
-
-from ..shop.article.models import ArticleID
-from ..ticketing.models.ticket import TicketCategoryID
+from byceps.database import db
+from byceps.services.shop.article.models import ArticleID
+from byceps.services.ticketing.models.ticket import TicketCategoryID
+from byceps.typing import PartyID
 
 from .dbmodels.category import DbBungalowCategory
 from .model_converters import _db_entity_to_bungalow_category

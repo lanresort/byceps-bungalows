@@ -9,8 +9,8 @@ byceps.services.bungalow.bungalow_accomodation_request_service
 from datetime import datetime
 from typing import Optional
 
-from ...database import db
-from ...typing import UserID
+from byceps.database import db
+from byceps.typing import UserID
 
 from .dbmodels.accommodation_request import DbAccommodationRequest
 from .models.accommodation_request import (

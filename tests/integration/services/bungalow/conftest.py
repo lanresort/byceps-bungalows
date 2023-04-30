@@ -20,8 +20,8 @@ from byceps.services.shop.article.models import Article
 from byceps.services.shop.order.models.order import Orderer
 from byceps.services.shop.shop.models import Shop
 from byceps.services.shop.storefront.models import Storefront
-from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.ticketing import ticket_bundle_service
+from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.ticketing.models.ticket import TicketCategory
 
 from tests.helpers import generate_token

@@ -8,17 +8,17 @@ byceps.services.bungalow.dbmodels.bungalow
 
 from typing import Optional, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     hybrid_property = property
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
-from ....database import db, generate_uuid7
-from ....typing import PartyID
-from ....util.instances import ReprBuilder
-
-from ..models.bungalow import BungalowOccupationState
-from ..models.category import BungalowCategoryID
+from byceps.database import db, generate_uuid7
+from byceps.services.bungalow.models.bungalow import BungalowOccupationState
+from byceps.services.bungalow.models.category import BungalowCategoryID
+from byceps.typing import PartyID
+from byceps.util.instances import ReprBuilder
 
 from .category import DbBungalowCategory
 

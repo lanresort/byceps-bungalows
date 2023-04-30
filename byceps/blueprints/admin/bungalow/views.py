@@ -12,10 +12,10 @@ from datetime import datetime
 from flask import abort, g, request
 from flask_babel import gettext
 
-from ....events.shop import ShopOrderCanceled, ShopOrderPaid
-from ....services.brand import brand_service
-from ....services.brand.models import Brand
-from ....services.bungalow import (
+from byceps.events.shop import ShopOrderCanceled, ShopOrderPaid
+from byceps.services.brand import brand_service
+from byceps.services.brand.models import Brand
+from byceps.services.bungalow import (
     bungalow_building_service,
     bungalow_category_service,
     bungalow_occupancy_service,
@@ -23,45 +23,45 @@ from ....services.bungalow import (
     bungalow_order_service,
     bungalow_service,
 )
-from ....services.bungalow.dbmodels.occupancy import DbBungalowOccupancy
-from ....services.bungalow.models.building import BungalowBuilding
-from ....services.bungalow.models.bungalow import Bungalow, BungalowID
-from ....services.bungalow.models.category import (
+from byceps.services.bungalow.dbmodels.occupancy import DbBungalowOccupancy
+from byceps.services.bungalow.models.building import BungalowBuilding
+from byceps.services.bungalow.models.bungalow import Bungalow, BungalowID
+from byceps.services.bungalow.models.category import (
     BungalowCategory,
     BungalowCategoryID,
 )
-from ....services.bungalow.models.occupation import (
+from byceps.services.bungalow.models.occupation import (
     BungalowOccupancy,
     OccupancyID,
 )
-from ....services.party.models import Party
-from ....services.party import party_service
-from ....services.shop.article import article_service
-from ....services.shop.article.models import ArticleNumber, ArticleType
-from ....services.shop.order.models.order import Order
-from ....services.shop.order import order_service
-from ....services.shop.shop import shop_service
-from ....services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from ....services.ticketing import (
+from byceps.services.party import party_service
+from byceps.services.party.models import Party
+from byceps.services.shop.article import article_service
+from byceps.services.shop.article.models import ArticleNumber, ArticleType
+from byceps.services.shop.order import order_service
+from byceps.services.shop.order.models.order import Order
+from byceps.services.shop.shop import shop_service
+from byceps.services.ticketing import (
     ticket_bundle_service,
     ticket_category_service,
 )
-from ....services.user import user_service
-from ....signals import bungalow as bungalow_signals
-from ....signals import shop as shop_signals
-from ....typing import BrandID, PartyID, UserID
-from ....util.export import serialize_tuples_to_csv
-from ....util.framework.blueprint import create_blueprint
-from ....util.framework.flash import flash_error, flash_notice, flash_success
-from ....util.framework.templating import templated
-from ....util.iterables import find
-from ....util.views import (
+from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
+from byceps.services.user import user_service
+from byceps.signals import bungalow as bungalow_signals, shop as shop_signals
+from byceps.typing import BrandID, PartyID, UserID
+from byceps.util.export import serialize_tuples_to_csv
+from byceps.util.framework.blueprint import create_blueprint
+from byceps.util.framework.flash import flash_error, flash_notice, flash_success
+from byceps.util.framework.templating import templated
+from byceps.util.iterables import find
+from byceps.util.views import (
     permission_required,
     redirect_to,
     respond_no_content,
     textified,
 )
 
+from . import service
 from .forms import (
     BuildingCreateForm,
     CategoryCreateForm,
@@ -70,7 +70,6 @@ from .forms import (
     OccupancyMoveForm,
     OfferCreateForm,
 )
-from . import service
 
 
 blueprint = create_blueprint('bungalow_admin', __name__)

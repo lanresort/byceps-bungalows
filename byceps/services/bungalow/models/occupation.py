@@ -7,17 +7,17 @@ byceps.services.bungalow.models.occupation
 """
 
 from __future__ import annotations
+
 from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 from typing import NewType, Optional
 from uuid import UUID
 
-from ....typing import UserID
-
-from ...shop.order.models.number import OrderNumber
-from ...ticketing.models.ticket import TicketBundleID, TicketID
-from ...user.models.user import User
+from byceps.services.shop.order.models.number import OrderNumber
+from byceps.services.ticketing.models.ticket import TicketBundleID, TicketID
+from byceps.services.user.models.user import User
+from byceps.typing import UserID
 
 from .bungalow import BungalowID, BungalowOccupationState
 

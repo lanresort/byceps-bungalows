@@ -11,50 +11,48 @@ from functools import wraps
 
 from flask import abort, g, render_template, request
 
-from ....database import db
-from ....events.bungalow import (
+from byceps.blueprints.site.shop.order.forms import OrderForm
+from byceps.blueprints.site.site.navigation import subnavigation_for_view
+from byceps.database import db
+from byceps.events.bungalow import (
     BungalowOccupancyAvatarUpdated,
     BungalowOccupancyDescriptionUpdated,
     BungalowOccupantAdded,
     BungalowOccupantRemoved,
 )
-from ....services.bungalow import (
+from byceps.services.bungalow import (
     bungalow_category_service,
     bungalow_occupancy_avatar_service,
     bungalow_occupancy_service,
     bungalow_service,
     bungalow_stats_service,
 )
-from ....services.bungalow.dbmodels.bungalow import DbBungalow
-from ....services.bungalow.models.bungalow import BungalowOccupationState
-from ....services.bungalow.models.occupation import (
+from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
+from byceps.services.bungalow.models.bungalow import BungalowOccupationState
+from byceps.services.bungalow.models.occupation import (
     BungalowOccupancy,
     OccupancyID,
     OccupantSlot,
 )
-from ....services.country import country_service
-from ....services.image import image_service
-from ....services.orga_team import orga_team_service
-from ....services.party import party_service
-from ....services.shop.article import article_service
-from ....services.shop.order.email import order_email_service
-from ....services.shop.storefront import storefront_service
-from ....services.site import site_service
-from ....services.ticketing.models.ticket import TicketBundleID
-from ....services.ticketing import (
+from byceps.services.country import country_service
+from byceps.services.image import image_service
+from byceps.services.orga_team import orga_team_service
+from byceps.services.party import party_service
+from byceps.services.shop.article import article_service
+from byceps.services.shop.order.email import order_email_service
+from byceps.services.shop.storefront import storefront_service
+from byceps.services.site import site_service
+from byceps.services.ticketing import (
     ticket_service,
     ticket_user_management_service,
 )
-from ....services.user import user_service
-from ....signals import bungalow as bungalow_signals
-from ....signals import shop as shop_signals
-from ....util.framework.blueprint import create_blueprint
-from ....util.framework.flash import flash_error, flash_success
-from ....util.framework.templating import templated
-from ....util.views import login_required, redirect_to, respond_no_content
-
-from ..shop.order.forms import OrderForm
-from ..site.navigation import subnavigation_for_view
+from byceps.services.ticketing.models.ticket import TicketBundleID
+from byceps.services.user import user_service
+from byceps.signals import bungalow as bungalow_signals, shop as shop_signals
+from byceps.util.framework.blueprint import create_blueprint
+from byceps.util.framework.flash import flash_error, flash_success
+from byceps.util.framework.templating import templated
+from byceps.util.views import login_required, redirect_to, respond_no_content
 
 from .forms import AvatarUpdateForm, DescriptionUpdateForm, OccupantAddForm
 

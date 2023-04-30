@@ -8,14 +8,13 @@ byceps.services.bungalow.dbmodels.category
 
 from typing import Optional
 
-from ....database import db, generate_uuid7
-from ....typing import PartyID
-from ....util.instances import ReprBuilder
-
-from ...shop.article.dbmodels.article import DbArticle
-from ...shop.article.models import ArticleID
-from ...ticketing.dbmodels.category import DbTicketCategory
-from ...ticketing.models.ticket import TicketCategoryID
+from byceps.database import db, generate_uuid7
+from byceps.services.shop.article.dbmodels.article import DbArticle
+from byceps.services.shop.article.models import ArticleID
+from byceps.services.ticketing.dbmodels.category import DbTicketCategory
+from byceps.services.ticketing.models.ticket import TicketCategoryID
+from byceps.typing import PartyID
+from byceps.util.instances import ReprBuilder
 
 
 class DbBungalowCategory(db.Model):

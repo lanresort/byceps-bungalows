@@ -10,17 +10,16 @@ from typing import Optional
 
 from sqlalchemy import select
 
-from ...database import db, paginate, Pagination
-from ...typing import BrandID, PartyID, UserID
-
-from ..brand import brand_setting_service
-from ..party.models import Party
-from ..party import party_service
-from ..shop.article.dbmodels.article import DbArticle
-from ..ticketing.dbmodels.ticket import DbTicket
-from ..ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from ..ticketing import ticket_service
-from ..user.dbmodels.user import DbUser
+from byceps.database import db, paginate, Pagination
+from byceps.services.brand import brand_setting_service
+from byceps.services.party import party_service
+from byceps.services.party.models import Party
+from byceps.services.shop.article.dbmodels.article import DbArticle
+from byceps.services.ticketing import ticket_service
+from byceps.services.ticketing.dbmodels.ticket import DbTicket
+from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
+from byceps.services.user.dbmodels.user import DbUser
+from byceps.typing import BrandID, PartyID, UserID
 
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory

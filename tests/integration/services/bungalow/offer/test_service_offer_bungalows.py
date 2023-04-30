@@ -6,12 +6,12 @@
 import pytest
 
 from byceps.services.brand.models import Brand
-from byceps.services.bungalow.dbmodels.category import DbBungalowCategory
 from byceps.services.bungalow import (
     bungalow_building_service,
     bungalow_offer_service,
     bungalow_service,
 )
+from byceps.services.bungalow.dbmodels.category import DbBungalowCategory
 from byceps.services.bungalow.models.building import (
     BungalowBuilding,
     BungalowLayout,

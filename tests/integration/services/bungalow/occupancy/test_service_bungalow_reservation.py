@@ -6,9 +6,9 @@
 from byceps.services.bungalow import bungalow_occupancy_service
 from byceps.services.bungalow.models.bungalow import BungalowOccupationState
 from byceps.services.bungalow.models.occupation import OccupancyState
+from byceps.services.shop.order import order_sequence_service, order_service
 from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.shop.order.models.order import Orderer, PaymentState
-from byceps.services.shop.order import order_sequence_service, order_service
 from byceps.services.shop.storefront.models import Storefront
 
 

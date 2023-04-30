@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import NewType, Optional
 from uuid import UUID
 
-from ....typing import BrandID
+from byceps.typing import BrandID
 
 
 BungalowLayoutID = NewType('BungalowLayoutID', UUID)

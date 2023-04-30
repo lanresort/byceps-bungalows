@@ -13,12 +13,11 @@ from typing import Callable, Optional
 
 from sqlalchemy import select
 
-from ...database import db
-from ...typing import PartyID
-
-from ..ticketing.dbmodels.category import DbTicketCategory
-from ..ticketing.models.ticket import TicketCategory
-from ..ticketing import ticket_category_service
+from byceps.database import db
+from byceps.services.ticketing import ticket_category_service
+from byceps.services.ticketing.dbmodels.category import DbTicketCategory
+from byceps.services.ticketing.models.ticket import TicketCategory
+from byceps.typing import PartyID
 
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory

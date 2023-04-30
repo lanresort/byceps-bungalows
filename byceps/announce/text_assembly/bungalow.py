@@ -8,7 +8,7 @@ Announce bungalow events.
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from ...events.bungalow import (
+from byceps.events.bungalow import (
     BungalowOccupancyAvatarUpdated,
     BungalowOccupancyDescriptionUpdated,
     BungalowOccupancyMoved,
@@ -18,7 +18,7 @@ from ...events.bungalow import (
     BungalowReleased,
     BungalowReserved,
 )
-from ...services.bungalow import bungalow_service
+from byceps.services.bungalow import bungalow_service
 
 from ._helpers import get_screen_name_or_fallback
 

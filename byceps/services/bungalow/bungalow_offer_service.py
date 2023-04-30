@@ -8,17 +8,16 @@ byceps.services.bungalow.bungalow_offer_service
 
 from sqlalchemy import delete
 
-from ...database import db
-from ...typing import PartyID
+from byceps.database import db
+from byceps.typing import PartyID
 
 from . import bungalow_service
+from .bungalow_service import _db_entity_to_bungalow
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.log import DbBungalowLogEntry
 from .models.building import BungalowBuilding
 from .models.bungalow import Bungalow, BungalowID
 from .models.category import BungalowCategoryID
-
-from .bungalow_service import _db_entity_to_bungalow
 
 
 def offer_bungalow(

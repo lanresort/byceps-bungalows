@@ -7,31 +7,34 @@ byceps.services.bungalow.bungalow_occupancy_service
 """
 
 from __future__ import annotations
+
 from collections import defaultdict
 from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import select
 
-from ...database import db
-from ...events.bungalow import (
+from byceps.database import db
+from byceps.events.bungalow import (
     BungalowOccupancyMoved,
     BungalowOccupied,
     BungalowReleased,
     BungalowReserved,
 )
-from ...events.shop import ShopOrderPlaced
-from ...typing import PartyID, UserID
-from ...util.result import Err, Ok, Result
-
-from ..shop.order.models.order import Order, Orderer
-from ..shop.storefront.models import StorefrontID
-from ..ticketing.dbmodels.ticket import DbTicket
-from ..ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from ..ticketing import ticket_bundle_service, ticket_user_management_service
-from ..ticketing.models.ticket import TicketBundleID, TicketID
-from ..user.models.user import User, UserForAdmin
-from ..user import user_service
+from byceps.events.shop import ShopOrderPlaced
+from byceps.services.shop.order.models.order import Order, Orderer
+from byceps.services.shop.storefront.models import StorefrontID
+from byceps.services.ticketing import (
+    ticket_bundle_service,
+    ticket_user_management_service,
+)
+from byceps.services.ticketing.dbmodels.ticket import DbTicket
+from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
+from byceps.services.ticketing.models.ticket import TicketBundleID, TicketID
+from byceps.services.user import user_service
+from byceps.services.user.models.user import User, UserForAdmin
+from byceps.typing import PartyID, UserID
+from byceps.util.result import Err, Ok, Result
 
 from . import bungalow_log_service, bungalow_order_service, bungalow_service
 from .dbmodels.bungalow import DbBungalow
@@ -41,9 +44,9 @@ from .models.bungalow import BungalowID, BungalowOccupationState
 from .models.occupation import (
     BungalowOccupancy,
     BungalowReservation,
-    OccupantSlot,
     OccupancyID,
     OccupancyState,
+    OccupantSlot,
     ReservationID,
 )
 

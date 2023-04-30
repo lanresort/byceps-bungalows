@@ -8,7 +8,10 @@ from byceps.services.bungalow.models.bungalow import BungalowOccupationState
 from byceps.services.bungalow.models.occupation import OccupancyState
 from byceps.services.shop.order.models.order import Orderer
 
-from ..helpers import occupy_bungalow, reserve_bungalow
+from tests.integration.services.bungalow.helpers import (
+    occupy_bungalow,
+    reserve_bungalow,
+)
 
 
 def test_occupy_bungalow(

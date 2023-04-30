@@ -9,14 +9,14 @@ byceps.blueprints.admin.bungalow.service
 from collections.abc import Iterator
 from typing import Any
 
-from ....services.bungalow import bungalow_log_service
-from ....services.bungalow.models.bungalow import BungalowID
-from ....services.bungalow.models.log import (
+from byceps.services.bungalow import bungalow_log_service
+from byceps.services.bungalow.models.bungalow import BungalowID
+from byceps.services.bungalow.models.log import (
     BungalowLogEntry,
     BungalowLogEntryData,
 )
-from ....services.user.models.user import User
-from ....services.user import user_service
+from byceps.services.user import user_service
+from byceps.services.user.models.user import User
 
 
 def get_log_entries(bungalow_id: BungalowID) -> Iterator[BungalowLogEntryData]:

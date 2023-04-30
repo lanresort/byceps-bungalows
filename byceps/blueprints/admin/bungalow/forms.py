@@ -10,19 +10,19 @@ from flask_babel import lazy_gettext
 from wtforms import (
     IntegerField,
     RadioField,
-    SelectMultipleField,
     SelectField,
+    SelectMultipleField,
     StringField,
 )
 from wtforms.validators import InputRequired, Length, Optional
 
-from ....services.bungalow.dbmodels.bungalow import DbBungalow
-from ....services.bungalow import bungalow_service
-from ....services.shop.article import article_service
-from ....services.shop.shop.models import ShopID
-from ....services.ticketing import ticket_category_service
-from ....typing import PartyID
-from ....util.l10n import LocalizedForm
+from byceps.services.bungalow import bungalow_service
+from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
+from byceps.services.shop.article import article_service
+from byceps.services.shop.shop.models import ShopID
+from byceps.services.ticketing import ticket_category_service
+from byceps.typing import PartyID
+from byceps.util.l10n import LocalizedForm
 
 
 class BuildingCreateForm(LocalizedForm):

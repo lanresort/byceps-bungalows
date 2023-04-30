@@ -11,10 +11,10 @@ from flask_babel import gettext, lazy_gettext
 from wtforms import FileField, StringField, TextAreaField
 from wtforms.validators import InputRequired, Length, ValidationError
 
-from ....services.consent import consent_service, consent_subject_service
-from ....services.ticketing import ticket_service
-from ....services.user import user_service
-from ....util.l10n import LocalizedForm
+from byceps.services.consent import consent_service, consent_subject_service
+from byceps.services.ticketing import ticket_service
+from byceps.services.user import user_service
+from byceps.util.l10n import LocalizedForm
 
 
 def validate_user(form, field):

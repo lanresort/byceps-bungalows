@@ -12,15 +12,16 @@ from typing import TYPE_CHECKING
 
 from flask import current_app
 
+
 if TYPE_CHECKING:
     hybrid_property = property
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
-from ....database import db, generate_uuid7
-from ....typing import PartyID, UserID
-from ....util.image.models import ImageType
-from ....util.instances import ReprBuilder
+from byceps.database import db, generate_uuid7
+from byceps.typing import PartyID, UserID
+from byceps.util.image.models import ImageType
+from byceps.util.instances import ReprBuilder
 
 
 class DbBungalowAvatar(db.Model):

@@ -9,16 +9,18 @@ byceps.services.bungalow.dbmodels.accommodation_request
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     hybrid_property = property
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
-from ....database import db, generate_uuid4, generate_uuid7
-from ....typing import UserID
-
-from ..models.accommodation_request import AccommodationRequestState
-from ..models.bungalow import BungalowID
+from byceps.database import db, generate_uuid4, generate_uuid7
+from byceps.services.bungalow.models.accommodation_request import (
+    AccommodationRequestState,
+)
+from byceps.services.bungalow.models.bungalow import BungalowID
+from byceps.typing import UserID
 
 
 class DbAccommodationRequest(db.Model):

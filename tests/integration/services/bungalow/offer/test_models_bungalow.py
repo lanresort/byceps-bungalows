@@ -7,7 +7,10 @@ import pytest
 
 from byceps.services.user.models.user import User
 
-from ..helpers import occupy_bungalow, reserve_bungalow
+from tests.integration.services.bungalow.helpers import (
+    occupy_bungalow,
+    reserve_bungalow,
+)
 
 
 @pytest.fixture

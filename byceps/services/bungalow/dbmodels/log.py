@@ -8,11 +8,10 @@ byceps.services.bungalow.dbmodels.log
 
 from datetime import datetime
 
-from ....database import db, generate_uuid7
-from ....util.instances import ReprBuilder
-
-from ..models.bungalow import BungalowID
-from ..models.log import BungalowLogEntryData
+from byceps.database import db, generate_uuid7
+from byceps.services.bungalow.models.bungalow import BungalowID
+from byceps.services.bungalow.models.log import BungalowLogEntryData
+from byceps.util.instances import ReprBuilder
 
 
 class DbBungalowLogEntry(db.Model):
