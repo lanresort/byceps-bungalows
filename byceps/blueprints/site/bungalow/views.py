@@ -41,7 +41,6 @@ from byceps.services.party import party_service
 from byceps.services.shop.article import article_service
 from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.storefront import storefront_service
-from byceps.services.site import site_service
 from byceps.services.ticketing import (
     ticket_service,
     ticket_user_management_service,
@@ -405,8 +404,7 @@ def order(bungalow_id):
 
 
 def _get_storefront_or_404():
-    site = site_service.get_site(g.site_id)
-    storefront_id = site.storefront_id
+    storefront_id = g.site.storefront_id
     if storefront_id is None:
         abort(404)
 
