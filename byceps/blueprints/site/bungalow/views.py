@@ -394,7 +394,7 @@ def order(bungalow_id):
         flash_error('Die Bestellung ist fehlgeschlagen.')
         return order_form(bungalow_id)
 
-    order_placed_event, order = place_bungalow_order_result.unwrap()
+    order, order_placed_event = place_bungalow_order_result.unwrap()
     shop_signals.order_placed.send(None, event=order_placed_event)
     flash_success('Deine Bestellung wurde entgegen genommen. Vielen Dank!')
 
