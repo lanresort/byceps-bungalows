@@ -5,7 +5,7 @@
 
 import pytest
 
-import byceps.announce.connections  # Connect signal handlers.  # noqa: F401
+from byceps.announce.connections import build_announcement_request
 from byceps.events.bungalow import (
     BungalowOccupancyAvatarUpdated,
     BungalowOccupancyDescriptionUpdated,
@@ -25,13 +25,15 @@ from byceps.services.bungalow.models.bungalow import Bungalow
 from byceps.services.bungalow.models.category import BungalowCategory
 from byceps.services.party.models import Party
 from byceps.services.user.models.user import User
-from byceps.signals import bungalow as bungalow_signals
 
-from .helpers import assert_submitted_text, mocked_irc_bot, now
+from .helpers import build_announcement_request_for_irc, now
 
 
-def test_announce_bungalow_reserved(app, bungalow666, occupier):
+def test_announce_bungalow_reserved(
+    admin_app, bungalow666, occupier, webhook_for_irc
+):
     expected_text = 'Lucifer hat Bungalow 666 reserviert.'
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowReserved(
         occurred_at=now(),
@@ -42,14 +44,14 @@ def test_announce_bungalow_reserved(app, bungalow666, occupier):
         occupier_screen_name=occupier.screen_name,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.bungalow_reserved.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
-def test_announce_bungalow_occupied(app, bungalow666, occupier):
+def test_announce_bungalow_occupied(
+    admin_app, bungalow666, occupier, webhook_for_irc
+):
     expected_text = 'Lucifer hat Bungalow 666 belegt.'
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowOccupied(
         occurred_at=now(),
@@ -60,14 +62,12 @@ def test_announce_bungalow_occupied(app, bungalow666, occupier):
         occupier_screen_name=occupier.screen_name,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.bungalow_occupied.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
-def test_announce_bungalow_released(app, bungalow666):
+def test_announce_bungalow_released(admin_app, bungalow666, webhook_for_irc):
     expected_text = 'Bungalow 666 wurde wieder freigegeben.'
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowReleased(
         occurred_at=now(),
@@ -76,16 +76,16 @@ def test_announce_bungalow_released(app, bungalow666):
         bungalow_id=bungalow666.id,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.bungalow_released.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
-def test_announce_bungalow_occupancy_moved(app, bungalow666, bungalow851):
+def test_announce_bungalow_occupancy_moved(
+    admin_app, bungalow666, bungalow851, webhook_for_irc
+):
     expected_text = (
         'Die Belegung von Bungalow 666 hat zu Bungalow 851 gewechselt.'
     )
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowOccupancyMoved(
         occurred_at=now(),
@@ -95,14 +95,14 @@ def test_announce_bungalow_occupancy_moved(app, bungalow666, bungalow851):
         target_bungalow_id=bungalow851.id,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.occupancy_moved.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
-def test_announce_bungalow_avatar_updated(app, bungalow666, main_occupant):
+def test_announce_bungalow_avatar_updated(
+    admin_app, bungalow666, main_occupant, webhook_for_irc
+):
     expected_text = 'Lucifer hat das Avatarbild für Bungalow 666 aktualisiert.'
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowOccupancyAvatarUpdated(
         occurred_at=now(),
@@ -111,14 +111,14 @@ def test_announce_bungalow_avatar_updated(app, bungalow666, main_occupant):
         bungalow_id=bungalow666.id,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.avatar_updated.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
-def test_announce_bungalow_description_updated(app, bungalow666, main_occupant):
+def test_announce_bungalow_description_updated(
+    admin_app, bungalow666, main_occupant, webhook_for_irc
+):
     expected_text = 'Lucifer hat das Grußwort für Bungalow 666 aktualisiert.'
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowOccupancyDescriptionUpdated(
         occurred_at=now(),
@@ -127,16 +127,14 @@ def test_announce_bungalow_description_updated(app, bungalow666, main_occupant):
         bungalow_id=bungalow666.id,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.description_updated.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
 def test_announce_bungalow_occupant_added(
-    app, bungalow666, main_occupant, other_occupant
+    admin_app, bungalow666, main_occupant, other_occupant, webhook_for_irc
 ):
     expected_text = 'Lucifer hat Mad_Dämon in Bungalow 666 aufgenommen.'
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowOccupantAdded(
         occurred_at=now(),
@@ -147,16 +145,14 @@ def test_announce_bungalow_occupant_added(
         occupant_screen_name=other_occupant.screen_name,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.occupant_added.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
 def test_announce_bungalow_occupant_removed(
-    app, bungalow666, main_occupant, other_occupant
+    admin_app, bungalow666, main_occupant, other_occupant, webhook_for_irc
 ):
     expected_text = 'Lucifer hat Mad_Dämon aus Bungalow 666 rausgeworfen.'
+    expected = build_announcement_request_for_irc(expected_text)
 
     event = BungalowOccupantRemoved(
         occurred_at=now(),
@@ -167,10 +163,7 @@ def test_announce_bungalow_occupant_removed(
         occupant_screen_name=other_occupant.screen_name,
     )
 
-    with mocked_irc_bot() as mock:
-        bungalow_signals.occupant_removed.send(None, event=event)
-
-    assert_submitted_text(mock, expected_text)
+    assert build_announcement_request(event, webhook_for_irc) == expected
 
 
 # helpers
