@@ -6,7 +6,7 @@ byceps.services.bungalow.bungalow_building_service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Optional
+from __future__ import annotations
 
 from sqlalchemy import delete, select
 
@@ -32,9 +32,9 @@ def create_layout(
     title: str,
     capacity: int,
     *,
-    image_filename: Optional[str] = None,
-    image_width: Optional[int] = None,
-    image_height: Optional[int] = None,
+    image_filename: str | None = None,
+    image_width: int | None = None,
+    image_height: int | None = None,
 ) -> BungalowLayout:
     """Create a layout."""
     db_layout = DbBungalowLayout(
@@ -58,7 +58,7 @@ def delete_layout(layout_id: BungalowLayoutID):
     db.session.commit()
 
 
-def find_layout(layout_id: BungalowLayoutID) -> Optional[BungalowLayout]:
+def find_layout(layout_id: BungalowLayoutID) -> BungalowLayout | None:
     """Return the layout with that id, or `None` if not found."""
     db_layout = db.session.get(DbBungalowLayout, layout_id)
 

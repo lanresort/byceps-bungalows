@@ -6,7 +6,7 @@ byceps.services.bungalow.bungalow_order_service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Optional
+from __future__ import annotations
 
 from sqlalchemy import select
 
@@ -59,7 +59,7 @@ def _build_cart(db_article: DbArticle) -> Cart:
     return cart
 
 
-def find_bungalow_by_order(order_number: OrderNumber) -> Optional[DbBungalow]:
+def find_bungalow_by_order(order_number: OrderNumber) -> DbBungalow | None:
     """Return the bungalow that was occupied with this order, if any."""
     return db.session.scalars(
         select(DbBungalow)

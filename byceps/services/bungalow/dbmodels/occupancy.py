@@ -6,7 +6,9 @@ byceps.services.bungalow.dbmodels.occupancy
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Optional, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -129,7 +131,7 @@ class DbBungalowOccupancy(db.Model):
     def manager_id(self) -> UserID:
         return self.managed_by_id or self.occupied_by_id
 
-    def get_avatar_url(self, party_id: PartyID) -> Optional[str]:
+    def get_avatar_url(self, party_id: PartyID) -> str | None:
         if not self.avatar:
             return None
 

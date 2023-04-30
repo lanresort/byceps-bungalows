@@ -39,4 +39,4 @@ class Bungalow:
     occupied: bool
     reserved_or_occupied: bool
     occupancy: Optional['BungalowOccupancy']
-    avatar_url: Optional[str]
+    avatar_url: str | None

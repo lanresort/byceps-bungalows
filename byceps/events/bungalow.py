@@ -6,8 +6,9 @@ byceps.events.bungalow
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional
 
 from byceps.services.bungalow.models.bungalow import BungalowID
 from byceps.typing import UserID
@@ -24,7 +25,7 @@ class _BungalowEvent(_BaseEvent):
 class _BungalowOccupancyEvent(_BungalowEvent):
     bungalow_id: BungalowID
     occupier_id: UserID
-    occupier_screen_name: Optional[str]
+    occupier_screen_name: str | None
 
 
 @dataclass(frozen=True)
@@ -62,7 +63,7 @@ class BungalowOccupancyDescriptionUpdated(_BungalowEvent):
 class _BungalowOccupantEvent(_BungalowEvent):
     bungalow_id: BungalowID
     occupant_id: UserID
-    occupant_screen_name: Optional[str]
+    occupant_screen_name: str | None
 
 
 @dataclass(frozen=True)

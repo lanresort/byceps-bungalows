@@ -6,7 +6,7 @@ byceps.services.bungalow.dbmodels.layout
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Optional
+from __future__ import annotations
 
 from byceps.database import db, generate_uuid4
 from byceps.typing import BrandID
@@ -35,9 +35,9 @@ class DbBungalowLayout(db.Model):
         title: str,
         capacity: int,
         *,
-        image_filename: Optional[str] = None,
-        image_width: Optional[int] = None,
-        image_height: Optional[int] = None,
+        image_filename: str | None = None,
+        image_width: int | None = None,
+        image_height: int | None = None,
     ) -> None:
         self.brand_id = brand_id
         self.title = title

@@ -6,7 +6,7 @@ byceps.services.bungalow.dbmodels.category
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Optional
+from __future__ import annotations
 
 from byceps.database import db, generate_uuid7
 from byceps.services.shop.article.dbmodels.article import DbArticle
@@ -49,9 +49,9 @@ class DbBungalowCategory(db.Model):
         ticket_category_id: TicketCategoryID,
         article_id: ArticleID,
         *,
-        image_filename: Optional[str] = None,
-        image_width: Optional[int] = None,
-        image_height: Optional[int] = None,
+        image_filename: str | None = None,
+        image_width: int | None = None,
+        image_height: int | None = None,
     ) -> None:
         self.party_id = party_id
         self.title = title

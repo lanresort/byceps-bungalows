@@ -3,8 +3,9 @@
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from __future__ import annotations
+
 from random import randint
-from typing import Optional
 
 import pytest
 
@@ -85,9 +86,9 @@ def bungalow_category(
 def make_bungalow(party: Party, bungalow_category: BungalowCategory):
     def _wrapper(
         *,
-        party_id: Optional[PartyID] = None,
-        number: Optional[int] = None,
-        bungalow_category_id: Optional[BungalowCategoryID] = None,
+        party_id: PartyID | None = None,
+        number: int | None = None,
+        bungalow_category_id: BungalowCategoryID | None = None,
     ) -> DbBungalow:
         if party_id is None:
             party_id = party.id

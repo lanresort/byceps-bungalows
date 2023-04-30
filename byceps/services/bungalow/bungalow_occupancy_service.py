@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import select
 
@@ -53,7 +52,7 @@ from .models.occupation import (
 
 def find_reservation(
     reservation_id: ReservationID,
-) -> Optional[BungalowReservation]:
+) -> BungalowReservation | None:
     """Return the reservation with that id, or `None` if not found."""
     db_reservation = find_db_reservation(reservation_id)
 
@@ -65,7 +64,7 @@ def find_reservation(
 
 def find_db_reservation(
     reservation_id: ReservationID,
-) -> Optional[DbBungalowReservation]:
+) -> DbBungalowReservation | None:
     """Return the reservation with that id, or `None` if not found."""
     return db.session.get(DbBungalowReservation, reservation_id)
 
@@ -94,7 +93,7 @@ def get_db_reservation(
     return Ok(db_reservation)
 
 
-def find_occupancy(occupancy_id: OccupancyID) -> Optional[BungalowOccupancy]:
+def find_occupancy(occupancy_id: OccupancyID) -> BungalowOccupancy | None:
     """Return the occupancy with that id, or `None` if not found."""
     db_occupancy = find_db_occupancy(occupancy_id)
 
@@ -106,7 +105,7 @@ def find_occupancy(occupancy_id: OccupancyID) -> Optional[BungalowOccupancy]:
 
 def find_db_occupancy(
     occupancy_id: OccupancyID,
-) -> Optional[DbBungalowOccupancy]:
+) -> DbBungalowOccupancy | None:
     """Return the occupancy with that id, or `None` if not found."""
     return db.session.get(DbBungalowOccupancy, occupancy_id)
 
@@ -135,7 +134,7 @@ def get_db_occupancy(
 
 def find_occupancy_for_bungalow(
     bungalow_id: BungalowID,
-) -> Optional[BungalowOccupancy]:
+) -> BungalowOccupancy | None:
     """Return the occupancy for the bungalow with that id.
 
     Return `None` if either no bungalow with that ID or no occupation
@@ -383,7 +382,7 @@ def move_occupancy(
 
 
 def release_bungalow(
-    bungalow_id: BungalowID, *, initiator_id: Optional[UserID] = None
+    bungalow_id: BungalowID, *, initiator_id: UserID | None = None
 ) -> BungalowReleased:
     """Release a bungalow from its occupancy so it becomes available
     again.
@@ -454,9 +453,7 @@ def appoint_bungalow_manager(
     return Ok(None)
 
 
-def set_internal_remark(
-    occupancy_id: OccupancyID, remark: Optional[str]
-) -> None:
+def set_internal_remark(occupancy_id: OccupancyID, remark: str | None) -> None:
     """Set an internal remark."""
     db_occupancy_result = get_db_occupancy(occupancy_id)
     if db_occupancy_result.is_err():
@@ -472,7 +469,7 @@ def set_internal_remark(
 
 def find_occupancy_managed_by_user(
     party_id: PartyID, user_id: UserID
-) -> Optional[DbBungalow]:
+) -> DbBungalow | None:
     """Try to find a bungalow occupancy managed by that user that party."""
     return db.session.scalars(
         select(DbBungalowOccupancy)
@@ -586,7 +583,7 @@ def get_occupant_slots_for_occupancies(
 
 def _to_occupant_slot(
     ticket_id: TicketID,
-    occupant_id: Optional[UserID],
+    occupant_id: UserID | None,
     users_by_id: dict[UserID, User],
 ) -> OccupantSlot:
     occupant = users_by_id[occupant_id] if occupant_id else None

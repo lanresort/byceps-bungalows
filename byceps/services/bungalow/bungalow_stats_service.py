@@ -6,10 +6,12 @@ byceps.services.bungalow.bungalow_stats_service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from __future__ import annotations
+
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from operator import attrgetter
-from typing import Callable, Optional
+from typing import Callable
 
 from sqlalchemy import select
 
@@ -57,9 +59,8 @@ def get_occupation_state_totals_for_party(
 def get_statistics_by_category(
     party_id: PartyID,
     *,
-    get_counts_func: Optional[
-        Callable[[PartyID], BungalowCountByCategoryAndState]
-    ] = None,
+    get_counts_func: Callable[[PartyID], BungalowCountByCategoryAndState]
+    | None = None,
 ) -> Iterator[tuple[TicketCategory, CategoryOccupationSummary]]:
     """Return the number of available/reserved/occupied/total bungalows
     per category.

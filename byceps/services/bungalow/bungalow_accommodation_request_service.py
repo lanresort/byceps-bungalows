@@ -6,8 +6,9 @@ byceps.services.bungalow.bungalow_accomodation_request_service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Optional
 
 from byceps.database import db
 from byceps.typing import UserID
@@ -58,6 +59,6 @@ def _update_request(
 
 def find_request(
     request_id: AccommodationRequestID,
-) -> Optional[DbAccommodationRequest]:
+) -> DbAccommodationRequest | None:
     """Return the accommodation request with that ID, or `None` if not found."""
     return db.session.get(DbAccommodationRequest, request_id)

@@ -6,8 +6,10 @@ byceps.services.bungalow.models.building
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import NewType, Optional
+from typing import NewType
 from uuid import UUID
 
 from byceps.typing import BrandID
@@ -22,9 +24,9 @@ class BungalowLayout:
     brand_id: BrandID
     title: str
     capacity: int
-    image_filename: Optional[str]
-    image_width: Optional[int]
-    image_height: Optional[int]
+    image_filename: str | None
+    image_width: int | None
+    image_height: int | None
 
 
 BungalowBuildingID = NewType('BungalowBuildingID', UUID)

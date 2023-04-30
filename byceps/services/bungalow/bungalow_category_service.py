@@ -6,7 +6,7 @@ byceps.services.bungalow.bungalow_category_service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Optional
+from __future__ import annotations
 
 from sqlalchemy import select
 
@@ -27,9 +27,9 @@ def create_category(
     ticket_category_id: TicketCategoryID,
     article_id: ArticleID,
     *,
-    image_filename: Optional[str] = None,
-    image_width: Optional[int] = None,
-    image_height: Optional[int] = None,
+    image_filename: str | None = None,
+    image_width: int | None = None,
+    image_height: int | None = None,
 ) -> BungalowCategory:
     """Create a bungalow category."""
     db_bungalow_category = DbBungalowCategory(
@@ -80,7 +80,7 @@ def update_category(
 
 def find_category(
     category_id: BungalowCategoryID,
-) -> Optional[BungalowCategory]:
+) -> BungalowCategory | None:
     """Return the category with that id, or `None` if not found."""
     db_bungalow_category = _find_db_category(category_id)
 
@@ -92,7 +92,7 @@ def find_category(
 
 def _find_db_category(
     category_id: BungalowCategoryID,
-) -> Optional[DbBungalowCategory]:
+) -> DbBungalowCategory | None:
     return db.session.get(DbBungalowCategory, category_id)
 
 

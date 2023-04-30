@@ -6,7 +6,7 @@ byceps.services.bungalow.bungalow_service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Optional
+from __future__ import annotations
 
 from sqlalchemy import select
 
@@ -50,7 +50,7 @@ def has_brand_bungalows(brand_id: BrandID) -> bool:
     return has_bungalows == 'true'
 
 
-def find_bungalow(bungalow_id: BungalowID) -> Optional[Bungalow]:
+def find_bungalow(bungalow_id: BungalowID) -> Bungalow | None:
     """Return the bungalow with that id, or `None` if not found."""
     db_bungalow = db.session.execute(
         select(DbBungalow)
@@ -67,7 +67,7 @@ def find_bungalow(bungalow_id: BungalowID) -> Optional[Bungalow]:
     return _db_entity_to_bungalow(db_bungalow)
 
 
-def find_db_bungalow(bungalow_id: BungalowID) -> Optional[DbBungalow]:
+def find_db_bungalow(bungalow_id: BungalowID) -> DbBungalow | None:
     """Return the bungalow with that id, or `None` if not found."""
     return db.session.get(DbBungalow, bungalow_id)
 
@@ -84,7 +84,7 @@ def get_db_bungalow(bungalow_id: BungalowID) -> DbBungalow:
 
 def find_db_bungalow_by_number(
     party_id: PartyID, number: int
-) -> Optional[DbBungalow]:
+) -> DbBungalow | None:
     """Return the bungalow with that number during that party, or `None`
     if not found.
     """
@@ -175,7 +175,7 @@ def assign_ticket_to_main_occupant(
 
 def find_bungalow_inhabited_by_user(
     user_id: UserID, party_id: PartyID
-) -> Optional[DbBungalow]:
+) -> DbBungalow | None:
     """Try to find the bungalow the current user resides (i.e. uses a
     ticket) in.
     """
@@ -209,7 +209,7 @@ def get_all_occupant_tickets_paginated(
     page: int,
     items_per_page: int,
     *,
-    search_term: Optional[str] = None,
+    search_term: str | None = None,
 ) -> Pagination:
     """Return tickets for which a user has been assigned for all
     bungalows of the party.

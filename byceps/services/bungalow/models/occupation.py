@@ -11,7 +11,7 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
-from typing import NewType, Optional
+from typing import NewType
 from uuid import UUID
 
 from byceps.services.shop.order.models.number import OrderNumber
@@ -36,9 +36,9 @@ class BungalowReservation:
     id: ReservationID
     bungalow_id: BungalowID
     reserved_by_id: UserID
-    order_number: Optional[OrderNumber]
+    order_number: OrderNumber | None
     pinned: bool
-    internal_remark: Optional[str]
+    internal_remark: str | None
 
 
 @dataclass(frozen=True)
@@ -46,21 +46,21 @@ class BungalowOccupancy:
     id: OccupancyID
     bungalow_id: BungalowID
     occupied_by_id: UserID
-    order_number: Optional[OrderNumber]
+    order_number: OrderNumber | None
     state: OccupancyState
-    ticket_bundle_id: Optional[TicketBundleID]
+    ticket_bundle_id: TicketBundleID | None
     pinned: bool
     manager_id: UserID
-    title: Optional[str]
-    description: Optional[str]
-    avatar_id: Optional[UUID]
-    internal_remark: Optional[str]
+    title: str | None
+    description: str | None
+    avatar_id: UUID | None
+    internal_remark: str | None
 
 
 @dataclass(frozen=True)
 class OccupantSlot:
     ticket_id: TicketID
-    occupant: Optional[User]
+    occupant: User | None
 
 
 @dataclass(frozen=True)

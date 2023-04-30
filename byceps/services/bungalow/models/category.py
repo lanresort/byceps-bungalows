@@ -6,9 +6,11 @@ byceps.services.bungalow.models.category
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
-from typing import NewType, Optional
+from typing import NewType
 from uuid import UUID
 
 from moneyed import Money
@@ -27,8 +29,8 @@ class Article:
     item_number: ArticleNumber
     description: str
     price: Money
-    available_from: Optional[datetime]
-    available_until: Optional[datetime]
+    available_from: datetime | None
+    available_until: datetime | None
     quantity: int
 
 
@@ -41,6 +43,6 @@ class BungalowCategory:
     ticket_category_id: TicketCategoryID
     ticket_category_title: str
     article: Article
-    image_filename: Optional[str]
-    image_width: Optional[int]
-    image_height: Optional[int]
+    image_filename: str | None
+    image_width: int | None
+    image_height: int | None
