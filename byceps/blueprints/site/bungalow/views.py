@@ -64,8 +64,7 @@ def bungalow_support_required(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        has_bungalows = bungalow_service.has_brand_bungalows(g.brand_id)
-        if not has_bungalows:
+        if not g.has_bungalows:
             abort(404)
 
         return func(*args, **kwargs)
