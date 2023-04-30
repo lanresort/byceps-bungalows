@@ -8,10 +8,10 @@ Announce bungalow events.
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from byceps.announce.helpers import call_webhook
-from byceps.announce.text_assembly import bungalow
+from __future__ import annotations
+
+from byceps.announce.helpers import Announcement, get_screen_name_or_fallback
 from byceps.events.bungalow import (
-    _BungalowEvent,
     BungalowOccupancyAvatarUpdated,
     BungalowOccupancyDescriptionUpdated,
     BungalowOccupancyMoved,
@@ -21,88 +21,136 @@ from byceps.events.bungalow import (
     BungalowReleased,
     BungalowReserved,
 )
+from byceps.services.bungalow import bungalow_service
 from byceps.services.webhooks.models import OutgoingWebhook
 
 
 def announce_bungalow_reserved(
     event: BungalowReserved, webhook: OutgoingWebhook
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow has been reserved."""
-    text = bungalow.assemble_text_for_bungalow_reserved(event)
+    bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
+    occupier_screen_name = get_screen_name_or_fallback(
+        event.occupier_screen_name
+    )
 
-    send_bungalow_message(event, webhook, text)
+    text = f'{occupier_screen_name} hat Bungalow {bungalow.number} reserviert.'
+
+    return Announcement(text)
 
 
 def announce_bungalow_occupied(
     event: BungalowOccupied, webhook: OutgoingWebhook
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow has been occupied."""
-    text = bungalow.assemble_text_for_bungalow_occupied(event)
+    bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
+    occupier_screen_name = get_screen_name_or_fallback(
+        event.occupier_screen_name
+    )
 
-    send_bungalow_message(event, webhook, text)
+    text = f'{occupier_screen_name} hat Bungalow {bungalow.number} belegt.'
+
+    return Announcement(text)
 
 
 def announce_bungalow_released(
     event: BungalowReleased, webhook: OutgoingWebhook
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow has been released."""
-    text = bungalow.assemble_text_for_bungalow_released(event)
+    bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
 
-    send_bungalow_message(event, webhook, text)
+    text = f'Bungalow {bungalow.number} wurde wieder freigegeben.'
+
+    return Announcement(text)
 
 
 def announce_bungalow_occupancy_moved(
     event: BungalowOccupancyMoved, webhook: OutgoingWebhook
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow's occupancy has been moved to another
     bungalow.
     """
-    text = bungalow.assemble_text_for_bungalow_occupancy_moved(event)
+    source_bungalow = bungalow_service.get_db_bungalow(event.source_bungalow_id)
+    target_bungalow = bungalow_service.get_db_bungalow(event.target_bungalow_id)
 
-    send_bungalow_message(event, webhook, text)
+    text = (
+        f'Die Belegung von Bungalow {source_bungalow.number} '
+        f'hat zu Bungalow {target_bungalow.number} gewechselt.'
+    )
+
+    return Announcement(text)
 
 
 def announce_bungalow_avatar_updated(
     event: BungalowOccupancyAvatarUpdated, webhook: OutgoingWebhook
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow's avatar image has been updated."""
-    text = bungalow.assemble_text_for_bungalow_avatar_updated(event)
+    bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
+    initiator_screen_name = get_screen_name_or_fallback(
+        event.initiator_screen_name
+    )
 
-    send_bungalow_message(event, webhook, text)
+    text = (
+        f'{initiator_screen_name} hat das Avatarbild für Bungalow '
+        f'{bungalow.number} aktualisiert.'
+    )
+
+    return Announcement(text)
 
 
 def announce_bungalow_description_updated(
     event: BungalowOccupancyDescriptionUpdated,
     webhook: OutgoingWebhook,
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow's description has been updated."""
-    text = bungalow.assemble_text_for_bungalow_description_updated(event)
+    bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
+    initiator_screen_name = get_screen_name_or_fallback(
+        event.initiator_screen_name
+    )
 
-    send_bungalow_message(event, webhook, text)
+    text = (
+        f'{initiator_screen_name} hat das Grußwort für Bungalow '
+        f'{bungalow.number} aktualisiert.'
+    )
+
+    return Announcement(text)
 
 
 def announce_bungalow_occupant_added(
     event: BungalowOccupantAdded, webhook: OutgoingWebhook
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow occupant has been updated."""
-    text = bungalow.assemble_text_for_bungalow_occupant_added(event)
+    bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
+    initiator_screen_name = get_screen_name_or_fallback(
+        event.initiator_screen_name
+    )
+    occupant_screen_name = get_screen_name_or_fallback(
+        event.occupant_screen_name
+    )
 
-    send_bungalow_message(event, webhook, text)
+    text = (
+        f'{initiator_screen_name} hat {occupant_screen_name} in Bungalow '
+        f'{bungalow.number} aufgenommen.'
+    )
+
+    return Announcement(text)
 
 
 def announce_bungalow_occupant_removed(
     event: BungalowOccupantRemoved, webhook: OutgoingWebhook
-) -> None:
+) -> Announcement | None:
     """Announce that a bungalow occupant has been removed."""
-    text = bungalow.assemble_text_for_bungalow_occupant_removed(event)
+    bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
+    initiator_screen_name = get_screen_name_or_fallback(
+        event.initiator_screen_name
+    )
+    occupant_screen_name = get_screen_name_or_fallback(
+        event.occupant_screen_name
+    )
 
-    send_bungalow_message(event, webhook, text)
+    text = (
+        f'{initiator_screen_name} hat {occupant_screen_name} aus Bungalow '
+        f'{bungalow.number} rausgeworfen.'
+    )
 
-
-# helpers
-
-
-def send_bungalow_message(
-    event: _BungalowEvent, webhook: OutgoingWebhook, text: str
-) -> None:
-    call_webhook(webhook, text)
+    return Announcement(text)
