@@ -583,6 +583,7 @@ def occupant_add(ticket_id):
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,
         bungalow_id=bungalow.id,
+        bungalow_number=bungalow.number,
         occupant_id=occupant.id,
         occupant_screen_name=occupant.screen_name,
     )
@@ -654,6 +655,7 @@ def occupant_remove(ticket_id):
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,
         bungalow_id=bungalow.id,
+        bungalow_number=bungalow.number,
         occupant_id=occupant.id,
         occupant_screen_name=occupant.screen_name,
     )
@@ -728,6 +730,7 @@ def description_update(occupancy_id):
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,
         bungalow_id=bungalow.id,
+        bungalow_number=bungalow.number,
     )
     bungalow_signals.description_updated.send(None, event=event)
 
@@ -816,6 +819,7 @@ def avatar_update(occupancy_id):
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,
         bungalow_id=bungalow.id,
+        bungalow_number=bungalow.number,
     )
     bungalow_signals.avatar_updated.send(None, event=event)
 

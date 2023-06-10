@@ -187,6 +187,7 @@ def reserve_bungalow(
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
         bungalow_id=db_bungalow.id,
+        bungalow_number=db_bungalow.number,
         occupier_id=occupier.id,
         occupier_screen_name=occupier.screen_name,
     )
@@ -285,6 +286,7 @@ def occupy_bungalow(
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
         bungalow_id=db_bungalow.id,
+        bungalow_number=db_bungalow.number,
         occupier_id=occupier.id,
         occupier_screen_name=occupier.screen_name,
     )
@@ -376,7 +378,9 @@ def move_occupancy(
             initiator_id=initiator.id,
             initiator_screen_name=initiator.screen_name,
             source_bungalow_id=db_source_bungalow.id,
+            source_bungalow_number=db_source_bungalow.number,
             target_bungalow_id=db_target_bungalow.id,
+            target_bungalow_number=db_target_bungalow.number,
         )
     )
 
@@ -416,6 +420,7 @@ def release_bungalow(
         initiator_id=initiator.id if initiator else None,
         initiator_screen_name=initiator.screen_name if initiator else None,
         bungalow_id=db_bungalow.id,
+        bungalow_number=db_bungalow.number,
     )
 
 
