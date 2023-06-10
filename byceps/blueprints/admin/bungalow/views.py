@@ -12,7 +12,7 @@ from datetime import datetime
 from flask import abort, g, request
 from flask_babel import gettext
 
-from byceps.events.shop import ShopOrderCanceled, ShopOrderPaid
+from byceps.events.shop import ShopOrderCanceledEvent, ShopOrderPaidEvent
 from byceps.services.brand import brand_service
 from byceps.services.brand.models import Brand
 from byceps.services.bungalow import (
@@ -83,7 +83,7 @@ blueprint = create_blueprint('bungalow_admin', __name__)
 
 
 @shop_signals.order_canceled.connect
-def release_bungalow(sender, *, event: ShopOrderCanceled):
+def release_bungalow(sender, *, event: ShopOrderCanceledEvent):
     """Release the bungalow that had been created for that order."""
     order = order_service.get_order(event.order_id)
 
@@ -109,7 +109,7 @@ def release_bungalow(sender, *, event: ShopOrderCanceled):
 
 
 @shop_signals.order_paid.connect
-def occupy_bungalow(sender, *, event: ShopOrderPaid):
+def occupy_bungalow(sender, *, event: ShopOrderPaidEvent):
     """Mark a bungalow as occupied."""
     order = order_service.get_order(event.order_id)
 

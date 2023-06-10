@@ -11,7 +11,7 @@ from __future__ import annotations
 from sqlalchemy import select
 
 from byceps.database import db
-from byceps.events.shop import ShopOrderPlaced
+from byceps.events.shop import ShopOrderPlacedEvent
 from byceps.services.shop.article import article_service
 from byceps.services.shop.article.dbmodels.article import DbArticle
 from byceps.services.shop.cart.models import Cart
@@ -28,7 +28,7 @@ from .dbmodels.occupancy import DbBungalowOccupancy
 
 def place_bungalow_order(
     storefront_id: StorefrontID, db_article: DbArticle, orderer: Orderer
-) -> Result[tuple[Order, ShopOrderPlaced], None]:
+) -> Result[tuple[Order, ShopOrderPlacedEvent], None]:
     """Place an order for that bungalow."""
     storefront = storefront_service.get_storefront(storefront_id)
     cart = _build_cart(db_article)

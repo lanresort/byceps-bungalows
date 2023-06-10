@@ -12,21 +12,21 @@ from __future__ import annotations
 
 from byceps.announce.helpers import Announcement, get_screen_name_or_fallback
 from byceps.events.bungalow import (
-    BungalowOccupancyAvatarUpdated,
-    BungalowOccupancyDescriptionUpdated,
-    BungalowOccupancyMoved,
-    BungalowOccupantAdded,
-    BungalowOccupantRemoved,
-    BungalowOccupied,
-    BungalowReleased,
-    BungalowReserved,
+    BungalowOccupancyAvatarUpdatedEvent,
+    BungalowOccupancyDescriptionUpdatedEvent,
+    BungalowOccupancyMovedEvent,
+    BungalowOccupantAddedEvent,
+    BungalowOccupantRemovedEvent,
+    BungalowOccupiedEvent,
+    BungalowReleasedEvent,
+    BungalowReservedEvent,
 )
 from byceps.services.bungalow import bungalow_service
 from byceps.services.webhooks.models import OutgoingWebhook
 
 
 def announce_bungalow_reserved(
-    event: BungalowReserved, webhook: OutgoingWebhook
+    event: BungalowReservedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been reserved."""
     bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
@@ -40,7 +40,7 @@ def announce_bungalow_reserved(
 
 
 def announce_bungalow_occupied(
-    event: BungalowOccupied, webhook: OutgoingWebhook
+    event: BungalowOccupiedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been occupied."""
     bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
@@ -54,7 +54,7 @@ def announce_bungalow_occupied(
 
 
 def announce_bungalow_released(
-    event: BungalowReleased, webhook: OutgoingWebhook
+    event: BungalowReleasedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been released."""
     bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
@@ -65,7 +65,7 @@ def announce_bungalow_released(
 
 
 def announce_bungalow_occupancy_moved(
-    event: BungalowOccupancyMoved, webhook: OutgoingWebhook
+    event: BungalowOccupancyMovedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow's occupancy has been moved to another
     bungalow.
@@ -82,7 +82,7 @@ def announce_bungalow_occupancy_moved(
 
 
 def announce_bungalow_avatar_updated(
-    event: BungalowOccupancyAvatarUpdated, webhook: OutgoingWebhook
+    event: BungalowOccupancyAvatarUpdatedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow's avatar image has been updated."""
     bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
@@ -99,7 +99,7 @@ def announce_bungalow_avatar_updated(
 
 
 def announce_bungalow_description_updated(
-    event: BungalowOccupancyDescriptionUpdated,
+    event: BungalowOccupancyDescriptionUpdatedEvent,
     webhook: OutgoingWebhook,
 ) -> Announcement | None:
     """Announce that a bungalow's description has been updated."""
@@ -117,7 +117,7 @@ def announce_bungalow_description_updated(
 
 
 def announce_bungalow_occupant_added(
-    event: BungalowOccupantAdded, webhook: OutgoingWebhook
+    event: BungalowOccupantAddedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow occupant has been updated."""
     bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)
@@ -137,7 +137,7 @@ def announce_bungalow_occupant_added(
 
 
 def announce_bungalow_occupant_removed(
-    event: BungalowOccupantRemoved, webhook: OutgoingWebhook
+    event: BungalowOccupantRemovedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow occupant has been removed."""
     bungalow = bungalow_service.get_db_bungalow(event.bungalow_id)

@@ -15,10 +15,10 @@ from byceps.blueprints.site.shop.order.forms import OrderForm
 from byceps.blueprints.site.site.navigation import subnavigation_for_view
 from byceps.database import db
 from byceps.events.bungalow import (
-    BungalowOccupancyAvatarUpdated,
-    BungalowOccupancyDescriptionUpdated,
-    BungalowOccupantAdded,
-    BungalowOccupantRemoved,
+    BungalowOccupancyAvatarUpdatedEvent,
+    BungalowOccupancyDescriptionUpdatedEvent,
+    BungalowOccupantAddedEvent,
+    BungalowOccupantRemovedEvent,
 )
 from byceps.services.bungalow import (
     bungalow_category_service,
@@ -578,7 +578,7 @@ def occupant_add(ticket_id):
         f'in Bungalow {bungalow.number} aufgenommen.'
     )
 
-    event = BungalowOccupantAdded(
+    event = BungalowOccupantAddedEvent(
         occurred_at=datetime.utcnow(),
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,
@@ -649,7 +649,7 @@ def occupant_remove(ticket_id):
         f'aus Bungalow {bungalow.number} entfernt.'
     )
 
-    event = BungalowOccupantRemoved(
+    event = BungalowOccupantRemovedEvent(
         occurred_at=datetime.utcnow(),
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,
@@ -723,7 +723,7 @@ def description_update(occupancy_id):
 
     flash_success('Die Beschreibung wurde aktualisiert.')
 
-    event = BungalowOccupancyDescriptionUpdated(
+    event = BungalowOccupancyDescriptionUpdatedEvent(
         occurred_at=datetime.utcnow(),
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,
@@ -811,7 +811,7 @@ def avatar_update(occupancy_id):
         icon='upload',
     )
 
-    event = BungalowOccupancyAvatarUpdated(
+    event = BungalowOccupancyAvatarUpdatedEvent(
         occurred_at=datetime.utcnow(),
         initiator_id=manager.id,
         initiator_screen_name=manager.screen_name,

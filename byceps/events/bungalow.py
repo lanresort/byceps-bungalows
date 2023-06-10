@@ -29,33 +29,33 @@ class _BungalowOccupancyEvent(_BungalowEvent):
 
 
 @dataclass(frozen=True)
-class BungalowReserved(_BungalowOccupancyEvent):
+class BungalowReservedEvent(_BungalowOccupancyEvent):
     pass
 
 
 @dataclass(frozen=True)
-class BungalowOccupied(_BungalowOccupancyEvent):
+class BungalowOccupiedEvent(_BungalowOccupancyEvent):
     pass
 
 
 @dataclass(frozen=True)
-class BungalowReleased(_BungalowEvent):
+class BungalowReleasedEvent(_BungalowEvent):
     bungalow_id: BungalowID
 
 
 @dataclass(frozen=True)
-class BungalowOccupancyMoved(_BungalowEvent):
+class BungalowOccupancyMovedEvent(_BungalowEvent):
     source_bungalow_id: BungalowID
     target_bungalow_id: BungalowID
 
 
 @dataclass(frozen=True)
-class BungalowOccupancyAvatarUpdated(_BungalowEvent):
+class BungalowOccupancyAvatarUpdatedEvent(_BungalowEvent):
     bungalow_id: BungalowID
 
 
 @dataclass(frozen=True)
-class BungalowOccupancyDescriptionUpdated(_BungalowEvent):
+class BungalowOccupancyDescriptionUpdatedEvent(_BungalowEvent):
     bungalow_id: BungalowID
 
 
@@ -67,10 +67,10 @@ class _BungalowOccupantEvent(_BungalowEvent):
 
 
 @dataclass(frozen=True)
-class BungalowOccupantAdded(_BungalowOccupantEvent):
+class BungalowOccupantAddedEvent(_BungalowOccupantEvent):
     pass
 
 
 @dataclass(frozen=True)
-class BungalowOccupantRemoved(_BungalowOccupantEvent):
+class BungalowOccupantRemovedEvent(_BungalowOccupantEvent):
     pass

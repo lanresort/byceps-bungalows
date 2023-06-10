@@ -15,12 +15,12 @@ from sqlalchemy import select
 
 from byceps.database import db
 from byceps.events.bungalow import (
-    BungalowOccupancyMoved,
-    BungalowOccupied,
-    BungalowReleased,
-    BungalowReserved,
+    BungalowOccupancyMovedEvent,
+    BungalowOccupiedEvent,
+    BungalowReleasedEvent,
+    BungalowReservedEvent,
 )
-from byceps.events.shop import ShopOrderPlaced
+from byceps.events.shop import ShopOrderPlacedEvent
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.storefront.models import StorefrontID
 from byceps.services.ticketing import (
@@ -153,7 +153,7 @@ def find_occupancy_for_bungalow(
 def reserve_bungalow(
     bungalow_id: BungalowID, occupier_id: UserID
 ) -> Result[
-    tuple[BungalowReservation, BungalowOccupancy, BungalowReserved], str
+    tuple[BungalowReservation, BungalowOccupancy, BungalowReservedEvent], str
 ]:
     """Create a reservation for this bungalow."""
     db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
@@ -182,7 +182,7 @@ def reserve_bungalow(
 
     db.session.commit()
 
-    bungalow_reserved_event = BungalowReserved(
+    bungalow_reserved_event = BungalowReservedEvent(
         occurred_at=datetime.utcnow(),
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
@@ -202,7 +202,7 @@ def place_bungalow_order(
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
     orderer: Orderer,
-) -> Result[tuple[Order, ShopOrderPlaced], str]:
+) -> Result[tuple[Order, ShopOrderPlacedEvent], str]:
     """Place an order for the bungalow."""
     db_reservation_result = get_db_reservation(reservation_id)
     if db_reservation_result.is_err():
@@ -237,7 +237,7 @@ def occupy_bungalow(
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
     ticket_bundle_id: TicketBundleID,
-) -> Result[tuple[BungalowOccupancy, BungalowOccupied], str]:
+) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Mark the bungalow as occupied."""
     db_reservation_result = get_db_reservation(reservation_id)
     if db_reservation_result.is_err():
@@ -280,7 +280,7 @@ def occupy_bungalow(
 
     occupier = user_service.get_user(occupier_id)
 
-    event = BungalowOccupied(
+    event = BungalowOccupiedEvent(
         occurred_at=datetime.utcnow(),
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
@@ -296,7 +296,7 @@ def move_occupancy(
     occupancy_id: OccupancyID,
     target_bungalow_id: BungalowID,
     initiator_id: UserID,
-) -> Result[BungalowOccupancyMoved, str]:
+) -> Result[BungalowOccupancyMovedEvent, str]:
     """Move occupancy to another bungalow and reset the source bungalow."""
     db_occupancy_result = get_db_occupancy(occupancy_id)
     if db_occupancy_result.is_err():
@@ -371,7 +371,7 @@ def move_occupancy(
     db.session.commit()
 
     return Ok(
-        BungalowOccupancyMoved(
+        BungalowOccupancyMovedEvent(
             occurred_at=datetime.utcnow(),
             initiator_id=initiator.id,
             initiator_screen_name=initiator.screen_name,
@@ -383,7 +383,7 @@ def move_occupancy(
 
 def release_bungalow(
     bungalow_id: BungalowID, *, initiator_id: UserID | None = None
-) -> BungalowReleased:
+) -> BungalowReleasedEvent:
     """Release a bungalow from its occupancy so it becomes available
     again.
     """
@@ -411,7 +411,7 @@ def release_bungalow(
 
     db.session.commit()
 
-    return BungalowReleased(
+    return BungalowReleasedEvent(
         occurred_at=datetime.utcnow(),
         initiator_id=initiator.id if initiator else None,
         initiator_screen_name=initiator.screen_name if initiator else None,
