@@ -10,7 +10,7 @@ Announce bungalow events.
 
 from __future__ import annotations
 
-from byceps.announce.helpers import Announcement, get_screen_name_or_fallback
+from byceps.announce.helpers import get_screen_name_or_fallback
 from byceps.events.bungalow import (
     BungalowOccupancyAvatarUpdatedEvent,
     BungalowOccupancyDescriptionUpdatedEvent,
@@ -21,7 +21,7 @@ from byceps.events.bungalow import (
     BungalowReleasedEvent,
     BungalowReservedEvent,
 )
-from byceps.services.webhooks.models import OutgoingWebhook
+from byceps.services.webhooks.models import Announcement, OutgoingWebhook
 
 
 def announce_bungalow_reserved(
