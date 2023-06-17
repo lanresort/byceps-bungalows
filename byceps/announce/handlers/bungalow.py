@@ -25,7 +25,7 @@ from byceps.services.webhooks.models import Announcement, OutgoingWebhook
 
 
 def announce_bungalow_reserved(
-    event: BungalowReservedEvent, webhook: OutgoingWebhook
+    event_name: str, event: BungalowReservedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been reserved."""
     occupier_screen_name = get_screen_name_or_fallback(
@@ -38,7 +38,7 @@ def announce_bungalow_reserved(
 
 
 def announce_bungalow_occupied(
-    event: BungalowOccupiedEvent, webhook: OutgoingWebhook
+    event_name: str, event: BungalowOccupiedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been occupied."""
     occupier_screen_name = get_screen_name_or_fallback(
@@ -53,7 +53,7 @@ def announce_bungalow_occupied(
 
 
 def announce_bungalow_released(
-    event: BungalowReleasedEvent, webhook: OutgoingWebhook
+    event_name: str, event: BungalowReleasedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been released."""
     text = f'Bungalow {event.bungalow_number} wurde wieder freigegeben.'
@@ -62,7 +62,9 @@ def announce_bungalow_released(
 
 
 def announce_bungalow_occupancy_moved(
-    event: BungalowOccupancyMovedEvent, webhook: OutgoingWebhook
+    event_name: str,
+    event: BungalowOccupancyMovedEvent,
+    webhook: OutgoingWebhook,
 ) -> Announcement | None:
     """Announce that a bungalow's occupancy has been moved to another
     bungalow.
@@ -76,7 +78,9 @@ def announce_bungalow_occupancy_moved(
 
 
 def announce_bungalow_avatar_updated(
-    event: BungalowOccupancyAvatarUpdatedEvent, webhook: OutgoingWebhook
+    event_name: str,
+    event: BungalowOccupancyAvatarUpdatedEvent,
+    webhook: OutgoingWebhook,
 ) -> Announcement | None:
     """Announce that a bungalow's avatar image has been updated."""
     initiator_screen_name = get_screen_name_or_fallback(
@@ -92,6 +96,7 @@ def announce_bungalow_avatar_updated(
 
 
 def announce_bungalow_description_updated(
+    event_name: str,
     event: BungalowOccupancyDescriptionUpdatedEvent,
     webhook: OutgoingWebhook,
 ) -> Announcement | None:
@@ -109,7 +114,7 @@ def announce_bungalow_description_updated(
 
 
 def announce_bungalow_occupant_added(
-    event: BungalowOccupantAddedEvent, webhook: OutgoingWebhook
+    event_name: str, event: BungalowOccupantAddedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow occupant has been updated."""
     initiator_screen_name = get_screen_name_or_fallback(
@@ -128,7 +133,9 @@ def announce_bungalow_occupant_added(
 
 
 def announce_bungalow_occupant_removed(
-    event: BungalowOccupantRemovedEvent, webhook: OutgoingWebhook
+    event_name: str,
+    event: BungalowOccupantRemovedEvent,
+    webhook: OutgoingWebhook,
 ) -> Announcement | None:
     """Announce that a bungalow occupant has been removed."""
     initiator_screen_name = get_screen_name_or_fallback(
