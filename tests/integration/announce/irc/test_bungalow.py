@@ -40,6 +40,7 @@ def test_announce_bungalow_reserved(
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
         bungalow_id=bungalow666.id,
+        bungalow_number=bungalow666.number,
         occupier_id=occupier.id,
         occupier_screen_name=occupier.screen_name,
     )
@@ -58,6 +59,7 @@ def test_announce_bungalow_occupied(
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
         bungalow_id=bungalow666.id,
+        bungalow_number=bungalow666.number,
         occupier_id=occupier.id,
         occupier_screen_name=occupier.screen_name,
     )
@@ -74,6 +76,7 @@ def test_announce_bungalow_released(admin_app, bungalow666, webhook_for_irc):
         initiator_id=None,
         initiator_screen_name=None,
         bungalow_id=bungalow666.id,
+        bungalow_number=bungalow666.number,
     )
 
     assert build_announcement_request(event, webhook_for_irc) == expected
@@ -92,7 +95,9 @@ def test_announce_bungalow_occupancy_moved(
         initiator_id=None,
         initiator_screen_name=None,
         source_bungalow_id=bungalow666.id,
+        source_bungalow_number=bungalow666.number,
         target_bungalow_id=bungalow851.id,
+        target_bungalow_number=bungalow851.number,
     )
 
     assert build_announcement_request(event, webhook_for_irc) == expected
@@ -109,6 +114,7 @@ def test_announce_bungalow_avatar_updated(
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
         bungalow_id=bungalow666.id,
+        bungalow_number=bungalow666.number,
     )
 
     assert build_announcement_request(event, webhook_for_irc) == expected
@@ -125,6 +131,7 @@ def test_announce_bungalow_description_updated(
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
         bungalow_id=bungalow666.id,
+        bungalow_number=bungalow666.number,
     )
 
     assert build_announcement_request(event, webhook_for_irc) == expected
@@ -141,6 +148,7 @@ def test_announce_bungalow_occupant_added(
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
         bungalow_id=bungalow666.id,
+        bungalow_number=bungalow666.number,
         occupant_id=other_occupant.id,
         occupant_screen_name=other_occupant.screen_name,
     )
@@ -159,6 +167,7 @@ def test_announce_bungalow_occupant_removed(
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
         bungalow_id=bungalow666.id,
+        bungalow_number=bungalow666.number,
         occupant_id=other_occupant.id,
         occupant_screen_name=other_occupant.screen_name,
     )
