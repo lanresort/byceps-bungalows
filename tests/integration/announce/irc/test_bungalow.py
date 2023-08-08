@@ -7,14 +7,14 @@ import pytest
 
 from byceps.announce.connections import build_announcement_request
 from byceps.events.bungalow import (
-    BungalowOccupancyAvatarUpdated,
-    BungalowOccupancyDescriptionUpdated,
-    BungalowOccupancyMoved,
-    BungalowOccupantAdded,
-    BungalowOccupantRemoved,
-    BungalowOccupied,
-    BungalowReleased,
-    BungalowReserved,
+    BungalowOccupancyAvatarUpdatedEvent,
+    BungalowOccupancyDescriptionUpdatedEvent,
+    BungalowOccupancyMovedEvent,
+    BungalowOccupantAddedEvent,
+    BungalowOccupantRemovedEvent,
+    BungalowOccupiedEvent,
+    BungalowReleasedEvent,
+    BungalowReservedEvent,
 )
 from byceps.services.bungalow import (
     bungalow_building_service,
@@ -35,7 +35,7 @@ def test_announce_bungalow_reserved(
     expected_text = 'Lucifer hat Bungalow 666 reserviert.'
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowReserved(
+    event = BungalowReservedEvent(
         occurred_at=now(),
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
@@ -53,7 +53,7 @@ def test_announce_bungalow_occupied(
     expected_text = 'Lucifer hat Bungalow 666 belegt.'
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowOccupied(
+    event = BungalowOccupiedEvent(
         occurred_at=now(),
         initiator_id=occupier.id,
         initiator_screen_name=occupier.screen_name,
@@ -69,7 +69,7 @@ def test_announce_bungalow_released(admin_app, bungalow666, webhook_for_irc):
     expected_text = 'Bungalow 666 wurde wieder freigegeben.'
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowReleased(
+    event = BungalowReleasedEvent(
         occurred_at=now(),
         initiator_id=None,
         initiator_screen_name=None,
@@ -87,7 +87,7 @@ def test_announce_bungalow_occupancy_moved(
     )
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowOccupancyMoved(
+    event = BungalowOccupancyMovedEvent(
         occurred_at=now(),
         initiator_id=None,
         initiator_screen_name=None,
@@ -104,7 +104,7 @@ def test_announce_bungalow_avatar_updated(
     expected_text = 'Lucifer hat das Avatarbild für Bungalow 666 aktualisiert.'
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowOccupancyAvatarUpdated(
+    event = BungalowOccupancyAvatarUpdatedEvent(
         occurred_at=now(),
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
@@ -120,7 +120,7 @@ def test_announce_bungalow_description_updated(
     expected_text = 'Lucifer hat das Grußwort für Bungalow 666 aktualisiert.'
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowOccupancyDescriptionUpdated(
+    event = BungalowOccupancyDescriptionUpdatedEvent(
         occurred_at=now(),
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
@@ -136,7 +136,7 @@ def test_announce_bungalow_occupant_added(
     expected_text = 'Lucifer hat Mad_Dämon in Bungalow 666 aufgenommen.'
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowOccupantAdded(
+    event = BungalowOccupantAddedEvent(
         occurred_at=now(),
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
@@ -154,7 +154,7 @@ def test_announce_bungalow_occupant_removed(
     expected_text = 'Lucifer hat Mad_Dämon aus Bungalow 666 rausgeworfen.'
     expected = build_announcement_request_for_irc(expected_text)
 
-    event = BungalowOccupantRemoved(
+    event = BungalowOccupantRemovedEvent(
         occurred_at=now(),
         initiator_id=main_occupant.id,
         initiator_screen_name=main_occupant.screen_name,
