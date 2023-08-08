@@ -476,7 +476,7 @@ def occupant_index(number):
         or (
             bungalow.occupancy.manager_id != user.id
             and not bungalow_service.is_user_allowed_to_manage_any_occupant_slots(
-                user.id, bungalow.occupancy
+                user, bungalow.occupancy
             )
         )
     ):

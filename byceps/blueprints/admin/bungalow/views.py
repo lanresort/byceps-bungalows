@@ -158,7 +158,7 @@ def occupy_bungalow(sender, *, event: ShopOrderPaidEvent):
         )
 
         assignment_result = bungalow_service.assign_ticket_to_main_occupant(
-            first_ticket, main_occupant.id
+            first_ticket, main_occupant
         )
         if assignment_result.is_err():
             err = assignment_result.unwrap_err()

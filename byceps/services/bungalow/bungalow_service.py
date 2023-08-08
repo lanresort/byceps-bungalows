@@ -19,6 +19,7 @@ from byceps.services.ticketing import ticket_service
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.user.dbmodels.user import DbUser
+from byceps.services.user.models.user import User
 from byceps.typing import BrandID, PartyID, UserID
 from byceps.util.result import Err, Ok, Result
 
@@ -156,7 +157,7 @@ class UserAlreadyUsesATicketException:
 
 
 def assign_ticket_to_main_occupant(
-    db_ticket: DbTicket, main_occupant_id: UserID
+    db_ticket: DbTicket, main_occupant: User
 ) -> Result[None, UserAlreadyUsesATicketException]:
     """Mark a ticket as being used by the bungalow's main occupant (as
     long as there are no other tickets used by the user).
@@ -164,13 +165,13 @@ def assign_ticket_to_main_occupant(
     party_id = db_ticket.category.party_id
 
     already_uses_ticket = ticket_service.uses_any_ticket_for_party(
-        main_occupant_id, party_id
+        main_occupant.id, party_id
     )
 
     if already_uses_ticket:
         return Err(UserAlreadyUsesATicketException())
 
-    db_ticket.used_by_id = main_occupant_id
+    db_ticket.used_by_id = main_occupant.id
     db.session.commit()
 
     return Ok(None)
@@ -196,14 +197,14 @@ def find_bungalow_inhabited_by_user(
 
 
 def is_user_allowed_to_manage_any_occupant_slots(
-    user_id: UserID, db_occupancy: DbBungalowOccupancy
+    user: User, db_occupancy: DbBungalowOccupancy
 ) -> bool:
     """Return `True` if the given user is entitled to manage at least
     one of the bungalow's occupant slots.
     """
     db_tickets = db_occupancy.ticket_bundle.tickets
     return any(
-        db_ticket.is_user_managed_by(user_id) for db_ticket in db_tickets
+        db_ticket.is_user_managed_by(user.id) for db_ticket in db_tickets
     )
 
 
