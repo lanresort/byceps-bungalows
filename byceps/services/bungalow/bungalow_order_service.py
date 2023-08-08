@@ -34,7 +34,7 @@ def place_bungalow_order(
     cart = _build_cart(db_article)
 
     placement_result = order_checkout_service.place_order(
-        storefront.id, orderer, cart
+        storefront, orderer, cart
     )
     if placement_result.is_err():
         return Err(placement_result.unwrap_err())
