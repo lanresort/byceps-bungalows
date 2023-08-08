@@ -29,7 +29,7 @@ from byceps.services.ticketing import (
 )
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from byceps.services.ticketing.models.ticket import TicketBundleID, TicketID
+from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
 from byceps.services.user.models.user import User, UserForAdmin
 from byceps.typing import PartyID, UserID
@@ -573,19 +573,11 @@ def get_occupant_slots_for_occupancies(
 
     occupant_slots_by_occupancy_id = defaultdict(list)
     for occupancy_id, ticket_id, user_id in rows:
-        occupant_slot = _to_occupant_slot(ticket_id, user_id, users_by_id)
+        occupant = users_by_id[user_id] if user_id else None
+        occupant_slot = OccupantSlot(ticket_id=ticket_id, occupant=occupant)
         occupant_slots_by_occupancy_id[occupancy_id].append(occupant_slot)
 
     return dict(occupant_slots_by_occupancy_id)
-
-
-def _to_occupant_slot(
-    ticket_id: TicketID,
-    occupant_id: UserID | None,
-    users_by_id: dict[UserID, User],
-) -> OccupantSlot:
-    occupant = users_by_id[occupant_id] if occupant_id else None
-    return OccupantSlot(ticket_id=ticket_id, occupant=occupant)
 
 
 def get_bungalow_for_ticket_bundle(
