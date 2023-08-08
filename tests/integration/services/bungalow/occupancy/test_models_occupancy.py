@@ -29,7 +29,7 @@ def test_is_managed_by_when_occupied_by_this_user(
     bungalow = make_bungalow()
     ticket_bundle = make_ticket_bundle()
 
-    reservation_id, occupancy_id = reserve_bungalow(bungalow.id, user1.id)
+    reservation_id, occupancy_id = reserve_bungalow(bungalow.id, user1)
     occupancy = occupy_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
 
     assert occupancy.manager_id == user1.id
@@ -41,7 +41,7 @@ def test_is_managed_by_when_occupied_by_another_user(
     bungalow = make_bungalow()
     ticket_bundle = make_ticket_bundle()
 
-    reservation_id, occupancy_id = reserve_bungalow(bungalow.id, user2.id)
+    reservation_id, occupancy_id = reserve_bungalow(bungalow.id, user2)
     occupancy = occupy_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
 
     assert occupancy.manager_id != user1.id

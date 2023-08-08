@@ -11,14 +11,14 @@ from byceps.services.bungalow.models.occupation import (
     ReservationID,
 )
 from byceps.services.ticketing.models.ticket import TicketBundleID
-from byceps.typing import UserID
+from byceps.services.user.models.user import User
 
 
 def reserve_bungalow(
-    bungalow_id: BungalowID, occupier_id: UserID
+    bungalow_id: BungalowID, occupier: User
 ) -> tuple[ReservationID, OccupancyID]:
     reservation, occupancy, _ = bungalow_occupancy_service.reserve_bungalow(
-        bungalow_id, occupier_id
+        bungalow_id, occupier
     ).unwrap()
 
     return reservation.id, occupancy.id

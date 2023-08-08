@@ -17,12 +17,12 @@ from tests.integration.services.bungalow.helpers import (
 def test_occupy_bungalow(
     site_app, make_bungalow, orderer: Orderer, make_ticket_bundle
 ):
-    occupier_id = orderer.user_id
+    occupier = orderer.user
     ticket_bundle = make_ticket_bundle()
 
     bungalow = make_bungalow()
 
-    reservation_id, occupancy_id = reserve_bungalow(bungalow.id, occupier_id)
+    reservation_id, occupancy_id = reserve_bungalow(bungalow.id, occupier)
 
     reservation = bungalow_occupancy_service.find_reservation(reservation_id)
     occupancy = bungalow_occupancy_service.get_occupancy(occupancy_id).unwrap()
@@ -35,7 +35,7 @@ def test_occupy_bungalow(
 
     assert occupancy.state == OccupancyState.reserved
     assert occupancy.ticket_bundle_id is None
-    assert occupancy.manager_id == occupier_id
+    assert occupancy.manager_id == occupier.id
 
     occupy_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
 
@@ -50,4 +50,4 @@ def test_occupy_bungalow(
 
     assert occupancy.state == OccupancyState.occupied
     assert occupancy.ticket_bundle_id is not None
-    assert occupancy.manager_id == occupier_id
+    assert occupancy.manager_id == occupier.id

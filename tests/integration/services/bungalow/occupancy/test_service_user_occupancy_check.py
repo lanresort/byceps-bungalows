@@ -59,7 +59,7 @@ def user3(admin_app, make_user) -> User:
 def test_user_occupies_any_bungalow_for_this_party(
     site_app, bungalow1, party1: Party, user1: User
 ):
-    reserve_bungalow(bungalow1.id, user1.id)
+    reserve_bungalow(bungalow1.id, user1)
 
     assert bungalow_occupancy_service.has_user_occupied_any_bungalow(
         party1.id, user1.id
@@ -69,7 +69,7 @@ def test_user_occupies_any_bungalow_for_this_party(
 def test_user_occupies_any_bungalow_for_another_party(
     site_app, bungalow2, party1: Party, user2: User
 ):
-    reserve_bungalow(bungalow2.id, user2.id)
+    reserve_bungalow(bungalow2.id, user2)
 
     assert not bungalow_occupancy_service.has_user_occupied_any_bungalow(
         party1.id, user2.id

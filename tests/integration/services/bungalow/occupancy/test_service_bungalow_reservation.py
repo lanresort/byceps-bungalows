@@ -15,7 +15,7 @@ from byceps.services.shop.storefront.models import Storefront
 def test_reserve_bungalow(
     storefront: Storefront, make_bungalow, orderer: Orderer
 ):
-    occupier_id = orderer.user_id
+    occupier = orderer.user
 
     order_number_sequence = order_sequence_service.get_order_number_sequence(
         storefront.order_number_sequence_id
@@ -34,7 +34,7 @@ def test_reserve_bungalow(
     assert bungalow.occupancy is None
 
     reservation_result = bungalow_occupancy_service.reserve_bungalow(
-        bungalow.id, occupier_id
+        bungalow.id, occupier
     )
     assert reservation_result.is_ok()
 
@@ -56,18 +56,18 @@ def test_reserve_bungalow(
 
     assert reservation is not None
     assert reservation.id is not None
-    assert reservation.reserved_by_id == occupier_id
+    assert reservation.reserved_by_id == occupier.id
     assert reservation.order_number == expected_order_number
 
     assert occupancy is not None
     assert occupancy.id is not None
-    assert occupancy.occupied_by_id == occupier_id
+    assert occupancy.occupied_by_id == occupier.id
     assert occupancy.order_number == expected_order_number
     assert occupancy.state == OccupancyState.reserved
-    assert occupancy.manager_id == occupier_id
+    assert occupancy.manager_id == occupier.id
 
     order = order_service.find_order_by_order_number(occupancy.order_number)
     assert order is not None
     assert order.order_number == expected_order_number
-    assert order.placed_by_id == occupier_id
+    assert order.placed_by.id == occupier.id
     assert order.payment_state == PaymentState.open

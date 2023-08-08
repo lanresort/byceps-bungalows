@@ -19,9 +19,7 @@ def test_release_bungalow(make_bungalow, orderer: Orderer, make_ticket_bundle):
 
     bungalow = make_bungalow()
 
-    reservation_id, occupancy_id = reserve_bungalow(
-        bungalow.id, orderer.user_id
-    )
+    reservation_id, occupancy_id = reserve_bungalow(bungalow.id, orderer.user)
     occupy_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
 
     reservation = bungalow_occupancy_service.find_reservation(reservation_id)
@@ -33,7 +31,7 @@ def test_release_bungalow(make_bungalow, orderer: Orderer, make_ticket_bundle):
 
     assert occupancy is not None
     assert occupancy.state == OccupancyState.occupied
-    assert occupancy.manager_id == orderer.user_id
+    assert occupancy.manager_id == orderer.user.id
 
     bungalow_occupancy_service.release_bungalow(bungalow.id)
 

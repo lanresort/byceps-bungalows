@@ -151,7 +151,7 @@ def find_occupancy_for_bungalow(
 
 
 def reserve_bungalow(
-    bungalow_id: BungalowID, occupier_id: UserID
+    bungalow_id: BungalowID, occupier: User
 ) -> Result[
     tuple[BungalowReservation, BungalowOccupancy, BungalowReservedEvent], str
 ]:
@@ -159,8 +159,6 @@ def reserve_bungalow(
     db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
     if not db_bungalow.available:
         return Err('Bungalow is not available')
-
-    occupier = user_service.get_user(occupier_id)
 
     db_bungalow.occupation_state = BungalowOccupationState.reserved
 
@@ -297,7 +295,7 @@ def occupy_bungalow(
 def move_occupancy(
     occupancy_id: OccupancyID,
     target_bungalow_id: BungalowID,
-    initiator_id: UserID,
+    initiator: User,
 ) -> Result[BungalowOccupancyMovedEvent, str]:
     """Move occupancy to another bungalow and reset the source bungalow."""
     db_occupancy_result = get_db_occupancy(occupancy_id)
@@ -341,8 +339,6 @@ def move_occupancy(
     if db_target_bungalow.reserved_or_occupied:
         return Err(f'Bungalow {db_target_bungalow.number} ist bereits belegt.')
 
-    initiator = user_service.get_user(initiator_id)
-
     db_target_bungalow.occupation_state = db_source_bungalow.occupation_state
     db_source_bungalow.occupation_state = BungalowOccupationState.available
 
@@ -352,7 +348,7 @@ def move_occupancy(
         'occupancy-moved-away',
         db_source_bungalow.id,
         data={
-            'initiator_id': str(initiator_id),
+            'initiator_id': str(initiator.id),
             'target_bungalow_id': str(db_target_bungalow.id),
             'target_bungalow_number': db_target_bungalow.number,
         },
@@ -363,7 +359,7 @@ def move_occupancy(
         'occupancy-moved-here',
         db_target_bungalow.id,
         data={
-            'initiator_id': str(initiator_id),
+            'initiator_id': str(initiator.id),
             'source_bungalow_id': str(db_source_bungalow.id),
             'source_bungalow_number': db_source_bungalow.number,
         },
@@ -386,17 +382,12 @@ def move_occupancy(
 
 
 def release_bungalow(
-    bungalow_id: BungalowID, *, initiator_id: UserID | None = None
+    bungalow_id: BungalowID, *, initiator: User | None = None
 ) -> BungalowReleasedEvent:
     """Release a bungalow from its occupancy so it becomes available
     again.
     """
     db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
-
-    if initiator_id is not None:
-        initiator = user_service.get_user(initiator_id)
-    else:
-        initiator = None
 
     db_bungalow.occupation_state = BungalowOccupationState.available
 
@@ -406,8 +397,8 @@ def release_bungalow(
     db.session.delete(db_bungalow.occupancy)
 
     log_entry_data = {}
-    if initiator_id:
-        log_entry_data = {'initiator_id': str(initiator_id)}
+    if initiator:
+        log_entry_data = {'initiator_id': str(initiator.id)}
     db_log_entry = bungalow_log_service.build_entry(
         'bungalow-released', db_bungalow.id, log_entry_data
     )
@@ -425,7 +416,7 @@ def release_bungalow(
 
 
 def appoint_bungalow_manager(
-    occupancy_id: OccupancyID, new_manager_id: UserID, initiator_id: UserID
+    occupancy_id: OccupancyID, new_manager: User, initiator: User
 ) -> Result[None, str]:
     """Appoint the user as the bungalow's new manager."""
     db_occupancy_result = get_db_occupancy(occupancy_id)
@@ -435,13 +426,13 @@ def appoint_bungalow_manager(
     db_occupancy = db_occupancy_result.unwrap()
 
     # Set bungalow manager.
-    db_occupancy.managed_by_id = new_manager_id
+    db_occupancy.managed_by_id = new_manager.id
     db_log_entry = bungalow_log_service.build_entry(
         'manager-appointed',
         db_occupancy.bungalow_id,
         data={
-            'initiator_id': str(initiator_id),
-            'new_manager_id': str(new_manager_id),
+            'initiator_id': str(initiator.id),
+            'new_manager_id': str(new_manager.id),
         },
     )
     db.session.add(db_log_entry)
@@ -452,7 +443,7 @@ def appoint_bungalow_manager(
     tickets = ticket_bundle_service.get_tickets_for_bundle(ticket_bundle_id)
     for ticket in tickets:
         ticket_user_management_service.appoint_user_manager(
-            ticket.id, new_manager_id, initiator_id
+            ticket.id, new_manager.id, initiator.id
         )
 
     return Ok(None)

@@ -368,7 +368,7 @@ def order(bungalow_id):
     orderer = form.get_orderer(user.id)
 
     reservation_result = bungalow_occupancy_service.reserve_bungalow(
-        bungalow.id, user.id
+        bungalow.id, user
     )
     if reservation_result.is_err():
         flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')

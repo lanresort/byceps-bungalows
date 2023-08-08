@@ -64,7 +64,7 @@ def make_ticket_bundle(
 ):
     def _wrapper(*, ticket_quantity: int = 4) -> DbTicketBundle:
         return ticket_bundle_service.create_bundle(
-            party.id, ticket_category.id, ticket_quantity, orderer.user_id
+            party.id, ticket_category.id, ticket_quantity, orderer.user
         )
 
     return _wrapper
@@ -112,4 +112,4 @@ def make_bungalow(party: Party, bungalow_category: BungalowCategory):
 @pytest.fixture(scope='module')
 def orderer(make_orderer, admin_app, make_user) -> Orderer:
     user = make_user()
-    return make_orderer(user.id)
+    return make_orderer(user)

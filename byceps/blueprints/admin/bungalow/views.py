@@ -592,7 +592,7 @@ def occupancy_move(occupancy_id):
 
     try:
         move_result = bungalow_occupancy_service.move_occupancy(
-            occupancy.id, target_bungalow.id, g.user.id
+            occupancy.id, target_bungalow.id, g.user
         )
         if move_result.is_err():
             flash_error(
