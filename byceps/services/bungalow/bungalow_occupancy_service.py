@@ -458,7 +458,9 @@ def appoint_bungalow_manager(
     return Ok(None)
 
 
-def set_internal_remark(occupancy_id: OccupancyID, remark: str | None) -> None:
+def set_internal_remark(
+    occupancy_id: OccupancyID, remark: str | None
+) -> Result[None, str]:
     """Set an internal remark."""
     db_occupancy_result = get_db_occupancy(occupancy_id)
     if db_occupancy_result.is_err():
