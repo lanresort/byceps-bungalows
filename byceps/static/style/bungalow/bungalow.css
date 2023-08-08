@@ -104,6 +104,47 @@
   padding: 0 40px 40px 40px;
 }
 
+.bungalow-description {
+  background-color: #ffffff;
+  border: var(--border-color) solid 1px;
+  border-radius: 3px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+  padding: 15px;
+  position: relative;
+}
+
+.bungalow-description:after,
+.bungalow-description:before {
+  border: solid transparent;
+  bottom: 100%;
+  content: " ";
+  height: 0;
+  left: 46px;
+  pointer-events: none;
+  position: absolute;
+  width: 0;
+}
+
+.bungalow-description:after {
+  border-color: rgba(255, 255, 255, 0);
+  border-bottom-color: #ffffff;
+  border-width: 10px;
+  margin-left: -10px;
+}
+
+.bungalow-description:before {
+  border-color: rgba(204, 204, 204, 0);
+  border-bottom-color: var(--border-color);
+  border-width: 11px;
+  margin-left: -11px;
+}
+
+.avatar.size-36 {
+  height: 36px;
+  width: 36px;
+}
+
 
 /* occupant slots */
 
