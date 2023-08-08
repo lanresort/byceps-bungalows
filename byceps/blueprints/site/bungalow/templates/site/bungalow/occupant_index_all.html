@@ -39,26 +39,28 @@
   </small>
   {%- endif %}
 
+  <div class="main-body-box">
   {%- if tickets_and_bungalows.items %}
-  <table class="index index--wide bungalow-occupants-all">
-    <thead>
-      <tr>
-        <th>Bewohner/in</th>
-        <th>Bungalow</th>
-      </tr>
-    </thead>
-    <tbody>
-      {%- for ticket, bungalow in tickets_and_bungalows.items %}
-      <tr>
-        <td>{{ render_user_avatar_and_link(ticket.used_by, size=32, orga=ticket.used_by_id in orga_ids) }}</td>
-        <td class="bungalow">{{ render_bungalow_link(bungalow, label=bungalow.number) }}</td>
-      </tr>
-      {%- endfor %}
-    </tbody>
-  </table>
+    <table class="index index--wide bungalow-occupants-all">
+      <thead>
+        <tr>
+          <th>Bewohner/in</th>
+          <th>Bungalow</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for ticket, bungalow in tickets_and_bungalows.items %}
+        <tr>
+          <td>{{ render_user_avatar_and_link(ticket.used_by, size=32, orga=ticket.used_by_id in orga_ids) }}</td>
+          <td class="bungalow">{{ render_bungalow_link(bungalow, label=bungalow.number) }}</td>
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
   {%- else %}
-  <p class="dimmed">Keine Bewohner gefunden.</p>
+    <p class="dimmed">Keine Bewohner gefunden.</p>
   {%- endif %}
+  </div>
 
 {{ render_pagination_nav(tickets_and_bungalows, '.occupant_index_all', {
   'per_page': per_page,

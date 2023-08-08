@@ -19,7 +19,9 @@
 {% include 'site/bungalow/_map.html' %}
 
   <h2>Bungalows</h2>
+  <div class="main-body-box">
 {% include 'site/bungalow/_list.html' %}
+  </div>
 {{ render_snippet('bungalows_hinweise', ignore_if_unknown=True)|safe }}
 
 {%- if bungalows and not g.site.is_intranet %}

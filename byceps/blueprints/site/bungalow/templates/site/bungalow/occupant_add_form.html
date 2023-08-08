@@ -16,10 +16,12 @@
   </nav>
   <h1>{{ render_icon('add') }} {{ page_title }}</h1>
 
-  <form action="{{ url_for('.occupant_add', ticket_id=occupant_slot.ticket_id) }}" method="post">
-    {{ form_field(form.occupant, maxlength=40, autofocus='autofocus') }}
+  <div class="main-body-box">
+    <form action="{{ url_for('.occupant_add', ticket_id=occupant_slot.ticket_id) }}" method="post">
+      {{ form_field(form.occupant, maxlength=40, autofocus='autofocus') }}
 
-    {{ form_buttons(_('Add'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
-  </form>
+      {{ form_buttons(_('Add'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
+    </form>
+  </div>
 
 {%- endblock %}

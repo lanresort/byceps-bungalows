@@ -196,10 +196,6 @@ ol.occupant-slots-vertical {
 
 /* occupants */
 
-table.bungalow-occupants-all {
-  margin: 2rem 0;
-}
-
 table.bungalow-occupants-all td {
   vertical-align: middle;
 }

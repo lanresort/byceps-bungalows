@@ -21,8 +21,10 @@
 
 .occupant-card {
   align-items: center;
+  background-color: #ffffff;
   border: var(--border-color) solid 1px;
   border-radius: var(--border-radius);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   font-size: 0.8125rem; /* 13px / 16px */
@@ -85,9 +87,9 @@
         <div class="button-row button-row--compact">
         {%- if ticket and ticket.is_user_managed_by(g.user.id) %}
           {%- if not ticket.used_by %}
-          <a class="button button--compact" href="{{ url_for('.occupant_add_form', ticket_id=ticket.id) }}">{{ render_icon('add') }} <span>Hinzufügen</span></a>
+          <a class="button" href="{{ url_for('.occupant_add_form', ticket_id=ticket.id) }}">{{ render_icon('add') }} <span>Hinzufügen</span></a>
           {%- else %}
-          <a class="button button--compact" href="{{ url_for('.occupant_remove_form', ticket_id=ticket.id) }}">{{ render_icon('delete') }} <span>Rauswerfen</span></a>
+          <a class="button" href="{{ url_for('.occupant_remove_form', ticket_id=ticket.id) }}">{{ render_icon('delete') }} <span>Rauswerfen</span></a>
           {%- endif %}
         {%- endif %}
         </div>
