@@ -386,7 +386,7 @@ def order(bungalow_id):
 
     place_bungalow_order_result = (
         bungalow_occupancy_service.place_bungalow_order(
-            storefront.id, reservation.id, occupancy.id, orderer
+            storefront, reservation.id, occupancy.id, orderer
         )
     )
     if place_bungalow_order_result.is_err():

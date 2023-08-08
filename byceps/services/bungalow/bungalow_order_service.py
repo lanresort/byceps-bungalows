@@ -18,8 +18,7 @@ from byceps.services.shop.cart.models import Cart
 from byceps.services.shop.order import order_checkout_service
 from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.shop.order.models.order import Order, Orderer
-from byceps.services.shop.storefront import storefront_service
-from byceps.services.shop.storefront.models import StorefrontID
+from byceps.services.shop.storefront.models import Storefront
 from byceps.util.result import Err, Ok, Result
 
 from .dbmodels.bungalow import DbBungalow
@@ -27,10 +26,11 @@ from .dbmodels.occupancy import DbBungalowOccupancy
 
 
 def place_bungalow_order(
-    storefront_id: StorefrontID, db_article: DbArticle, orderer: Orderer
+    storefront: Storefront,
+    db_article: DbArticle,
+    orderer: Orderer,
 ) -> Result[tuple[Order, ShopOrderPlacedEvent], None]:
     """Place an order for that bungalow."""
-    storefront = storefront_service.get_storefront(storefront_id)
     cart = _build_cart(db_article)
 
     placement_result = order_checkout_service.place_order(

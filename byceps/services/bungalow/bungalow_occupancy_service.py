@@ -22,7 +22,7 @@ from byceps.events.bungalow import (
 )
 from byceps.events.shop import ShopOrderPlacedEvent
 from byceps.services.shop.order.models.order import Order, Orderer
-from byceps.services.shop.storefront.models import StorefrontID
+from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import (
     ticket_bundle_service,
     ticket_user_management_service,
@@ -197,7 +197,7 @@ def reserve_bungalow(
 
 
 def place_bungalow_order(
-    storefront_id: StorefrontID,
+    storefront: Storefront,
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
     orderer: Orderer,
@@ -218,7 +218,7 @@ def place_bungalow_order(
     article = db_occupancy.bungalow.category.article
 
     placement_result = bungalow_order_service.place_bungalow_order(
-        storefront_id, article, orderer
+        storefront, article, orderer
     )
     if placement_result.is_err():
         return Err('Placing the order for the bungalow failed.')
