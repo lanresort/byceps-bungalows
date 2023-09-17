@@ -124,7 +124,6 @@ class DbBungalowOccupancy(db.Model):
 
     @state.setter
     def state(self, state: OccupancyState) -> None:
-        assert state is not None
         self._state = state.name
 
     @property

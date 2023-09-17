@@ -65,7 +65,6 @@ class DbBungalow(db.Model):
 
     @occupation_state.setter
     def occupation_state(self, state: BungalowOccupationState) -> None:
-        assert state is not None
         self._occupation_state = state.name
 
     @property
