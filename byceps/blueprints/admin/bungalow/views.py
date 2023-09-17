@@ -289,8 +289,9 @@ def index_for_party(party_id):
     orders_by_order_number = {order.order_number: order for order in orders}
 
     user_ids = frozenset(_collect_occupancy_user_ids(occupancies))
-    users = user_service.get_users(user_ids, include_avatars=True)
-    users_by_id = user_service.index_users_by_id(users)
+    users_by_id = user_service.get_users_indexed_by_id(
+        user_ids, include_avatars=True
+    )
 
     return {
         'party': party,
@@ -322,8 +323,9 @@ def offer_view(bungalow_id):
             )
 
         user_ids = frozenset(_collect_occupancy_user_ids([occupancy]))
-        users = user_service.get_users(user_ids, include_avatars=True)
-        users_by_id = user_service.index_users_by_id(users)
+        users_by_id = user_service.get_users_indexed_by_id(
+            user_ids, include_avatars=True
+        )
 
     log_entries = list(service.get_log_entries(bungalow.id))
 

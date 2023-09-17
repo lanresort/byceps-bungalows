@@ -148,8 +148,9 @@ def index():
         if bungalow.occupancy
     }
     user_ids = occupancy_user_ids
-    users = user_service.get_users(user_ids, include_avatars=True)
-    users_by_id = user_service.index_users_by_id(users)
+    users_by_id = user_service.get_users_indexed_by_id(
+        user_ids, include_avatars=True
+    )
 
     my_bungalow = bungalow_service.find_bungalow_inhabited_by_user(
         g.user.id, g.party_id
