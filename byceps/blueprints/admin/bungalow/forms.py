@@ -31,7 +31,9 @@ class BuildingCreateForm(LocalizedForm):
 
     def set_layout_choices(self, layouts):
         def generate():
-            for layout in sorted(layouts, key=lambda l: (l.title, l.capacity)):
+            for layout in sorted(
+                layouts, key=lambda lo: (lo.title, lo.capacity)
+            ):
                 label = f'{layout.title}, {layout.capacity:d} Plätze'
                 yield str(layout.id), label
 
