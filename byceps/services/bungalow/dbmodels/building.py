@@ -6,9 +6,10 @@ byceps.services.bungalow.dbmodels.building
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from byceps.database import db, generate_uuid4
+from byceps.database import db
 from byceps.services.bungalow.models.building import BungalowLayout
 from byceps.util.instances import ReprBuilder
+from byceps.util.uuid import generate_uuid4
 
 from .layout import DbBungalowLayout
 

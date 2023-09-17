@@ -8,13 +8,14 @@ byceps.services.bungalow.dbmodels.category
 
 from __future__ import annotations
 
-from byceps.database import db, generate_uuid7
+from byceps.database import db
 from byceps.services.shop.article.dbmodels.article import DbArticle
 from byceps.services.shop.article.models import ArticleID
 from byceps.services.ticketing.dbmodels.category import DbTicketCategory
 from byceps.services.ticketing.models.ticket import TicketCategoryID
 from byceps.typing import PartyID
 from byceps.util.instances import ReprBuilder
+from byceps.util.uuid import generate_uuid7
 
 
 class DbBungalowCategory(db.Model):
