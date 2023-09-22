@@ -38,7 +38,7 @@ def shop(bungalows_shop: Shop) -> Shop:
     return bungalows_shop
 
 
-@pytest.fixture
+@pytest.fixture()
 def storefront(
     shop: Shop, make_order_number_sequence, make_storefront
 ) -> Storefront:

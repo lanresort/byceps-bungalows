@@ -13,7 +13,7 @@ from tests.integration.services.bungalow.helpers import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def user(admin_app, make_user) -> User:
     return make_user()
 

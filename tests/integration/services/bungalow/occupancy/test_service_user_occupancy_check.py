@@ -23,7 +23,7 @@ def party2(bungalows_brand: Brand, make_party) -> Party:
     return make_party(bungalows_brand.id)
 
 
-@pytest.fixture
+@pytest.fixture()
 def bungalow1(party1: Party, bungalow_category, make_bungalow):
     return make_bungalow(
         party_id=party1.id,
@@ -32,7 +32,7 @@ def bungalow1(party1: Party, bungalow_category, make_bungalow):
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def bungalow2(party2: Party, bungalow_category, make_bungalow):
     return make_bungalow(
         party_id=party2.id,
@@ -41,17 +41,17 @@ def bungalow2(party2: Party, bungalow_category, make_bungalow):
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def user1(admin_app, make_user) -> User:
     return make_user()
 
 
-@pytest.fixture
+@pytest.fixture()
 def user2(admin_app, make_user) -> User:
     return make_user()
 
 
-@pytest.fixture
+@pytest.fixture()
 def user3(admin_app, make_user) -> User:
     return make_user()
 

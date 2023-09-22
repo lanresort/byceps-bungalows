@@ -25,7 +25,7 @@ BUNGALOW_NUMBERS = {991, 992}
 BUNGALOW_COUNT = len(BUNGALOW_NUMBERS)
 
 
-@pytest.fixture
+@pytest.fixture()
 def layout(brand: Brand) -> BungalowLayout:
     return bungalow_building_service.create_layout(
         brand.id,
@@ -37,7 +37,7 @@ def layout(brand: Brand) -> BungalowLayout:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def buildings(layout: BungalowLayout) -> list[BungalowBuilding]:
     return [
         bungalow_building_service.create_building(layout, number)
