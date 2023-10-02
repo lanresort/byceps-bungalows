@@ -16,10 +16,10 @@ from typing import Callable
 from sqlalchemy import select
 
 from byceps.database import db
+from byceps.services.party.models import PartyID
 from byceps.services.ticketing import ticket_category_service
 from byceps.services.ticketing.dbmodels.category import DbTicketCategory
 from byceps.services.ticketing.models.ticket import TicketCategory
-from byceps.typing import PartyID
 
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory

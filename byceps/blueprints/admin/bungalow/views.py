@@ -14,7 +14,7 @@ from flask_babel import gettext
 
 from byceps.events.shop import ShopOrderCanceledEvent, ShopOrderPaidEvent
 from byceps.services.brand import brand_service
-from byceps.services.brand.models import Brand
+from byceps.services.brand.models import Brand, BrandID
 from byceps.services.bungalow import (
     bungalow_building_service,
     bungalow_category_service,
@@ -38,7 +38,7 @@ from byceps.services.bungalow.models.occupation import (
     OccupancyID,
 )
 from byceps.services.party import party_service
-from byceps.services.party.models import Party
+from byceps.services.party.models import Party, PartyID
 from byceps.services.shop.article import article_service
 from byceps.services.shop.article.models import ArticleNumber, ArticleType
 from byceps.services.shop.order import order_service
@@ -50,8 +50,8 @@ from byceps.services.ticketing import (
 )
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.user import user_service
+from byceps.services.user.models.user import UserID
 from byceps.signals import bungalow as bungalow_signals, shop as shop_signals
-from byceps.typing import BrandID, PartyID, UserID
 from byceps.util.export import serialize_tuples_to_csv
 from byceps.util.framework.blueprint import create_blueprint
 from byceps.util.framework.flash import flash_error, flash_notice, flash_success

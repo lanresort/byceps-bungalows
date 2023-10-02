@@ -18,10 +18,10 @@ from wtforms.validators import InputRequired, Length, Optional
 
 from byceps.services.bungalow import bungalow_service
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
+from byceps.services.party.models import PartyID
 from byceps.services.shop.article import article_service
 from byceps.services.shop.shop.models import ShopID
 from byceps.services.ticketing import ticket_category_service
-from byceps.typing import PartyID
 from byceps.util.l10n import LocalizedForm
 
 

@@ -16,8 +16,8 @@ from byceps.services.bungalow.models.building import (
     BungalowBuilding,
     BungalowLayout,
 )
+from byceps.services.party.models import PartyID
 from byceps.services.ticketing.models.ticket import TicketCategory
-from byceps.typing import PartyID
 
 
 BUNGALOW_CAPACITY = 6

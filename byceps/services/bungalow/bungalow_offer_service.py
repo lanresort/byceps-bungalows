@@ -9,7 +9,7 @@ byceps.services.bungalow.bungalow_offer_service
 from sqlalchemy import delete
 
 from byceps.database import db
-from byceps.typing import PartyID
+from byceps.services.party.models import PartyID
 
 from . import bungalow_service
 from .bungalow_service import _db_entity_to_bungalow

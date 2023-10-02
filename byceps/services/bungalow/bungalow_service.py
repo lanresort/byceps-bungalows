@@ -12,6 +12,7 @@ from sqlalchemy import select
 
 from byceps.database import db, paginate, Pagination
 from byceps.services.brand import brand_setting_service
+from byceps.services.brand.models import BrandID
 from byceps.services.party import party_service
 from byceps.services.party.models import Party
 from byceps.services.shop.article.dbmodels.article import DbArticle
@@ -19,8 +20,7 @@ from byceps.services.ticketing import ticket_service
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.user.dbmodels.user import DbUser
-from byceps.services.user.models.user import User
-from byceps.typing import BrandID, PartyID, UserID
+from byceps.services.user.models.user import User, UserID
 from byceps.util.result import Err, Ok, Result
 
 from .dbmodels.bungalow import DbBungalow

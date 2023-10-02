@@ -10,7 +10,7 @@ from typing import BinaryIO
 
 from byceps.database import db
 from byceps.services.image import image_service
-from byceps.typing import UserID
+from byceps.services.user.models.user import UserID
 from byceps.util import upload
 from byceps.util.image import create_thumbnail
 from byceps.util.image.models import Dimensions, ImageType

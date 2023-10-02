@@ -11,9 +11,9 @@ from __future__ import annotations
 from sqlalchemy import select
 
 from byceps.database import db
+from byceps.services.party.models import PartyID
 from byceps.services.shop.article.models import ArticleID
 from byceps.services.ticketing.models.ticket import TicketCategoryID
-from byceps.typing import PartyID
 
 from .dbmodels.category import DbBungalowCategory
 from .model_converters import _db_entity_to_bungalow_category

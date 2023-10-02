@@ -17,7 +17,7 @@ from byceps.events.bungalow import (
     BungalowReservedEvent,
 )
 from byceps.services.bungalow.models.bungalow import BungalowID
-from byceps.typing import UserID
+from byceps.services.user.models.user import UserID
 
 from tests.helpers import generate_uuid
 

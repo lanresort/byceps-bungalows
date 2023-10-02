@@ -21,6 +21,7 @@ from byceps.events.bungalow import (
     BungalowReservedEvent,
 )
 from byceps.events.shop import ShopOrderPlacedEvent
+from byceps.services.party.models import PartyID
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import (
@@ -31,8 +32,7 @@ from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
-from byceps.services.user.models.user import User, UserForAdmin
-from byceps.typing import PartyID, UserID
+from byceps.services.user.models.user import User, UserForAdmin, UserID
 from byceps.util.result import Err, Ok, Result
 
 from . import bungalow_log_service, bungalow_order_service, bungalow_service

@@ -19,7 +19,7 @@ else:
 from byceps.database import db
 from byceps.services.bungalow.models.bungalow import BungalowOccupationState
 from byceps.services.bungalow.models.category import BungalowCategoryID
-from byceps.typing import PartyID
+from byceps.services.party.models import PartyID
 from byceps.util.instances import ReprBuilder
 from byceps.util.uuid import generate_uuid7
 

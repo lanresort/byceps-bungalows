@@ -15,9 +15,9 @@ from uuid import UUID
 
 from moneyed import Money
 
+from byceps.services.party.models import PartyID
 from byceps.services.shop.article.models import ArticleID, ArticleNumber
 from byceps.services.ticketing.models.ticket import TicketCategoryID
-from byceps.typing import PartyID
 
 
 BungalowCategoryID = NewType('BungalowCategoryID', UUID)

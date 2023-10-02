@@ -19,7 +19,8 @@ else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
 from byceps.database import db
-from byceps.typing import PartyID, UserID
+from byceps.services.party.models import PartyID
+from byceps.services.user.models.user import UserID
 from byceps.util.image.models import ImageType
 from byceps.util.instances import ReprBuilder
 from byceps.util.uuid import generate_uuid7
