@@ -127,7 +127,7 @@ def index():
     )
 
     total_amounts_by_article_id = {
-        article_id: article_service.calculate_article_compilation_total_amount(
+        article_id: article_domain_service.calculate_article_compilation_total_amount(
             article_compilations_by_article_id[article_id]
         ).unwrap()
         for article_id in article_ids
@@ -303,7 +303,7 @@ def order_form(bungalow_id, *, erroneous_form=None):
     country_names = country_service.get_country_names()
 
     total_amount_result = (
-        article_service.calculate_article_compilation_total_amount(
+        article_domain_service.calculate_article_compilation_total_amount(
             article_compilation
         )
     )
