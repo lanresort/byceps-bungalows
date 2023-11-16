@@ -129,7 +129,7 @@ def index():
     total_amounts_by_article_id = {
         article_id: article_service.calculate_article_compilation_total_amount(
             article_compilations_by_article_id[article_id]
-        )
+        ).unwrap()
         for article_id in article_ids
     }
 
@@ -302,15 +302,17 @@ def order_form(bungalow_id, *, erroneous_form=None):
 
     country_names = country_service.get_country_names()
 
-    try:
-        total_amount = (
-            article_service.calculate_article_compilation_total_amount(
-                article_compilation
-            )
+    total_amount_result = (
+        article_service.calculate_article_compilation_total_amount(
+            article_compilation
         )
-    except ValueError as e:
-        flash_error(str(e))
+    )
+
+    if total_amount_result.is_err():
+        flash_error('Für einige Artikel ist keine Stückzahl vorgegeben.')
         return {'bungalow': None}
+
+    total_amount = total_amount_result.unwrap()
 
     return {
         'bungalow': bungalow,
