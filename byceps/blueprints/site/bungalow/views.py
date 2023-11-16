@@ -368,7 +368,7 @@ def order(bungalow_id):
     if not form.validate():
         return order_form(bungalow_id, erroneous_form=form)
 
-    orderer = form.get_orderer(user.id)
+    orderer = form.get_orderer(user)
 
     reservation_result = bungalow_occupancy_service.reserve_bungalow(
         bungalow.id, user
