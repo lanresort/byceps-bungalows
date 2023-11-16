@@ -94,7 +94,7 @@ def make_bungalow(party: Party, bungalow_category: BungalowCategory):
             party_id = party.id
 
         if number is None:
-            number = randint(100, 9999)
+            number = randint(100, 9999)  # noqa: S311
 
         if bungalow_category_id is None:
             bungalow_category_id = bungalow_category.id
