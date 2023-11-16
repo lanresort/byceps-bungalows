@@ -400,7 +400,7 @@ def order(bungalow_id):
     shop_signals.order_placed.send(None, event=order_placed_event)
     flash_success('Deine Bestellung wurde entgegen genommen. Vielen Dank!')
 
-    order_email_service.send_email_for_incoming_order_to_orderer(order.id)
+    order_email_service.send_email_for_incoming_order_to_orderer(order)
 
     return redirect_to('shop_orders.view', order_id=order.id)
 
