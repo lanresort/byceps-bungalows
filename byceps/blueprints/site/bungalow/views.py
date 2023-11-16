@@ -38,7 +38,7 @@ from byceps.services.country import country_service
 from byceps.services.image import image_service
 from byceps.services.orga_team import orga_team_service
 from byceps.services.party import party_service
-from byceps.services.shop.article import article_service
+from byceps.services.shop.article import article_domain_service, article_service
 from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.storefront import storefront_service
 from byceps.services.ticketing import (
@@ -175,7 +175,7 @@ def index():
         'total_amounts_by_article_id': total_amounts_by_article_id,
         'occupant_slots_by_occupancy_id': occupant_slots_by_occupancy_id,
         'users_by_id': users_by_id,
-        'is_article_available_now': article_service.is_article_available_now,
+        'is_article_available_now': article_domain_service.is_article_available_now,
         'my_bungalow_id': my_bungalow.id if my_bungalow is not None else None,
         'occupation_summaries_by_ticket_category_id': occupation_summaries_by_ticket_category_id,
         'statistics_total': statistics_total,
@@ -277,7 +277,7 @@ def order_form(bungalow_id, *, erroneous_form=None):
     if (
         not article
         or article.quantity < 1
-        or not article_service.is_article_available_now(article)
+        or not article_domain_service.is_article_available_now(article)
     ):
         flash_error(
             f'Bungalow {bungalow.number} kann derzeit nicht reserviert werden.'
@@ -347,7 +347,7 @@ def order(bungalow_id):
     if (
         not article
         or article.quantity < 1
-        or not article_service.is_article_available_now(article)
+        or not article_domain_service.is_article_available_now(article)
     ):
         flash_error(
             f'Bungalow {bungalow.number} kann derzeit nicht reserviert werden.'
