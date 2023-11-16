@@ -117,7 +117,7 @@ def _to_ticket_category(category: DbTicketCategory) -> TicketCategory:
 def get_statistics_total(
     summary_by_category: Iterable[
         tuple[TicketCategory, CategoryOccupationSummary]
-    ]
+    ],
 ) -> CategoryOccupationSummary:
     summaries = [summary for category, summary in summary_by_category]
     return _get_statistics_total(summaries)
