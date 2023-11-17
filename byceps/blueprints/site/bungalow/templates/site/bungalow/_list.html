@@ -6,6 +6,15 @@
 
   {%- if bungalows %}
   <table class="itemlist itemlist--v-centered itemlist--wide bungalow-list">
+    <thead>
+      <tr>
+        <th>Nummer</th>
+        <th>{{ _('Category') }}<br>Kapazität</th>
+        <th></th>
+        <th class="centered">Status</th>
+        <th colspan="2">Preis bzw. Belegung</th>
+      </tr>
+    </thead>
     <tbody>
       {%- for bungalow in bungalows %}
         {%- with category = bungalow_categories_by_id[bungalow.category_id] %}
@@ -33,7 +42,7 @@
           {%- endwith %}
         {%- elif bungalow.reserved %}
         <td colspan="2" class="nowrap">
-          durch {{ render_user_avatar_and_link(users_by_id[bungalow.occupancy.occupied_by_id], size=16) }}
+          {{ _('by') }} {{ render_user_avatar_and_link(users_by_id[bungalow.occupancy.occupied_by_id], size=16) }}
         </td>
         {%- elif bungalow.occupied %}
         <td colspan="2" class="nowrap">
