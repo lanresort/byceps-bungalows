@@ -3,7 +3,7 @@
 {%- from 'macros/user.html' import render_user_avatar, render_user_avatar_and_link %}
 
   {%- if bungalows %}
-  <table class="index index--v-centered index--wide bungalow-list">
+  <table class="itemlist itemlist--v-centered itemlist--wide bungalow-list">
     <tbody>
       {%- for bungalow in bungalows %}
         {%- with category = bungalow_categories_by_id[bungalow.category_id] %}
@@ -25,7 +25,7 @@
             {%- endwith %}
         <td class="nowrap number">
             {%- if article and article.quantity > 0 and is_article_available_now(article) -%}
-          <a class="button color-primary" href="{{ url_for('.order', bungalow_id=bungalow.id) }}">{{ render_icon('shopping-cart') }} <span>Jetzt buchen</span></a>
+          <a class="button color-primary" href="{{ url_for('.order', bungalow_id=bungalow.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
             {%- endif -%}
         </td>
           {%- endwith %}

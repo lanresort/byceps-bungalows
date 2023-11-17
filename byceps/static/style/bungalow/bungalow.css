@@ -36,27 +36,6 @@
 
 .bungalow-list [id|=bungalow]:target {
   background-color: #f8f888;
-  position: relative;
-}
-
-.bungalow-list [id|=bungalow]:target td:first-child:before,
-.bungalow-list [id|=bungalow]:target td:last-child:after {
-  background-color: #f8f888;
-  content: "";
-  display: block;
-  height: 100%;
-  position: absolute;
-  top: 0;
-}
-
-.bungalow-list [id|=bungalow]:target td:first-child:before {
-  left: -40px;
-  width: 40px;
-}
-
-.bungalow-list [id|=bungalow]:target td:last-child:after {
-  right: -40px;
-  width: 40px;
 }
 
 
@@ -191,15 +170,4 @@ ol.occupant-slots-vertical {
 .occupant-slots-vertical .occupant-slot--available {
   height: 24px;
   width: 24px;
-}
-
-
-/* occupants */
-
-table.bungalow-occupants-all td {
-  vertical-align: middle;
-}
-
-table.bungalow-occupants-all td.bungalow {
-  font-size: 1.6em;
 }
