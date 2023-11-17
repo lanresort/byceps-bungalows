@@ -35,108 +35,108 @@
     </div>
   </div>
 
+  {%- if bungalows %}
+  <table class="itemlist itemlist--v-centered itemlist--wide">
+    <thead>
+      <tr>
+        <th>Nr.</th>
+        <th class="centered">Kategorie</th>
+        <th class="centered">Plätze</th>
+        <th></th>
+        <th class="centered">Status</th>
+        <th>Bestellung</th>
+        <th>Reserviert von</th>
+        <th>Verwaltung übertragen an</th>
+        <th>{{ _('Ticket bundle') }}</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for bungalow in bungalows %}
+      <tr>
+        <td><a href="{{ url_for('.offer_view', bungalow_id=bungalow.id) }}">{{ bungalow.number }}</a></td>
+        <td class="centered">{{ bungalow.category.title }}</td>
+        <td class="centered">{{ bungalow.category.capacity }}</td>
+        <td class="centered">
+          {%- if bungalow.distributes_network -%}
+            {{ render_icon('move', title='ist Netzwerk-Verteiler') }}
+          {%- endif -%}
+        </td>
+        <td class="centered nowrap">{{ render_bungalow_occupation_state(bungalow) }}</td>
+        <td class="nowrap">
+          {%- if bungalow.occupancy and bungalow.occupancy.order_number %}
+          {{ render_order_link(orders_by_order_number[bungalow.occupancy.order_number]) }}
+          {%- else -%}
+          {{ 'liegt nicht vor'|dim }}
+          {%- endif -%}
+        </td>
+        <td>
+          {%- if bungalow.reserved_or_occupied -%}
+          {{ render_user_avatar_and_admin_link(users_by_id[bungalow.occupancy.occupied_by_id], size=16) }}
+          {%- endif -%}
+        </td>
+        <td>
+          {%- if bungalow.occupied %}
+            {%- with manager_id = bungalow.occupancy.manager_id %}
+              {%- if manager_id != bungalow.occupancy.occupied_by_id %}
+          {{ render_user_avatar_and_admin_link(users_by_id[manager_id], size=16) }}
+              {%- endif %}
+            {%- endwith %}
+          {%- endif %}
+        </td>
+        <td>
+          {%- if bungalow.occupied %}
+            {%- with ticket_bundle_id = bungalow.occupancy.ticket_bundle_id %}
+              {%- if ticket_bundle_id %}
+          <a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=ticket_bundle_id) }}">{{ ticket_bundle_id|string|truncate(9, end='…') }}</a>
+              {%- else %}
+          {{ _('not assigned')|dim }}
+              {%- endif %}
+            {%- endwith %}
+          {%- endif %}
+        </td>
+        <td class="centered">
+          {%- if bungalow.occupancy and bungalow.occupancy.pinned %}
+          {{ render_icon('pin', title='Wechsel blockiert') }}
+          {%- endif -%}
+        </td>
+        <td class="centered">
+          {%- if bungalow.occupancy %}
+            {%- if bungalow.occupancy.internal_remark -%}
+            {{ render_icon('note', title='Anmerkung:\n%s'|format(bungalow.occupancy.internal_remark)) }}
+            {%- endif -%}
+          {%- endif %}
+        </td>
+        <td>
+          <div class="dropdown">
+            <button class="dropdown-toggle button button--compact">{{ render_icon('caret-down') }}</button>
+            <ol class="dropdown-menu dropdown-menu--right">
+            {%- if bungalow.distributes_network %}
+              <li><a class="dropdown-item" data-action="unset-distributes-network" href="{{ url_for('.unset_distributes_network_flag', bungalow_id=bungalow.id, _method='DELETE') }}">{{ render_icon('move') }} Nicht mehr als Netzwerk-Verteiler markieren</a></li>
+            {%- else %}
+              <li><a class="dropdown-item" data-action="set-distributes-network" href="{{ url_for('.set_distributes_network_flag', bungalow_id=bungalow.id, _method='POST') }}">{{ render_icon('move') }} Als Netzwerk-Verteiler markieren</a></li>
+            {%- endif %}
+            {%- if bungalow.reserved_or_occupied %}
+              <li><a class="dropdown-item" href="{{ url_for('.internal_remark_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('note') }} Anmerkung bearbeiten</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('.occupancy_move_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('arrow-right') }} Belegung verschieben</a></li>
+            {%- else %}
+              <li class="dropdown-divider"></li>
+              <li><a class="dropdown-item" data-action="offer-delete" href="{{ url_for('.offer_delete', offer_id=bungalow.id) }}">{{ render_icon('delete') }} Nicht mehr anbieten</a></li>
+            {%- endif %}
+            </ol>
+          </div>
+        </td>
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  {%- else %}
   <div class="box">
-    {%- if bungalows %}
-    <table class="index index--v-centered index--wide">
-      <thead>
-        <tr>
-          <th>Nr.</th>
-          <th class="centered">Kategorie</th>
-          <th class="centered">Plätze</th>
-          <th></th>
-          <th class="centered">Status</th>
-          <th>Bestellung</th>
-          <th>Reserviert von</th>
-          <th>Verwaltung übertragen an</th>
-          <th>{{ _('Ticket bundle') }}</th>
-          <th></th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {%- for bungalow in bungalows %}
-        <tr>
-          <td><a href="{{ url_for('.offer_view', bungalow_id=bungalow.id) }}">{{ bungalow.number }}</a></td>
-          <td class="centered">{{ bungalow.category.title }}</td>
-          <td class="centered">{{ bungalow.category.capacity }}</td>
-          <td class="centered">
-            {%- if bungalow.distributes_network -%}
-              {{ render_icon('move', title='ist Netzwerk-Verteiler') }}
-            {%- endif -%}
-          </td>
-          <td class="centered nowrap">{{ render_bungalow_occupation_state(bungalow) }}</td>
-          <td class="nowrap">
-            {%- if bungalow.occupancy and bungalow.occupancy.order_number %}
-            {{ render_order_link(orders_by_order_number[bungalow.occupancy.order_number]) }}
-            {%- else -%}
-            {{ 'liegt nicht vor'|dim }}
-            {%- endif -%}
-          </td>
-          <td>
-            {%- if bungalow.reserved_or_occupied -%}
-            {{ render_user_avatar_and_admin_link(users_by_id[bungalow.occupancy.occupied_by_id], size=16) }}
-            {%- endif -%}
-          </td>
-          <td>
-            {%- if bungalow.occupied %}
-              {%- with manager_id = bungalow.occupancy.manager_id %}
-                {%- if manager_id != bungalow.occupancy.occupied_by_id %}
-            {{ render_user_avatar_and_admin_link(users_by_id[manager_id], size=16) }}
-                {%- endif %}
-              {%- endwith %}
-            {%- endif %}
-          </td>
-          <td>
-            {%- if bungalow.occupied %}
-              {%- with ticket_bundle_id = bungalow.occupancy.ticket_bundle_id %}
-                {%- if ticket_bundle_id %}
-            <a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=ticket_bundle_id) }}">{{ ticket_bundle_id|string|truncate(9, end='…') }}</a>
-                {%- else %}
-            {{ _('not assigned')|dim }}
-                {%- endif %}
-              {%- endwith %}
-            {%- endif %}
-          </td>
-          <td class="centered">
-            {%- if bungalow.occupancy and bungalow.occupancy.pinned %}
-            {{ render_icon('pin', title='Wechsel blockiert') }}
-            {%- endif -%}
-          </td>
-          <td class="centered">
-            {%- if bungalow.occupancy %}
-              {%- if bungalow.occupancy.internal_remark -%}
-              {{ render_icon('note', title='Anmerkung:\n%s'|format(bungalow.occupancy.internal_remark)) }}
-              {%- endif -%}
-            {%- endif %}
-          </td>
-          <td>
-            <div class="dropdown">
-              <button class="dropdown-toggle button button--compact">{{ render_icon('caret-down') }}</button>
-              <ol class="dropdown-menu dropdown-menu--right">
-              {%- if bungalow.distributes_network %}
-                <li><a class="dropdown-item" data-action="unset-distributes-network" href="{{ url_for('.unset_distributes_network_flag', bungalow_id=bungalow.id, _method='DELETE') }}">{{ render_icon('move') }} Nicht mehr als Netzwerk-Verteiler markieren</a></li>
-              {%- else %}
-                <li><a class="dropdown-item" data-action="set-distributes-network" href="{{ url_for('.set_distributes_network_flag', bungalow_id=bungalow.id, _method='POST') }}">{{ render_icon('move') }} Als Netzwerk-Verteiler markieren</a></li>
-              {%- endif %}
-              {%- if bungalow.reserved_or_occupied %}
-                <li><a class="dropdown-item" href="{{ url_for('.internal_remark_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('note') }} Anmerkung bearbeiten</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('.occupancy_move_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('arrow-right') }} Belegung verschieben</a></li>
-              {%- else %}
-                <li class="dropdown-divider"></li>
-                <li><a class="dropdown-item" data-action="offer-delete" href="{{ url_for('.offer_delete', offer_id=bungalow.id) }}">{{ render_icon('delete') }} Nicht mehr anbieten</a></li>
-              {%- endif %}
-              </ol>
-            </div>
-          </td>
-        </tr>
-        {%- endfor %}
-      </tbody>
-    </table>
-    {%- else %}
     <div class="dimmed-box centered">Es werden derzeit keine Bungalows angeboten.</div>
-    {%- endif %}
   </div>
+  {%- endif %}
 
 {%- endblock %}
 

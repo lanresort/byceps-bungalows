@@ -19,49 +19,49 @@
     </div>
   </div>
 
+  {%- if categories %}
+  <table class="itemlist itemlist--v-centered itemlist--wide">
+    <thead>
+      <tr>
+        <th>{{ _('Title') }}</th>
+        <th>Kapazität</th>
+        <th>Sitzplatz-Kategorie</th>
+        <th>Artikel</th>
+        <th>Bild-Dateiname</th>
+        <th class="number">Bildbreite</th>
+        <th class="number">Bildhöhe</th>
+        {%- if has_current_user_permission('bungalow.update') %}
+        <th></th>
+        {%- endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {%- for category in categories %}
+      <tr>
+        <td>{{ category.title|fallback(_('untitled')) }}</td>
+        <td class="centered">{{ category.capacity }}</td>
+        <td>{{ category.ticket_category_title|fallback('nicht festgelegt') }}</td>
+        <td class="nowrap">
+          {%- if category.article %}
+            {{ render_article_link(category.article) }}
+          {%- else %}
+            {{ 'nicht festgelegt'|dim }}
+          {%- endif %}
+        </td>
+        <td>{{ category.image_filename|fallback }}</td>
+        <td class="number">{{ category.image_width|fallback }}</td>
+        <td class="number">{{ category.image_height|fallback }}</td>
+        {%- if has_current_user_permission('bungalow.update') %}
+          <td><a href="{{ url_for('.category_update_form', category_id=category.id) }}" class="button button--compact" title="{{ _('Edit category') }}">{{ render_icon('edit') }}</a></td>
+        {%- endif %}
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  {%- else %}
   <div class="box">
-    {%- if categories %}
-    <table class="index">
-      <thead>
-        <tr>
-          <th>{{ _('Title') }}</th>
-          <th>Kapazität</th>
-          <th>Sitzplatz-Kategorie</th>
-          <th>Artikel</th>
-          <th>Bild-Dateiname</th>
-          <th class="number">Bildbreite</th>
-          <th class="number">Bildhöhe</th>
-          {%- if has_current_user_permission('bungalow.update') %}
-          <th></th>
-          {%- endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {%- for category in categories %}
-        <tr>
-          <td>{{ category.title|fallback(_('untitled')) }}</td>
-          <td class="centered">{{ category.capacity }}</td>
-          <td>{{ category.ticket_category_title|fallback('nicht festgelegt') }}</td>
-          <td class="nowrap">
-            {%- if category.article %}
-              {{ render_article_link(category.article) }}
-            {%- else %}
-              {{ 'nicht festgelegt'|dim }}
-            {%- endif %}
-          </td>
-          <td>{{ category.image_filename|fallback }}</td>
-          <td class="number">{{ category.image_width|fallback }}</td>
-          <td class="number">{{ category.image_height|fallback }}</td>
-          {%- if has_current_user_permission('bungalow.update') %}
-            <td><a href="{{ url_for('.category_update_form', category_id=category.id) }}" class="button button--compact" title="{{ _('Edit category') }}">{{ render_icon('edit') }}</a></td>
-          {%- endif %}
-        </tr>
-        {%- endfor %}
-      </tbody>
-    </table>
-    {%- else %}
     <div class="dimmed-box centered">Es sind keine Bungalow-Kategorien definiert.</div>
-    {%- endif %}
   </div>
+  {%- endif %}
 
 {%- endblock %}
