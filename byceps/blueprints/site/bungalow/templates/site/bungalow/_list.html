@@ -2,6 +2,8 @@
 {%- from 'macros/icons.html' import render_icon %}
 {%- from 'macros/user.html' import render_user_avatar, render_user_avatar_and_link %}
 
+  <h2>Bungalows</h2>
+
   {%- if bungalows %}
   <table class="itemlist itemlist--v-centered itemlist--wide bungalow-list">
     <tbody>
@@ -62,3 +64,5 @@
   {%- else %}
   <p class="dimmed">Es werden derzeit keine Bungalows angeboten.</p>
   {%- endif %}
+
+{{ render_snippet('bungalows_hinweise', ignore_if_unknown=True)|safe }}

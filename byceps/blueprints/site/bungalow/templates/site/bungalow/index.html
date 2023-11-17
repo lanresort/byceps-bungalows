@@ -18,9 +18,7 @@
 
 {% include 'site/bungalow/_map.html' %}
 
-  <h2>Bungalows</h2>
 {% include 'site/bungalow/_list.html' %}
-{{ render_snippet('bungalows_hinweise', ignore_if_unknown=True)|safe }}
 
 {%- if bungalows and not g.site.is_intranet %}
 {% include 'site/bungalow/_categories.html' %}
