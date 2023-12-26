@@ -4,7 +4,7 @@
 {% from 'macros/pagination.html' import render_pagination_nav %}
 {% from 'macros/user.html' import render_user_avatar_and_link %}
 {% set current_page = 'occupants' %}
-{% set page_title = 'Parkbewohner' %}
+{% set page_title = 'Bewohner' %}
 
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='style/bungalow/bungalow.css') }}">
@@ -33,7 +33,7 @@
         <p><strong>{{ tickets_and_bungalows.total }}</strong> {{ _('results for search term') }} &quot;<strong>{{ search_term }}</strong>&quot;</p>
       </div>
       <div>
-        <p><a href="{{ url_for('.occupant_index_all') }}">alle Parkbewohner</a></p>
+        <p><a href="{{ url_for('.occupant_index_all') }}">alle Bewohner</a></p>
       </div>
     </div>
   </small>
