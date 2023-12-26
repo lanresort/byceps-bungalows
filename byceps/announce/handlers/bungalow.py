@@ -28,9 +28,7 @@ def announce_bungalow_reserved(
     event_name: str, event: BungalowReservedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been reserved."""
-    occupier_screen_name = get_screen_name_or_fallback(
-        event.occupier_screen_name
-    )
+    occupier_screen_name = get_screen_name_or_fallback(event.occupier)
 
     text = f'{occupier_screen_name} hat Bungalow {event.bungalow_number} reserviert.'
 
@@ -41,9 +39,7 @@ def announce_bungalow_occupied(
     event_name: str, event: BungalowOccupiedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow has been occupied."""
-    occupier_screen_name = get_screen_name_or_fallback(
-        event.occupier_screen_name
-    )
+    occupier_screen_name = get_screen_name_or_fallback(event.occupier)
 
     text = (
         f'{occupier_screen_name} hat Bungalow {event.bungalow_number} belegt.'
@@ -83,9 +79,7 @@ def announce_bungalow_avatar_updated(
     webhook: OutgoingWebhook,
 ) -> Announcement | None:
     """Announce that a bungalow's avatar image has been updated."""
-    initiator_screen_name = get_screen_name_or_fallback(
-        event.initiator_screen_name
-    )
+    initiator_screen_name = get_screen_name_or_fallback(event.initiator)
 
     text = (
         f'{initiator_screen_name} hat das Avatarbild für Bungalow '
@@ -101,9 +95,7 @@ def announce_bungalow_description_updated(
     webhook: OutgoingWebhook,
 ) -> Announcement | None:
     """Announce that a bungalow's description has been updated."""
-    initiator_screen_name = get_screen_name_or_fallback(
-        event.initiator_screen_name
-    )
+    initiator_screen_name = get_screen_name_or_fallback(event.initiator)
 
     text = (
         f'{initiator_screen_name} hat das Grußwort für Bungalow '
@@ -117,12 +109,8 @@ def announce_bungalow_occupant_added(
     event_name: str, event: BungalowOccupantAddedEvent, webhook: OutgoingWebhook
 ) -> Announcement | None:
     """Announce that a bungalow occupant has been updated."""
-    initiator_screen_name = get_screen_name_or_fallback(
-        event.initiator_screen_name
-    )
-    occupant_screen_name = get_screen_name_or_fallback(
-        event.occupant_screen_name
-    )
+    initiator_screen_name = get_screen_name_or_fallback(event.initiator)
+    occupant_screen_name = get_screen_name_or_fallback(event.occupant)
 
     text = (
         f'{initiator_screen_name} hat {occupant_screen_name} in Bungalow '
@@ -138,12 +126,8 @@ def announce_bungalow_occupant_removed(
     webhook: OutgoingWebhook,
 ) -> Announcement | None:
     """Announce that a bungalow occupant has been removed."""
-    initiator_screen_name = get_screen_name_or_fallback(
-        event.initiator_screen_name
-    )
-    occupant_screen_name = get_screen_name_or_fallback(
-        event.occupant_screen_name
-    )
+    initiator_screen_name = get_screen_name_or_fallback(event.initiator)
+    occupant_screen_name = get_screen_name_or_fallback(event.occupant)
 
     text = (
         f'{initiator_screen_name} hat {occupant_screen_name} aus Bungalow '

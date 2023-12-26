@@ -14,6 +14,7 @@ from datetime import datetime
 from sqlalchemy import select
 
 from byceps.database import db
+from byceps.events.base import EventUser
 from byceps.events.bungalow import (
     BungalowOccupancyMovedEvent,
     BungalowOccupiedEvent,
@@ -182,12 +183,10 @@ def reserve_bungalow(
 
     bungalow_reserved_event = BungalowReservedEvent(
         occurred_at=datetime.utcnow(),
-        initiator_id=occupier.id,
-        initiator_screen_name=occupier.screen_name,
+        initiator=EventUser.from_user(occupier),
         bungalow_id=db_bungalow.id,
         bungalow_number=db_bungalow.number,
-        occupier_id=occupier.id,
-        occupier_screen_name=occupier.screen_name,
+        occupier=EventUser.from_user(occupier),
     )
 
     reservation = _db_entity_to_reservation(db_reservation)
@@ -281,12 +280,10 @@ def occupy_bungalow(
 
     event = BungalowOccupiedEvent(
         occurred_at=datetime.utcnow(),
-        initiator_id=occupier.id,
-        initiator_screen_name=occupier.screen_name,
+        initiator=EventUser.from_user(occupier),
         bungalow_id=db_bungalow.id,
         bungalow_number=db_bungalow.number,
-        occupier_id=occupier.id,
-        occupier_screen_name=occupier.screen_name,
+        occupier=EventUser.from_user(occupier),
     )
 
     return Ok((occupancy, event))
@@ -371,8 +368,7 @@ def move_occupancy(
     return Ok(
         BungalowOccupancyMovedEvent(
             occurred_at=datetime.utcnow(),
-            initiator_id=initiator.id,
-            initiator_screen_name=initiator.screen_name,
+            initiator=EventUser.from_user(initiator),
             source_bungalow_id=db_source_bungalow.id,
             source_bungalow_number=db_source_bungalow.number,
             target_bungalow_id=db_target_bungalow.id,
@@ -408,8 +404,7 @@ def release_bungalow(
 
     return BungalowReleasedEvent(
         occurred_at=datetime.utcnow(),
-        initiator_id=initiator.id if initiator else None,
-        initiator_screen_name=initiator.screen_name if initiator else None,
+        initiator=EventUser.from_user(initiator) if initiator else None,
         bungalow_id=db_bungalow.id,
         bungalow_number=db_bungalow.number,
     )

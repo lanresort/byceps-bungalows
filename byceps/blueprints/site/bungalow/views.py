@@ -14,6 +14,7 @@ from flask import abort, g, render_template, request
 from byceps.blueprints.site.shop.order.forms import OrderForm
 from byceps.blueprints.site.site.navigation import subnavigation_for_view
 from byceps.database import db
+from byceps.events.base import EventUser
 from byceps.events.bungalow import (
     BungalowOccupancyAvatarUpdatedEvent,
     BungalowOccupancyDescriptionUpdatedEvent,
@@ -583,12 +584,10 @@ def occupant_add(ticket_id):
 
     event = BungalowOccupantAddedEvent(
         occurred_at=datetime.utcnow(),
-        initiator_id=manager.id,
-        initiator_screen_name=manager.screen_name,
+        initiator=EventUser.from_user(manager),
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
-        occupant_id=occupant.id,
-        occupant_screen_name=occupant.screen_name,
+        occupant=EventUser.from_user(occupant),
     )
     bungalow_signals.occupant_added.send(None, event=event)
 
@@ -655,12 +654,10 @@ def occupant_remove(ticket_id):
 
     event = BungalowOccupantRemovedEvent(
         occurred_at=datetime.utcnow(),
-        initiator_id=manager.id,
-        initiator_screen_name=manager.screen_name,
+        initiator=EventUser.from_user(manager),
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
-        occupant_id=occupant.id,
-        occupant_screen_name=occupant.screen_name,
+        occupant=EventUser.from_user(occupant),
     )
     bungalow_signals.occupant_removed.send(None, event=event)
 
@@ -730,8 +727,7 @@ def description_update(occupancy_id):
 
     event = BungalowOccupancyDescriptionUpdatedEvent(
         occurred_at=datetime.utcnow(),
-        initiator_id=manager.id,
-        initiator_screen_name=manager.screen_name,
+        initiator=EventUser.from_user(manager),
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
     )
@@ -819,8 +815,7 @@ def avatar_update(occupancy_id):
 
     event = BungalowOccupancyAvatarUpdatedEvent(
         occurred_at=datetime.utcnow(),
-        initiator_id=manager.id,
-        initiator_screen_name=manager.screen_name,
+        initiator=EventUser.from_user(manager),
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
     )
