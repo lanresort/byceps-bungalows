@@ -84,7 +84,7 @@ class OccupantAddForm(LocalizedForm):
 
 class DescriptionUpdateForm(LocalizedForm):
     title = StringField('Name', validators=[Length(max=20)])
-    description = TextAreaField('Beschreibung')
+    description = TextAreaField('Beschreibung', validators=[Length(max=4000)])
 
 
 class AvatarUpdateForm(LocalizedForm):
