@@ -48,7 +48,6 @@
 }
 
 .bungalow-profile-header {
-  display: flex;
   margin-top: -104px;
   padding: 40px;
 }
@@ -56,10 +55,6 @@
 .bungalow-profile-header-column {
   display: flex;
   flex-direction: column;
-}
-
-.bungalow-profile-header-column + .bungalow-profile-header-column {
-  margin-left: 1rem;
 }
 
 .bungalow-profile-header-column.number-and-name {
