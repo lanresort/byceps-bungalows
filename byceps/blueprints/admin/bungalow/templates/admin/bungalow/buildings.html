@@ -13,9 +13,9 @@
   <div class="row row--wrap">
     <div class="column--grow">
 
-      <div class="row row--space-between">
+      <div class="block row row--space-between">
         <div>
-          <h2>Gebäude {{ render_extra_in_heading(buildings|length) }}</h2>
+          <h2 class="title">Gebäude {{ render_extra_in_heading(buildings|length) }}</h2>
         </div>
         <div>
           <div class="button-row is-right-aligned">
@@ -52,7 +52,7 @@
     </div>
     <div class="column--grow">
 
-      <h2>Typen {{ render_extra_in_heading(layouts|length) }}</h2>
+      <h2 class="title">Typen {{ render_extra_in_heading(layouts|length) }}</h2>
 
       {%- if layouts %}
       <table class="itemlist is-vcentered is-wide">
