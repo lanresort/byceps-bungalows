@@ -9,9 +9,8 @@ byceps.services.bungalow.bungalow_stats_service
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from operator import attrgetter
-from typing import Callable
 
 from sqlalchemy import select
 
