@@ -12,7 +12,7 @@
 
 {% block body %}
 
-  <h1>{{ render_icon('arrow-right') }} Belegung von Bungalow {{ bungalow.number }} verschieben</h1>
+  <h1 class="title">{{ render_icon('arrow-right') }} Belegung von Bungalow {{ bungalow.number }} verschieben</h1>
 
   <form action="{{ url_for('.occupancy_move', occupancy_id=occupancy.id) }}" method="post">
     <div class="box">

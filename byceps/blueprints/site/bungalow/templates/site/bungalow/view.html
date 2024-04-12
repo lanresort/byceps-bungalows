@@ -36,11 +36,11 @@
                 <li><a href="{{ url_for('bungalow.index') }}">Belegungsplan</a></li>
               </ol>
             </nav>
-            <strong>Bungalow {{ bungalow.number }}</strong>
+            <h1 class="title">Bungalow {{ bungalow.number }}</h1>
           </div>
           <div class="bungalow-profile-header-cell-bottom">
             {%- if bungalow.occupancy %}
-            {{- bungalow.occupancy.title or '' -}}
+            <div class="subtitle">{{- bungalow.occupancy.title or '' -}}</div>
             {%- endif -%}
           </div>
         </div>

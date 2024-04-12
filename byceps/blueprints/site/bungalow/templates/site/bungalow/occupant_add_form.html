@@ -14,7 +14,7 @@
       <li><a href="{{ url_for('.occupant_index', number=bungalow.number) }}">Bewohner</a></li>
     </ol>
   </nav>
-  <h1>{{ render_icon('add') }} {{ page_title }}</h1>
+  <h1 class="title">{{ render_icon('add') }} {{ page_title }}</h1>
 
   <div class="main-body-box">
     <form action="{{ url_for('.occupant_add', ticket_id=occupant_slot.ticket_id) }}" method="post">
