@@ -23,6 +23,7 @@ from byceps.events.bungalow import (
 )
 from byceps.events.shop import ShopOrderPlacedEvent
 from byceps.services.party.models import PartyID
+from byceps.services.shop.article import article_service
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import (
@@ -214,7 +215,8 @@ def place_bungalow_order(
 
     db_occupancy = db_occupancy_result.unwrap()
 
-    article = db_occupancy.bungalow.category.article
+    article_id = db_occupancy.bungalow.category.article_id
+    article = article_service.get_article(article_id)
 
     placement_result = bungalow_order_service.place_bungalow_order(
         storefront, article, orderer
