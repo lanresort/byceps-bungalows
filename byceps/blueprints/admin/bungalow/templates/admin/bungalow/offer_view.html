@@ -1,7 +1,7 @@
 {% extends 'layouts/admin/bungalow.html' %}
 {% from 'macros/admin.html' import render_extra_in_heading %}
 {% from 'macros/admin/bungalow.html' import render_bungalow_occupation_state %}
-{% from 'macros/admin/log.html' import render_log_entry, render_log_reason, render_log_user %}
+{% from 'macros/admin/log.html' import render_log_entries, render_log_entry, render_log_reason, render_log_user %}
 {% from 'macros/admin/shop/order.html' import render_order_link %}
 {% from 'macros/admin/user.html' import render_user_avatar_and_admin_link %}
 {% from 'macros/icons.html' import render_icon %}
@@ -181,8 +181,7 @@
 
   <h2>{{ _('Events') }} {{ render_extra_in_heading(log_entries|length) }}</h2>
 
-  <div class="box">
-    <div class="events">
+  {%- call render_log_entries() %}
       {%- for log_entry in log_entries|sort(attribute='occurred_at', reverse=True) %}
         {%- if log_entry.event_type == 'bungalow-occupied' %}
           {%- call render_log_entry('success', log_entry.occurred_at) %}
@@ -238,8 +237,7 @@
           {%- endcall %}
         {%- endif %}
       {%- endfor %}
-    </div>
-  </div>
+  {%- endcall %}
 
 {%- endblock %}
 
