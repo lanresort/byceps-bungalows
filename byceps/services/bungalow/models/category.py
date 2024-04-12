@@ -27,7 +27,7 @@ BungalowCategoryID = NewType('BungalowCategoryID', UUID)
 class Article:
     id: ArticleID
     item_number: ArticleNumber
-    description: str
+    name: str
     price: Money
     available_from: datetime | None
     available_until: datetime | None

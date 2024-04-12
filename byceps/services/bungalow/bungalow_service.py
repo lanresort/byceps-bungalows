@@ -121,9 +121,7 @@ def get_bungalows_for_party(party_id: PartyID) -> list[DbBungalow]:
             ),
             db.joinedload(DbBungalow.category)
             .joinedload(DbBungalowCategory.article)
-            .load_only(
-                DbArticle.id, DbArticle.item_number, DbArticle.description
-            ),
+            .load_only(DbArticle.id, DbArticle.item_number, DbArticle.name),
             db.joinedload(DbBungalow.occupancy).joinedload(
                 DbBungalowOccupancy.ticket_bundle
             ),

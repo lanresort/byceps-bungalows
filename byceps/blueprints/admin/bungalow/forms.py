@@ -68,7 +68,7 @@ class _CategoryBaseForm(LocalizedForm):
 
     def set_article_choices(self, shop_id: ShopID):
         choices = [
-            (str(article.id), f'{article.item_number} – {article.description}')
+            (str(article.id), f'{article.item_number} – {article.name}')
             for article in article_service.get_articles_for_shop(shop_id)
         ]
         choices.insert(0, ('', '<' + lazy_gettext('choose') + '>'))

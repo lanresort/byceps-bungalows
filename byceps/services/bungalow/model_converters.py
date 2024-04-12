@@ -52,7 +52,7 @@ def _db_entity_to_bungalow_category(
     article = Article(
         id=db_article.id,
         item_number=db_article.item_number,
-        description=db_article.description,
+        name=db_article.name,
         price=db_article.price,
         available_from=db_article.available_from,
         available_until=db_article.available_until,
