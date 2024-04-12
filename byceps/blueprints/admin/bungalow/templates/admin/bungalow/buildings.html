@@ -18,14 +18,14 @@
           <h2>Gebäude {{ render_extra_in_heading(buildings|length) }}</h2>
         </div>
         <div>
-          <div class="button-row button-row--right">
+          <div class="button-row is-right-aligned">
             <a class="button" href="{{ url_for('.building_create_form', brand_id=brand.id) }}">{{ render_icon('add') }} <span>Gebäude hinzufügen</span></a>
           </div>
         </div>
       </div>
 
       {%- if buildings %}
-      <table class="itemlist itemlist--v-centered itemlist--wide">
+      <table class="itemlist is-vcentered is-wide">
         <thead>
           <tr>
             <th>Nr.</th>
@@ -55,7 +55,7 @@
       <h2>Typen {{ render_extra_in_heading(layouts|length) }}</h2>
 
       {%- if layouts %}
-      <table class="itemlist itemlist--v-centered itemlist--wide">
+      <table class="itemlist is-vcentered is-wide">
         <thead>
           <tr>
             <th>Titel</th>

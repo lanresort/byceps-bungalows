@@ -29,14 +29,14 @@
       <h1>Bungalows {{ render_extra_in_heading(bungalows|length) }}</h1>
     </div>
     <div>
-      <div class="button-row button-row--right">
+      <div class="button-row is-right-aligned">
         <a class="button" href="{{ url_for('.offer_create_form', party_id=party.id) }}">{{ render_icon('add') }} <span>Bungalows anbieten</span></a>
       </div>
     </div>
   </div>
 
   {%- if bungalows %}
-  <table class="itemlist itemlist--v-centered itemlist--wide">
+  <table class="itemlist is-vcentered is-wide">
     <thead>
       <tr>
         <th>Nr.</th>
@@ -111,7 +111,7 @@
         </td>
         <td>
           <div class="dropdown">
-            <button class="dropdown-toggle button button--compact">{{ render_icon('caret-down') }}</button>
+            <button class="dropdown-toggle button is-compact">{{ render_icon('caret-down') }}</button>
             <ol class="dropdown-menu dropdown-menu--right">
             {%- if bungalow.distributes_network %}
               <li><a class="dropdown-item" data-action="unset-distributes-network" href="{{ url_for('.unset_distributes_network_flag', bungalow_id=bungalow.id, _method='DELETE') }}">{{ render_icon('move') }} Nicht mehr als Netzwerk-Verteiler markieren</a></li>

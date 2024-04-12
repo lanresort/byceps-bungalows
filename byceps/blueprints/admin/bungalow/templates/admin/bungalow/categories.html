@@ -13,14 +13,14 @@
       <h1>{{ _('Categories') }} {{ render_extra_in_heading(categories|length) }}</h1>
     </div>
     <div>
-      <div class="button-row button-row--right">
+      <div class="button-row is-right-aligned">
         <a class="button" href="{{ url_for('.category_create_form', party_id=party.id) }}">{{ render_icon('add') }} <span>{{ _('Create category') }}</span></a>
       </div>
     </div>
   </div>
 
   {%- if categories %}
-  <table class="itemlist itemlist--v-centered itemlist--wide">
+  <table class="itemlist is-vcentered is-wide">
     <thead>
       <tr>
         <th>{{ _('Title') }}</th>
@@ -52,7 +52,7 @@
         <td class="number">{{ category.image_width|fallback }}</td>
         <td class="number">{{ category.image_height|fallback }}</td>
         {%- if has_current_user_permission('bungalow.update') %}
-          <td><a href="{{ url_for('.category_update_form', category_id=category.id) }}" class="button button--compact" title="{{ _('Edit category') }}">{{ render_icon('edit') }}</a></td>
+          <td><a href="{{ url_for('.category_update_form', category_id=category.id) }}" class="button is-compact" title="{{ _('Edit category') }}">{{ render_icon('edit') }}</a></td>
         {%- endif %}
       </tr>
       {%- endfor %}

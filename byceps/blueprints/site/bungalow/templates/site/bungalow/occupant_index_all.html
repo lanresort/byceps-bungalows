@@ -18,7 +18,7 @@
 
   <h1>{{ page_title }}</h1>
 
-  <form action="{{ url_for('.occupant_index_all') }}" class="single-row unobtrusive" style="margin-bottom: 2rem;">
+  <form action="{{ url_for('.occupant_index_all') }}" class="single-row unobtrusive block">
     <input type="search" name="search_term" placeholder="{{ _('username') }}" {%- if search_term %} value="{{ search_term }}"{% endif %}>
     <button type="submit" class="button" title="{{ _('Search') }}">{{ render_icon('search') }}</button>
     {%- if search_term %}
@@ -28,7 +28,7 @@
 
   {%- if search_term %}
   <small>
-    <div class="row row--space-between" style="margin-bottom: 1rem;">
+    <div class="row row--space-between block">
       <div>
         <p><strong>{{ tickets_and_bungalows.total }}</strong> {{ _('results for search term') }} &quot;<strong>{{ search_term }}</strong>&quot;</p>
       </div>
@@ -40,7 +40,7 @@
   {%- endif %}
 
   {%- if tickets_and_bungalows.items %}
-  <table class="itemlist itemlist--v-centered itemlist--wide bungalow-occupants-all">
+  <table class="itemlist is-vcentered is-wide bungalow-occupants-all">
     <thead>
       <tr>
         <th>Bewohner/in</th>

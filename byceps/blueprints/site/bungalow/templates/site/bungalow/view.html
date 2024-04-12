@@ -121,7 +121,7 @@
 
                   {%- if ticket_management_enabled and current_user_is_manager %}
                   <div class="button-row" style="margin: 0.5rem 0;">
-                    <a class="button button--compact" href="{{ url_for('bungalow.occupant_index', number=bungalow.number) }}">{{ render_icon('administrate') }} <span>Verwalten</span></a>
+                    <a class="button is-compact" href="{{ url_for('bungalow.occupant_index', number=bungalow.number) }}">{{ render_icon('administrate') }} <span>Verwalten</span></a>
                   </div>
                   {%- endif -%}
                 </div>

@@ -84,7 +84,7 @@
           <div class="user-name">{{ 'frei'|dim }}</div>
         {%- endif -%}
         </div>
-        <div class="button-row button-row--compact">
+        <div class="button-row is-compact">
         {%- if ticket and ticket.is_user_managed_by(g.user.id) %}
           {%- if not ticket.used_by %}
           <a class="button" href="{{ url_for('.occupant_add_form', ticket_id=ticket.id) }}">{{ render_icon('add') }} <span>Hinzufügen</span></a>
