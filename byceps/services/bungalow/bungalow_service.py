@@ -14,7 +14,7 @@ from byceps.database import db, paginate, Pagination
 from byceps.services.brand import brand_setting_service
 from byceps.services.brand.models import BrandID
 from byceps.services.party import party_service
-from byceps.services.party.models import Party
+from byceps.services.party.models import Party, PartyID
 from byceps.services.shop.article.dbmodels.article import DbArticle
 from byceps.services.ticketing import ticket_service
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
