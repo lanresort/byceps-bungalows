@@ -17,7 +17,7 @@
   <form action="{{ url_for('.internal_remark_update', occupancy_id=bungalow.occupancy.id) }}" method="post">
     <div class="box">
       {{ form_field(form.internal_remark, maxlength=200, autofocus='autofocus') }}
-      </div>
+    </div>
 
     {{ form_buttons(_('Save')) }}
   </form>
