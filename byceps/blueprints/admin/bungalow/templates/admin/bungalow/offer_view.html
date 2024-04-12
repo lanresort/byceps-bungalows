@@ -181,7 +181,8 @@
 
   <h2>{{ _('Events') }} {{ render_extra_in_heading(log_entries|length) }}</h2>
 
-  {%- call render_log_entries() %}
+  {%- if log_entries %}
+    {%- call render_log_entries() %}
       {%- for log_entry in log_entries|sort(attribute='occurred_at', reverse=True) %}
         {%- if log_entry.event_type == 'bungalow-occupied' %}
           {%- call render_log_entry('success', log_entry.occurred_at) %}
@@ -237,7 +238,8 @@
           {%- endcall %}
         {%- endif %}
       {%- endfor %}
-  {%- endcall %}
+    {%- endcall %}
+  {%- endif %}
 
 {%- endblock %}
 
