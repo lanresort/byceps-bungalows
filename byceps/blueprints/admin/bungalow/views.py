@@ -93,7 +93,7 @@ def release_bungalow(sender, *, event: ShopOrderCanceledEvent):
 
     try:
         bungalow_released_event = bungalow_occupancy_service.release_bungalow(
-            bungalow.id
+            bungalow.id, initiator=event.initiator
         )
     except ValueError as e:
         flash_error(
