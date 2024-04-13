@@ -187,7 +187,7 @@ def index():
 @bungalow_support_required
 @templated
 @subnavigation_for_view('bungalows')
-def view(number):
+def view(number: int):
     """Show the bungalow."""
     bungalow = _get_bungalow_for_number_or_404(number)
 
@@ -463,13 +463,13 @@ def occupant_index_all(page):
     }
 
 
-@blueprint.get('/<number>/occupants')
+@blueprint.get('/<int:number>/occupants')
 @bungalow_support_required
 @enabled_ticket_management_required
 @login_required
 @templated
 @subnavigation_for_view('bungalows')
-def occupant_index(number):
+def occupant_index(number: int):
     """Show occupants management view."""
     bungalow = _get_bungalow_for_number_or_404(number)
 
@@ -857,7 +857,7 @@ def _get_bungalow_for_id_or_404(bungalow_id):
     return bungalow
 
 
-def _get_bungalow_for_number_or_404(number):
+def _get_bungalow_for_number_or_404(number: int):
     bungalow = bungalow_service.find_db_bungalow_by_number(g.party_id, number)
 
     if bungalow is None:
