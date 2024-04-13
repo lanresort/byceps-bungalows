@@ -17,12 +17,12 @@
   </nav>
   <h1 class="title">{{ render_icon('delete') }} {{ page_title }}</h1>
 
-  <div class="main-body-box">
-    <form action="{{ url_for('.occupant_remove', ticket_id=occupant_slot.ticket_id) }}" method="post">
-      <p>Soll {{ render_user_link(occupant_slot.occupant) }} wirklich als Mitbewohner aus Bungalow {{ bungalow.number }} entfernt werden?</p>
+  <form action="{{ url_for('.occupant_remove', ticket_id=occupant_slot.ticket_id) }}" method="post">
+    <div class="main-body-box">
+      Soll {{ render_user_link(occupant_slot.occupant) }} wirklich als Mitbewohner aus Bungalow {{ bungalow.number }} entfernt werden?
+    </div>
 
-      {{ form_buttons(_('Remove'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
-    </form>
-  </div>
+    {{ form_buttons(_('Remove'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
+  </form>
 
 {%- endblock %}

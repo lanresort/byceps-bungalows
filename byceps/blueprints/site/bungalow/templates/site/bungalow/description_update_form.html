@@ -15,13 +15,13 @@
   </nav>
   <h1 class="title">{{ render_icon('edit') }} Name und Beschreibung bearbeiten</h1>
 
-  <div class="main-body-box">
-    <form action="{{ url_for('.description_update', occupancy_id=bungalow.occupancy.id) }}" method="post">
+  <form action="{{ url_for('.description_update', occupancy_id=bungalow.occupancy.id) }}" method="post">
+    <div class="main-body-box">
       {{ form_field(form.title, maxlength=20, autofocus='autofocus') }}
       {{ form_field(form.description) }}
+    </div>
 
-      {{ form_buttons(_('Save'), cancel_url=url_for('.view', number=bungalow.number)) }}
-    </form>
-  </div>
+    {{ form_buttons(_('Save'), cancel_url=url_for('.view', number=bungalow.number)) }}
+  </form>
 
 {%- endblock %}
