@@ -21,7 +21,7 @@
       {{ form_field(form.occupant, maxlength=40, autofocus='autofocus') }}
     </div>
 
-    {{ form_buttons(_('Add'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
+    {{ form_buttons(render_icon('add') + ' ' + _('Add'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
   </form>
 
 {%- endblock %}

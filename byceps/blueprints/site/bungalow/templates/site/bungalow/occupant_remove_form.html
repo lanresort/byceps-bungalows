@@ -22,7 +22,7 @@
       Soll {{ render_user_link(occupant_slot.occupant) }} wirklich als Mitbewohner aus Bungalow {{ bungalow.number }} entfernt werden?
     </div>
 
-    {{ form_buttons(_('Remove'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
+    {{ form_buttons(render_icon('delete') + ' ' + _('Remove'), cancel_url=url_for('.occupant_index', number=bungalow.number)) }}
   </form>
 
 {%- endblock %}
