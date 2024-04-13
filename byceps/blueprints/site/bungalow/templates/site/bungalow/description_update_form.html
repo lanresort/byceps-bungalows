@@ -1,7 +1,6 @@
 {% extends 'layout/base.html' %}
 {% from 'macros/bungalow.html' import render_bungalow_link %}
 {% from 'macros/forms.html' import form_buttons, form_field %}
-{% from 'macros/icons.html' import render_icon %}
 {% set current_page = 'bungalows' %}
 {% set page_title = ['Name und Beschreibung bearbeiten', 'Bungalow %d'|format(bungalow.number)] %}
 
@@ -13,7 +12,7 @@
       <li>{{ render_bungalow_link(bungalow) }}</li>
     </ol>
   </nav>
-  <h1 class="title">{{ render_icon('edit') }} Name und Beschreibung bearbeiten</h1>
+  <h1 class="title">Name und Beschreibung bearbeiten</h1>
 
   <form action="{{ url_for('.description_update', occupancy_id=bungalow.occupancy.id) }}" method="post">
     <div class="main-body-box">

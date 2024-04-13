@@ -13,7 +13,7 @@
       <li>{{ render_bungalow_link(bungalow) }}</li>
     </ol>
   </nav>
-  <h1 class="title">{{ render_icon('edit') }} Bungalow-Avatar hochladen</h1>
+  <h1 class="title">Bungalow-Avatar hochladen</h1>
 
   <form action="{{ url_for('.avatar_update', occupancy_id=bungalow.occupancy.id) }}" method="post" enctype="multipart/form-data">
     <div class="main-body-box">
