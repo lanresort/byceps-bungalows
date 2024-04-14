@@ -538,11 +538,14 @@ def get_occupied_bungalow_numbers_and_titles(
 
 def has_user_occupied_any_bungalow(party_id: PartyID, user_id: UserID) -> bool:
     """Return `True` if the user has occupied a bungalow for the party."""
-    count = db.session.scalar(
-        select(db.func.count(DbBungalowOccupancy.id))
-        .join(DbBungalow)
-        .filter(DbBungalow.party_id == party_id)
-        .filter(DbBungalowOccupancy.occupied_by_id == user_id)
+    count = (
+        db.session.scalar(
+            select(db.func.count(DbBungalowOccupancy.id))
+            .join(DbBungalow)
+            .filter(DbBungalow.party_id == party_id)
+            .filter(DbBungalowOccupancy.occupied_by_id == user_id)
+        )
+        or 0
     )
 
     return count > 0
