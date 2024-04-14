@@ -106,7 +106,7 @@ def get_bungalow_numbers_for_party(party_id: PartyID) -> set[int]:
     return set(numbers)
 
 
-def get_bungalows_for_party(party_id: PartyID) -> list[DbBungalow]:
+def get_bungalows_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
     """Return all bungalows for the party, ordered by number."""
     return db.session.scalars(
         select(DbBungalow)
