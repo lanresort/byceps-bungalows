@@ -8,6 +8,8 @@ byceps.services.bungalow.bungalow_service
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from sqlalchemy import select
 
 from byceps.database import db, paginate, Pagination
@@ -130,7 +132,7 @@ def get_bungalows_for_party(party_id: PartyID) -> list[DbBungalow]:
     ).all()
 
 
-def get_bungalows_extended_for_party(party_id: PartyID) -> list[DbBungalow]:
+def get_bungalows_extended_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
     """Return all bungalows for the party, ordered by number."""
     return db.session.scalars(
         select(DbBungalow)

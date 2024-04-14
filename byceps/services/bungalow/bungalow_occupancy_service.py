@@ -9,6 +9,7 @@ byceps.services.bungalow.bungalow_occupancy_service
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Sequence
 from datetime import datetime
 
 from sqlalchemy import select
@@ -492,7 +493,7 @@ def find_occupancy_managed_by_user(
     ).one_or_none()
 
 
-def get_occupied_bungalows_for_party(party_id: PartyID) -> list[DbBungalow]:
+def get_occupied_bungalows_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
     """Return all occupied (but not reserved) bungalows for the party,
     ordered by number.
     """
@@ -518,22 +519,27 @@ def get_occupied_bungalows_for_party(party_id: PartyID) -> list[DbBungalow]:
 
 def get_occupied_bungalow_numbers_and_titles(
     party_id: PartyID,
-) -> list[tuple[int, str]]:
+) -> Sequence[tuple[int, str]]:
     """Return the numbers and titles of all occupied bungalows for the
     party, ordered by number.
     """
-    return db.session.execute(
-        select(
-            DbBungalow.number,
-            DbBungalowOccupancy.title,
+    return (
+        db.session.execute(
+            select(
+                DbBungalow.number,
+                DbBungalowOccupancy.title,
+            )
+            .join(DbBungalowOccupancy)
+            .filter(DbBungalow.party_id == party_id)
+            .filter(
+                DbBungalowOccupancy._state
+                == BungalowOccupationState.occupied.name
+            )
+            .order_by(DbBungalow.number)
         )
-        .join(DbBungalowOccupancy)
-        .filter(DbBungalow.party_id == party_id)
-        .filter(
-            DbBungalowOccupancy._state == BungalowOccupationState.occupied.name
-        )
-        .order_by(DbBungalow.number)
-    ).all()
+        .tuples()
+        .all()
+    )
 
 
 def has_user_occupied_any_bungalow(party_id: PartyID, user_id: UserID) -> bool:
