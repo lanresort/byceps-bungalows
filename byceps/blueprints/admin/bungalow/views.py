@@ -308,7 +308,7 @@ def offer_view(bungalow_id):
     """Show offered bungalow."""
     bungalow = _get_bungalow_or_404(bungalow_id)
 
-    party = _get_party_or_404(bungalow.party_id)
+    party = party_service.get_party(bungalow.party_id)
 
     occupancy = bungalow_occupancy_service.find_occupancy_for_bungalow(
         bungalow.id
