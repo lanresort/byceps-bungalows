@@ -427,13 +427,13 @@ def _get_buildings_for_party(party: Party) -> list[BungalowBuilding]:
     ]
 
 
-@blueprint.post('/offers/<offer_id>')
+@blueprint.post('/offers/<bungalow_id>')
 @permission_required('bungalow_offer.delete')
 @respond_no_content
-def offer_delete(offer_id):
+def offer_delete(bungalow_id):
     """Remove the bungalow offer."""
     try:
-        bungalow_offer_service.delete_offer(offer_id)
+        bungalow_offer_service.delete_offer(bungalow_id)
     except ValueError as e:
         abort(400, str(e))
 

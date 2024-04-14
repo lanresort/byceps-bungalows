@@ -48,7 +48,7 @@
             <li><a class="dropdown-item" href="{{ url_for('.occupancy_move_form', occupancy_id=occupancy.id) }}">{{ render_icon('arrow-right') }} Belegung verschieben</a></li>
           {%- else %}
             <li class="dropdown-divider"></li>
-            <li><a class="dropdown-item" data-action="offer-delete" href="{{ url_for('.offer_delete', offer_id=bungalow.id) }}">{{ render_icon('delete') }} Nicht mehr anbieten</a></li>
+            <li><a class="dropdown-item" data-action="offer-delete" href="{{ url_for('.offer_delete', bungalow_id=bungalow.id) }}">{{ render_icon('delete') }} Nicht mehr anbieten</a></li>
           {%- endif %}
           </ol>
         </div>
