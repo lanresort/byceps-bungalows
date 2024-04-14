@@ -9,7 +9,7 @@ byceps.blueprints.admin.bungalow.views
 from collections.abc import Iterable, Iterator
 from datetime import datetime
 
-from flask import abort, g, request
+from flask import abort, g, request, url_for
 from flask_babel import gettext
 
 from byceps.events.shop import ShopOrderCanceledEvent, ShopOrderPaidEvent
@@ -61,6 +61,7 @@ from byceps.util.views import (
     permission_required,
     redirect_to,
     respond_no_content,
+    respond_no_content_with_location,
     textified,
 )
 
@@ -427,17 +428,21 @@ def _get_buildings_for_party(party: Party) -> list[BungalowBuilding]:
     ]
 
 
-@blueprint.post('/offers/<bungalow_id>')
+@blueprint.delete('/offers/<bungalow_id>')
 @permission_required('bungalow_offer.delete')
-@respond_no_content
+@respond_no_content_with_location
 def offer_delete(bungalow_id):
     """Remove the bungalow offer."""
+    bungalow = _get_bungalow_or_404(bungalow_id)
+
     try:
-        bungalow_offer_service.delete_offer(bungalow_id)
+        bungalow_offer_service.delete_offer(bungalow.id)
     except ValueError as e:
         abort(400, str(e))
 
     flash_success('Der Bungalow wird nun nicht mehr angeboten.')
+
+    return url_for('.index_for_party', party_id=bungalow.party_id)
 
 
 @blueprint.get('/<party_id>/occupants')

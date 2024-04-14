@@ -248,7 +248,7 @@
       onDomReady(() => {
         post_on_click_then_reload('[data-action="set-distributes-network"]');
         delete_on_click_then_reload('[data-action="unset-distributes-network"]');
-        confirmed_post_on_click_then_reload('[data-action="offer-delete"]', 'Bungalow nicht mehr anbieten?');
+        confirmed_delete_on_click('[data-action="offer-delete"]', 'Bungalow nicht mehr anbieten?');
       });
     </script>
 {%- endblock %}
