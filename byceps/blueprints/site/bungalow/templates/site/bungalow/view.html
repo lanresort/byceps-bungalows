@@ -53,7 +53,7 @@
             <ol class="dropdown-menu dropdown-menu--right">
               <li><a class="dropdown-item" href="{{ url_for('bungalow.description_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('edit') }} <span>Name und Beschreibung bearbeiten</span></a></li>
               <li class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('bungalow.avatar_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('edit') }} <span>Avatar hochladen</span></a></li>
+              <li><a class="dropdown-item" href="{{ url_for('bungalow.avatar_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('image') }} <span>Avatar hochladen</span></a></li>
               {%- if bungalow.occupancy.avatar %}
               <li><a class="dropdown-item" href="{{ url_for('bungalow.avatar_remove', occupancy_id=bungalow.occupancy.id, _method='DELETE') }}" data-action="avatar-remove">{{ render_icon('delete') }} <span>Avatar entfernen</span></a></li>
               {%- endif %}
