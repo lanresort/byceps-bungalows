@@ -22,6 +22,7 @@ from byceps.services.party.models import PartyID
 from byceps.services.shop.article import article_service
 from byceps.services.shop.shop.models import ShopID
 from byceps.services.ticketing import ticket_category_service
+from byceps.util.forms import UserScreenNameField
 from byceps.util.l10n import LocalizedForm
 
 
@@ -114,6 +115,10 @@ class OfferCreateForm(LocalizedForm):
 
 class InternalRemarkUpdateForm(LocalizedForm):
     internal_remark = StringField('Anmerkung', [Optional(), Length(max=200)])
+
+
+class AppointManagerForm(LocalizedForm):
+    manager = UserScreenNameField(lazy_gettext('Username'), [InputRequired()])
 
 
 class OccupancyMoveForm(LocalizedForm):

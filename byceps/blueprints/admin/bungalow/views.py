@@ -57,6 +57,7 @@ from byceps.util.framework.blueprint import create_blueprint
 from byceps.util.framework.flash import flash_error, flash_notice, flash_success
 from byceps.util.framework.templating import templated
 from byceps.util.iterables import find
+from byceps.util.result import Err, Ok
 from byceps.util.views import (
     permission_required,
     redirect_to,
@@ -67,6 +68,7 @@ from byceps.util.views import (
 
 from . import service
 from .forms import (
+    AppointManagerForm,
     BuildingCreateForm,
     CategoryCreateForm,
     CategoryUpdateForm,
@@ -552,6 +554,53 @@ def internal_remark_update(occupancy_id):
     )
 
     return redirect_to('.index_for_party', party_id=bungalow.party_id)
+
+
+@blueprint.get('/occupancies/<occupancy_id>/manager/update')
+@permission_required('bungalow.update')
+@templated
+def appoint_manager_form(occupancy_id, erroneous_form=None):
+    """Show form to appoint a user as occupancy manager."""
+    occupancy = _get_occupancy_or_404(occupancy_id)
+
+    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    party = party_service.find_party(bungalow.party_id)
+
+    form = erroneous_form if erroneous_form else AppointManagerForm()
+
+    return {
+        'party': party,
+        'occupancy': occupancy,
+        'form': form,
+    }
+
+
+@blueprint.post('/occupancies/<occupancy_id>/manager')
+@permission_required('bungalow.update')
+def appoint_manager(occupancy_id):
+    """Appoint a user as occupancy manager."""
+    occupancy = _get_occupancy_or_404(occupancy_id)
+
+    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    party = party_service.find_party(bungalow.party_id)
+
+    form = AppointManagerForm(request.form)
+
+    if not form.validate():
+        return appoint_manager_form(occupancy_id, form)
+
+    manager = form.manager.data
+    initiator = g.user
+
+    match bungalow_occupancy_service.appoint_bungalow_manager(
+        occupancy_id, manager, initiator
+    ):
+        case Ok(_):
+            flash_success('Die Verwaltung wurde übertragen.')
+        case Err(_):
+            flash_error('Die Verwaltung konnte nicht übertragen werden.')
+
+    return redirect_to('.index_for_party', party_id=party.id)
 
 
 @blueprint.get('/occupancies/<occupancy_id>/move')
