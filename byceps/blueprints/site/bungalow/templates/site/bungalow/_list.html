@@ -37,6 +37,8 @@
         <td class="nowrap number">
             {%- if article and article.quantity > 0 and is_article_available_now(article) -%}
           <a class="button color-primary" href="{{ url_for('.order', bungalow_id=bungalow.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
+            {%- else -%}
+            <span class="dimmed">derzeit nicht buchbar</span>
             {%- endif -%}
         </td>
           {%- endwith %}
