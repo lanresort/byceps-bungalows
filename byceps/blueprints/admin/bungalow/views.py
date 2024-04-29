@@ -779,7 +779,9 @@ def category_update_form(category_id, erroneous_form=None):
         return redirect_to('.categories', party_id=party.id)
 
     form = (
-        erroneous_form if erroneous_form else CategoryUpdateForm(obj=category)
+        erroneous_form
+        if erroneous_form
+        else CategoryUpdateForm(obj=category, article_id=category.article.id)
     )
     form.set_ticket_category_choices(party.id)
     form.set_article_choices(shop.id)
