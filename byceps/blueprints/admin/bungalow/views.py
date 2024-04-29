@@ -265,7 +265,7 @@ def building_create(brand_id):
     )
 
     flash_success(
-        f'Gebäude #{building.number:d} wurde '
+        f'Gebäude {building.number:d} wurde '
         f'für die Marke "{brand.title}" hinzugefügt.'
     )
 

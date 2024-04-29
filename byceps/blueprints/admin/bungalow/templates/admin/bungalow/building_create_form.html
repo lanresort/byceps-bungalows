@@ -17,7 +17,7 @@
   <form action="{{ url_for('.building_create', brand_id=brand.id) }}" method="post">
     <div class="box">
       {{ form_field(form.layout_id, autofocus='autofocus') }}
-      {{ form_field(form.number, type='number', min=1, max=999, style='width: 3.5rem;') }}
+      {{ form_field(form.number, type='number', min=1, max=999, style='width: 4rem;') }}
     </div>
 
     {{ form_buttons(_('Create')) }}
