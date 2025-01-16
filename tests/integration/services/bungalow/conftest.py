@@ -22,8 +22,7 @@ from byceps.services.shop.product.models import Product
 from byceps.services.shop.shop.models import Shop
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import ticket_bundle_service
-from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from byceps.services.ticketing.models.ticket import TicketCategory
+from byceps.services.ticketing.models.ticket import TicketBundle, TicketCategory
 
 from tests.helpers import generate_token
 
@@ -62,9 +61,9 @@ def ticket_category(make_ticket_category, party: Party) -> TicketCategory:
 def make_ticket_bundle(
     party: Party, ticket_category: TicketCategory, orderer: Orderer
 ):
-    def _wrapper(*, ticket_quantity: int = 4) -> DbTicketBundle:
+    def _wrapper(*, ticket_quantity: int = 4) -> TicketBundle:
         return ticket_bundle_service.create_bundle(
-            party.id, ticket_category.id, ticket_quantity, orderer.user
+            ticket_category, ticket_quantity, orderer.user
         )
 
     return _wrapper
