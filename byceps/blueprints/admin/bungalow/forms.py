@@ -71,6 +71,7 @@ class _CategoryBaseForm(LocalizedForm):
         choices = [
             (str(product.id), f'{product.item_number} – {product.name}')
             for product in product_service.get_products_for_shop(shop_id)
+            if not product.archived
         ]
         choices.insert(0, ('', '<' + lazy_gettext('choose') + '>'))
         self.product_id.choices = choices
