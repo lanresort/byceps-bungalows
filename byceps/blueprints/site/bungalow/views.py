@@ -286,9 +286,14 @@ def order_form(bungalow_id, *, erroneous_form=None):
         )
         return {'bungalow': None}
 
-    product_compilation = (
-        product_service.get_product_compilation_for_single_product(product.id)
+    compilation = product_service.get_product_compilation_for_single_product(
+        product.id
     )
+
+    collection = product_service.get_product_collection_for_product_compilation(
+        '', compilation
+    )
+    collections = [collection]
 
     user = user_service.find_user_with_details(g.user.id)
 
@@ -306,7 +311,7 @@ def order_form(bungalow_id, *, erroneous_form=None):
 
     total_amount_result = (
         product_domain_service.calculate_product_compilation_total_amount(
-            product_compilation
+            compilation
         )
     )
 
@@ -320,8 +325,7 @@ def order_form(bungalow_id, *, erroneous_form=None):
         'bungalow': bungalow,
         'form': form,
         'country_names': country_names,
-        'product': product,
-        'product_compilation': product_compilation,
+        'collections': collections,
         'total_amount': total_amount,
     }
 
