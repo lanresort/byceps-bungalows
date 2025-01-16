@@ -24,9 +24,9 @@ from byceps.events.bungalow import (
 )
 from byceps.events.shop import ShopOrderPlacedEvent
 from byceps.services.party.models import PartyID
-from byceps.services.shop.article import article_service
-from byceps.services.shop.article.models import Article
 from byceps.services.shop.order.models.order import Order, Orderer
+from byceps.services.shop.product import product_service
+from byceps.services.shop.product.models import Product
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import (
     ticket_bundle_service,
@@ -218,10 +218,10 @@ def place_bungalow_order(
 
     db_occupancy = db_occupancy_result.unwrap()
 
-    article = _get_article_for_occupancy(occupancy_id)
+    product = _get_product_for_occupancy(occupancy_id)
 
     placement_result = bungalow_order_service.place_bungalow_order(
-        storefront, article, orderer
+        storefront, product, orderer
     )
     if placement_result.is_err():
         return Err('Placing the order for the bungalow failed.')
@@ -235,16 +235,16 @@ def place_bungalow_order(
     return Ok((order, order_placed_event))
 
 
-def _get_article_for_occupancy(occupancy_id: OccupancyID) -> Article:
-    """Return the shop article for the occupied bungalow's category."""
-    article_id = db.session.execute(
-        select(DbBungalowCategory.article_id)
+def _get_product_for_occupancy(occupancy_id: OccupancyID) -> Product:
+    """Return the shop product for the occupied bungalow's category."""
+    product_id = db.session.execute(
+        select(DbBungalowCategory.product_id)
         .join(DbBungalow)
         .join(DbBungalowOccupancy)
         .filter(DbBungalowOccupancy.id == occupancy_id)
     ).scalar_one()
 
-    return article_service.get_article(article_id)
+    return product_service.get_product(product_id)
 
 
 def occupy_bungalow(

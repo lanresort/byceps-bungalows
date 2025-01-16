@@ -16,7 +16,7 @@ from uuid import UUID
 from moneyed import Money
 
 from byceps.services.party.models import PartyID
-from byceps.services.shop.article.models import ArticleID, ArticleNumber
+from byceps.services.shop.product.models import ProductID, ProductNumber
 from byceps.services.ticketing.models.ticket import TicketCategoryID
 
 
@@ -24,9 +24,9 @@ BungalowCategoryID = NewType('BungalowCategoryID', UUID)
 
 
 @dataclass(frozen=True)
-class Article:
-    id: ArticleID
-    item_number: ArticleNumber
+class Product:
+    id: ProductID
+    item_number: ProductNumber
     name: str
     price: Money
     available_from: datetime | None
@@ -42,7 +42,7 @@ class BungalowCategory:
     capacity: int
     ticket_category_id: TicketCategoryID
     ticket_category_title: str
-    article: Article
+    product: Product
     image_filename: str | None
     image_width: int | None
     image_height: int | None

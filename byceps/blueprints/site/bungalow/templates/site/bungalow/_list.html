@@ -30,12 +30,12 @@
         <td class="bungalow-state-column centered">{{ render_bungalow_occupation_state(bungalow) }}</td>
         {%- endif %}
         {%- if bungalow.available %}
-          {%- with article = category.article %}
-            {%- with total_amount = total_amounts_by_article_id[category.article.id] %}
+          {%- with product = category.product %}
+            {%- with total_amount = total_amounts_by_product_id[category.product.id] %}
         <td class="nowrap number">{{ total_amount|moneyformat }}</td>
             {%- endwith %}
         <td class="nowrap number">
-            {%- if article and article.quantity > 0 and is_article_available_now(article) -%}
+            {%- if product and product.quantity > 0 and is_product_available_now(product) -%}
           <a class="button color-primary" href="{{ url_for('.order', bungalow_id=bungalow.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
             {%- else -%}
             <span class="dimmed">derzeit nicht buchbar</span>

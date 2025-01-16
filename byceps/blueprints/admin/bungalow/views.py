@@ -39,10 +39,10 @@ from byceps.services.bungalow.models.occupation import (
 )
 from byceps.services.party import party_service
 from byceps.services.party.models import Party, PartyID
-from byceps.services.shop.article import article_service
-from byceps.services.shop.article.models import ArticleNumber, ArticleType
 from byceps.services.shop.order import order_service
 from byceps.services.shop.order.models.order import Order
+from byceps.services.shop.product import product_service
+from byceps.services.shop.product.models import ProductNumber, ProductType
 from byceps.services.shop.shop import shop_service
 from byceps.services.ticketing import (
     ticket_bundle_service,
@@ -126,9 +126,9 @@ def occupy_bungalow(sender, *, event: ShopOrderPaidEvent):
         )
         return
 
-    article_number = bungalow.category.article.item_number
+    product_number = bungalow.category.product.item_number
     try:
-        ticket_bundle = _get_ticket_bundle_for_line_item(order, article_number)
+        ticket_bundle = _get_ticket_bundle_for_line_item(order, product_number)
         occupation_result = bungalow_occupancy_service.occupy_bungalow(
             bungalow.reservation.id, bungalow.occupancy.id, ticket_bundle.id
         )
@@ -184,17 +184,17 @@ def occupy_bungalow(sender, *, event: ShopOrderPaidEvent):
 
 
 def _get_ticket_bundle_for_line_item(
-    order: Order, article_number: ArticleNumber
+    order: Order, product_number: ProductNumber
 ) -> DbTicketBundle:
     line_item = find(
         order.line_items,
-        lambda li: li.article_number == article_number
-        and li.article_type == ArticleType.ticket_bundle,
+        lambda li: li.product_number == product_number
+        and li.product_type == ProductType.ticket_bundle,
     )
 
     if line_item is None:
         raise ValueError(
-            f'Article number "{article_number!s} not in line items'
+            f'Product number "{product_number!s} not in line items'
         )
 
     bundle_ids = line_item.processing_result['ticket_bundle_ids']
@@ -704,7 +704,7 @@ def category_create_form(party_id, erroneous_form=None):
 
     form = erroneous_form if erroneous_form else CategoryCreateForm()
     form.set_ticket_category_choices(party.id)
-    form.set_article_choices(shop.id)
+    form.set_product_choices(shop.id)
 
     return {
         'party': party,
@@ -725,7 +725,7 @@ def category_create(party_id):
 
     form = CategoryCreateForm(request.form)
     form.set_ticket_category_choices(party.id)
-    form.set_article_choices(shop.id)
+    form.set_product_choices(shop.id)
 
     if not form.validate():
         return category_create_form(party.id, form)
@@ -735,7 +735,7 @@ def category_create(party_id):
     ticket_category = ticket_category_service.find_category(
         form.ticket_category_id.data
     )
-    article = article_service.get_article(form.article_id.data)
+    product = product_service.get_product(form.product_id.data)
     image_filename = form.image_filename.data
     image_width = form.image_width.data
     image_height = form.image_height.data
@@ -745,7 +745,7 @@ def category_create(party_id):
         title,
         capacity,
         ticket_category.id,
-        article.id,
+        product.id,
         image_filename=image_filename,
         image_width=image_width,
         image_height=image_height,
@@ -781,10 +781,10 @@ def category_update_form(category_id, erroneous_form=None):
     form = (
         erroneous_form
         if erroneous_form
-        else CategoryUpdateForm(obj=category, article_id=category.article.id)
+        else CategoryUpdateForm(obj=category, product_id=category.product.id)
     )
     form.set_ticket_category_choices(party.id)
-    form.set_article_choices(shop.id)
+    form.set_product_choices(shop.id)
 
     return {
         'party': party,
@@ -808,7 +808,7 @@ def category_update(category_id):
 
     form = CategoryUpdateForm(request.form)
     form.set_ticket_category_choices(category.party_id)
-    form.set_article_choices(shop.id)
+    form.set_product_choices(shop.id)
 
     if not form.validate():
         return category_update_form(category_id, form)
@@ -818,7 +818,7 @@ def category_update(category_id):
     ticket_category = ticket_category_service.find_category(
         form.ticket_category_id.data
     )
-    article = article_service.get_article(form.article_id.data)
+    product = product_service.get_product(form.product_id.data)
     image_filename = form.image_filename.data
     image_width = form.image_width.data
     image_height = form.image_height.data
@@ -828,7 +828,7 @@ def category_update(category_id):
         title,
         capacity,
         ticket_category.id,
-        article.id,
+        product.id,
         image_filename=image_filename,
         image_width=image_width,
         image_height=image_height,

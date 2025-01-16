@@ -12,12 +12,12 @@ from sqlalchemy import select
 
 from byceps.database import db
 from byceps.events.shop import ShopOrderPlacedEvent
-from byceps.services.shop.article import article_service
-from byceps.services.shop.article.models import Article
 from byceps.services.shop.cart.models import Cart
 from byceps.services.shop.order import order_checkout_service
 from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.shop.order.models.order import Order, Orderer
+from byceps.services.shop.product import product_service
+from byceps.services.shop.product.models import Product
 from byceps.services.shop.storefront.models import Storefront
 from byceps.util.result import Err, Ok, Result
 
@@ -27,11 +27,11 @@ from .dbmodels.occupancy import DbBungalowOccupancy
 
 def place_bungalow_order(
     storefront: Storefront,
-    article: Article,
+    product: Product,
     orderer: Orderer,
 ) -> Result[tuple[Order, ShopOrderPlacedEvent], None]:
     """Place an order for that bungalow."""
-    cart = _build_cart(article)
+    cart = _build_cart(product)
 
     placement_result = order_checkout_service.place_order(
         storefront, orderer, cart
@@ -44,15 +44,15 @@ def place_bungalow_order(
     return Ok((order, event))
 
 
-def _build_cart(article: Article) -> Cart:
-    article_compilation = (
-        article_service.get_article_compilation_for_single_article(article.id)
+def _build_cart(product: Product) -> Cart:
+    product_compilation = (
+        product_service.get_product_compilation_for_single_product(product.id)
     )
 
-    cart = Cart(article.price.currency)
+    cart = Cart(product.price.currency)
 
-    for item in article_compilation:
-        cart.add_item(item.article, item.fixed_quantity)
+    for item in product_compilation:
+        cart.add_item(item.product, item.fixed_quantity)
 
     return cart
 

@@ -1,6 +1,6 @@
 {% extends 'layout/admin/bungalow.html' %}
 {% from 'macros/admin.html' import render_extra_in_heading %}
-{% from 'macros/admin/shop/article.html' import render_article_link %}
+{% from 'macros/admin/shop/product.html' import render_product_link %}
 {% from 'macros/icons.html' import render_icon %}
 {% set current_page_party = party %}
 {% set current_tab = 'categories' %}
@@ -42,8 +42,8 @@
         <td class="centered">{{ category.capacity }}</td>
         <td>{{ category.ticket_category_title|fallback('nicht festgelegt') }}</td>
         <td class="nowrap">
-          {%- if category.article %}
-            {{ render_article_link(category.article) }}
+          {%- if category.product %}
+            {{ render_product_link(category.product) }}
           {%- else %}
             {{ 'nicht festgelegt'|dim }}
           {%- endif %}

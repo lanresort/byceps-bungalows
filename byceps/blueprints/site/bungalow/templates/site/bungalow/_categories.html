@@ -27,7 +27,7 @@
         <td>{{ bungalow_category.ticket_category_title }}</td>
         {%- if not party_is_over %}
         <td class="nowrap number">
-          {%- with total_amount = total_amounts_by_article_id[bungalow_category.article.id] %}
+          {%- with total_amount = total_amounts_by_product_id[bungalow_category.product.id] %}
           {{ total_amount|moneyformat }}
           {%- endwith %}
         </td>

@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from byceps.database import db
 from byceps.services.party.models import PartyID
-from byceps.services.shop.article.dbmodels.article import DbArticle
-from byceps.services.shop.article.models import ArticleID
+from byceps.services.shop.product.dbmodels.product import DbProduct
+from byceps.services.shop.product.models import ProductID
 from byceps.services.ticketing.dbmodels.category import DbTicketCategory
 from byceps.services.ticketing.models.ticket import TicketCategoryID
 from byceps.util.instances import ReprBuilder
@@ -34,10 +34,10 @@ class DbBungalowCategory(db.Model):
         db.Uuid, db.ForeignKey('ticket_categories.id'), nullable=False
     )
     ticket_category = db.relationship(DbTicketCategory)
-    article_id = db.Column(
-        db.Uuid, db.ForeignKey('shop_articles.id'), unique=True, nullable=False
+    product_id = db.Column(
+        db.Uuid, db.ForeignKey('shop_products.id'), unique=True, nullable=False
     )
-    article = db.relationship(DbArticle)
+    product = db.relationship(DbProduct)
     image_filename = db.Column(db.UnicodeText, nullable=True)
     image_width = db.Column(db.SmallInteger, nullable=True)
     image_height = db.Column(db.SmallInteger, nullable=True)
@@ -48,7 +48,7 @@ class DbBungalowCategory(db.Model):
         title: str,
         capacity: int,
         ticket_category_id: TicketCategoryID,
-        article_id: ArticleID,
+        product_id: ProductID,
         *,
         image_filename: str | None = None,
         image_width: int | None = None,
@@ -58,7 +58,7 @@ class DbBungalowCategory(db.Model):
         self.title = title
         self.capacity = capacity
         self.ticket_category_id = ticket_category_id
-        self.article_id = article_id
+        self.product_id = product_id
         self.image_filename = image_filename
         self.image_width = image_width
         self.image_height = image_height

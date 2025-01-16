@@ -11,7 +11,7 @@
   <form action="{{ url_for('.order', bungalow_id=bungalow.id) }}" method="post">
 
 {%- include 'site/shop/order/_order_form_orderer.html' %}
-{%- include 'site/shop/order/_order_form_articles.html' %}
+{%- include 'site/shop/order/_order_form_products.html' %}
 
     {{ form_buttons('Kostenpflichtig bestellen') }}
   </form>

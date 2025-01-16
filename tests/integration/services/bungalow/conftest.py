@@ -17,8 +17,8 @@ from byceps.services.bungalow.models.category import (
     BungalowCategoryID,
 )
 from byceps.services.party.models import Party, PartyID
-from byceps.services.shop.article.models import Article
 from byceps.services.shop.order.models.order import Orderer
+from byceps.services.shop.product.models import Product
 from byceps.services.shop.shop.models import Shop
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import ticket_bundle_service
@@ -48,8 +48,8 @@ def storefront(
 
 
 @pytest.fixture(scope='module')
-def article(make_article, shop: Shop) -> Article:
-    return make_article(shop.id)
+def product(make_product, shop: Shop) -> Product:
+    return make_product(shop.id)
 
 
 @pytest.fixture(scope='session')
@@ -72,13 +72,13 @@ def make_ticket_bundle(
 
 @pytest.fixture(scope='module')
 def bungalow_category(
-    party: Party, ticket_category: TicketCategory, article: Article
+    party: Party, ticket_category: TicketCategory, product: Product
 ) -> BungalowCategory:
     title = f'Premium {generate_token()}'
     capacity = 6
 
     return bungalow_category_service.create_category(
-        party.id, title, capacity, ticket_category.id, article.id
+        party.id, title, capacity, ticket_category.id, product.id
     )
 
 

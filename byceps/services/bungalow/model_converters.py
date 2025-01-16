@@ -12,7 +12,7 @@ from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
 from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation
 from .models.bungalow import Bungalow
-from .models.category import Article, BungalowCategory
+from .models.category import BungalowCategory, Product
 from .models.occupation import BungalowOccupancy, BungalowReservation
 
 
@@ -47,16 +47,16 @@ def _db_entity_to_bungalow(db_bungalow: DbBungalow) -> Bungalow:
 def _db_entity_to_bungalow_category(
     db_bungalow_category: DbBungalowCategory,
 ) -> BungalowCategory:
-    db_article = db_bungalow_category.article
+    db_product = db_bungalow_category.product
 
-    article = Article(
-        id=db_article.id,
-        item_number=db_article.item_number,
-        name=db_article.name,
-        price=db_article.price,
-        available_from=db_article.available_from,
-        available_until=db_article.available_until,
-        quantity=db_article.quantity,
+    product = Product(
+        id=db_product.id,
+        item_number=db_product.item_number,
+        name=db_product.name,
+        price=db_product.price,
+        available_from=db_product.available_from,
+        available_until=db_product.available_until,
+        quantity=db_product.quantity,
     )
 
     return BungalowCategory(
@@ -66,7 +66,7 @@ def _db_entity_to_bungalow_category(
         capacity=db_bungalow_category.capacity,
         ticket_category_id=db_bungalow_category.ticket_category.id,
         ticket_category_title=db_bungalow_category.ticket_category.title,
-        article=article,
+        product=product,
         image_filename=db_bungalow_category.image_filename,
         image_width=db_bungalow_category.image_width,
         image_height=db_bungalow_category.image_height,

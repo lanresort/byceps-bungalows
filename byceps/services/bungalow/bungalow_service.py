@@ -17,7 +17,7 @@ from byceps.services.brand import brand_setting_service
 from byceps.services.brand.models import BrandID
 from byceps.services.party import party_service
 from byceps.services.party.models import Party, PartyID
-from byceps.services.shop.article.dbmodels.article import DbArticle
+from byceps.services.shop.product.dbmodels.product import DbProduct
 from byceps.services.ticketing import ticket_service
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
@@ -122,8 +122,8 @@ def get_bungalows_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
                 DbBungalowCategory.title, DbBungalowCategory.capacity
             ),
             db.joinedload(DbBungalow.category)
-            .joinedload(DbBungalowCategory.article)
-            .load_only(DbArticle.id, DbArticle.item_number, DbArticle.name),
+            .joinedload(DbBungalowCategory.product)
+            .load_only(DbProduct.id, DbProduct.item_number, DbProduct.name),
             db.joinedload(DbBungalow.occupancy).joinedload(
                 DbBungalowOccupancy.ticket_bundle
             ),

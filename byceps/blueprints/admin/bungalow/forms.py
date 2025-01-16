@@ -19,7 +19,7 @@ from wtforms.validators import InputRequired, Length, Optional
 from byceps.services.bungalow import bungalow_service
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
 from byceps.services.party.models import PartyID
-from byceps.services.shop.article import article_service
+from byceps.services.shop.product import product_service
 from byceps.services.shop.shop.models import ShopID
 from byceps.services.ticketing import ticket_category_service
 from byceps.util.forms import UserScreenNameField
@@ -49,8 +49,8 @@ class _CategoryBaseForm(LocalizedForm):
     ticket_category_id = SelectField(
         lazy_gettext('Ticket category'), validators=[InputRequired()]
     )
-    article_id = SelectField(
-        lazy_gettext('Article'), validators=[InputRequired()]
+    product_id = SelectField(
+        lazy_gettext('Product'), validators=[InputRequired()]
     )
     image_filename = StringField('Bild-Dateiname', validators=[Optional()])
     image_width = IntegerField('Bildbreite', validators=[Optional()])
@@ -67,13 +67,13 @@ class _CategoryBaseForm(LocalizedForm):
         choices.insert(0, ('', '<' + lazy_gettext('choose') + '>'))
         self.ticket_category_id.choices = choices
 
-    def set_article_choices(self, shop_id: ShopID):
+    def set_product_choices(self, shop_id: ShopID):
         choices = [
-            (str(article.id), f'{article.item_number} – {article.name}')
-            for article in article_service.get_articles_for_shop(shop_id)
+            (str(product.id), f'{product.item_number} – {product.name}')
+            for product in product_service.get_products_for_shop(shop_id)
         ]
         choices.insert(0, ('', '<' + lazy_gettext('choose') + '>'))
-        self.article_id.choices = choices
+        self.product_id.choices = choices
 
 
 class CategoryCreateForm(_CategoryBaseForm):

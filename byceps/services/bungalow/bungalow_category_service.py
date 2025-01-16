@@ -12,7 +12,7 @@ from sqlalchemy import select
 
 from byceps.database import db
 from byceps.services.party.models import PartyID
-from byceps.services.shop.article.models import ArticleID
+from byceps.services.shop.product.models import ProductID
 from byceps.services.ticketing.models.ticket import TicketCategoryID
 
 from .dbmodels.category import DbBungalowCategory
@@ -25,7 +25,7 @@ def create_category(
     title: str,
     capacity: int,
     ticket_category_id: TicketCategoryID,
-    article_id: ArticleID,
+    product_id: ProductID,
     *,
     image_filename: str | None = None,
     image_width: int | None = None,
@@ -37,7 +37,7 @@ def create_category(
         title,
         capacity,
         ticket_category_id,
-        article_id,
+        product_id,
         image_filename=image_filename,
         image_width=image_width,
         image_height=image_height,
@@ -54,7 +54,7 @@ def update_category(
     title: str,
     capacity: int,
     ticket_category_id: TicketCategoryID,
-    article_id: ArticleID,
+    product_id: ProductID,
     image_filename: str,
     image_width: int,
     image_height: int,
@@ -68,7 +68,7 @@ def update_category(
     db_bungalow_category.title = title
     db_bungalow_category.capacity = capacity
     db_bungalow_category.ticket_category_id = ticket_category_id
-    db_bungalow_category.article_id = article_id
+    db_bungalow_category.product_id = product_id
     db_bungalow_category.image_filename = image_filename
     db_bungalow_category.image_width = image_width
     db_bungalow_category.image_height = image_height
@@ -102,7 +102,7 @@ def get_categories_for_party(party_id: PartyID) -> list[BungalowCategory]:
         select(DbBungalowCategory)
         .options(
             db.joinedload(DbBungalowCategory.ticket_category),
-            db.joinedload(DbBungalowCategory.article),
+            db.joinedload(DbBungalowCategory.product),
         )
         .filter_by(party_id=party_id)
         .order_by(DbBungalowCategory.title, DbBungalowCategory.capacity)

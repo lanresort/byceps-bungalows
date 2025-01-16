@@ -39,8 +39,8 @@ from byceps.services.country import country_service
 from byceps.services.image import image_service
 from byceps.services.orga_team import orga_team_service
 from byceps.services.party import party_service
-from byceps.services.shop.article import article_domain_service, article_service
 from byceps.services.shop.order.email import order_email_service
+from byceps.services.shop.product import product_domain_service, product_service
 from byceps.services.shop.storefront import storefront_service
 from byceps.services.ticketing import (
     ticket_service,
@@ -120,18 +120,18 @@ def index():
     )
     bungalow_categories_by_id = {c.id: c for c in bungalow_categories}
 
-    article_ids = {c.article.id for c in bungalow_categories}
-    article_compilations_by_article_id = (
-        article_service.get_article_compilations_for_single_articles(
-            article_ids
+    product_ids = {c.product.id for c in bungalow_categories}
+    product_compilations_by_product_id = (
+        product_service.get_product_compilations_for_single_products(
+            product_ids
         )
     )
 
-    total_amounts_by_article_id = {
-        article_id: article_domain_service.calculate_article_compilation_total_amount(
-            article_compilations_by_article_id[article_id]
+    total_amounts_by_product_id = {
+        product_id: product_domain_service.calculate_product_compilation_total_amount(
+            product_compilations_by_product_id[product_id]
         ).unwrap()
-        for article_id in article_ids
+        for product_id in product_ids
     }
 
     occupancy_ids = {
@@ -173,10 +173,10 @@ def index():
         'bungalows': bungalows,
         'bungalows_by_number': bungalows_by_number,
         'bungalow_categories_by_id': bungalow_categories_by_id,
-        'total_amounts_by_article_id': total_amounts_by_article_id,
+        'total_amounts_by_product_id': total_amounts_by_product_id,
         'occupant_slots_by_occupancy_id': occupant_slots_by_occupancy_id,
         'users_by_id': users_by_id,
-        'is_article_available_now': article_domain_service.is_article_available_now,
+        'is_product_available_now': product_domain_service.is_product_available_now,
         'my_bungalow_id': my_bungalow.id if my_bungalow is not None else None,
         'occupation_summaries_by_ticket_category_id': occupation_summaries_by_ticket_category_id,
         'statistics_total': statistics_total,
@@ -261,10 +261,10 @@ def view_mine():
 def order_form(bungalow_id, *, erroneous_form=None):
     """Show a form to order a bungalow."""
     bungalow = _get_bungalow_for_id_or_404(bungalow_id)
-    article = bungalow.category.article
+    product = bungalow.category.product
 
     storefront = _get_storefront_or_404()
-    if article.shop_id != storefront.shop_id:
+    if product.shop_id != storefront.shop_id:
         abort(404)
 
     if storefront.closed:
@@ -276,17 +276,17 @@ def order_form(bungalow_id, *, erroneous_form=None):
         return {'bungalow': None}
 
     if (
-        not article
-        or article.quantity < 1
-        or not article_domain_service.is_article_available_now(article)
+        not product
+        or product.quantity < 1
+        or not product_domain_service.is_product_available_now(product)
     ):
         flash_error(
             f'Bungalow {bungalow.number} kann derzeit nicht reserviert werden.'
         )
         return {'bungalow': None}
 
-    article_compilation = (
-        article_service.get_article_compilation_for_single_article(article.id)
+    product_compilation = (
+        product_service.get_product_compilation_for_single_product(product.id)
     )
 
     user = user_service.find_user_with_details(g.user.id)
@@ -304,8 +304,8 @@ def order_form(bungalow_id, *, erroneous_form=None):
     country_names = country_service.get_country_names()
 
     total_amount_result = (
-        article_domain_service.calculate_article_compilation_total_amount(
-            article_compilation
+        product_domain_service.calculate_product_compilation_total_amount(
+            product_compilation
         )
     )
 
@@ -319,8 +319,8 @@ def order_form(bungalow_id, *, erroneous_form=None):
         'bungalow': bungalow,
         'form': form,
         'country_names': country_names,
-        'article': article,
-        'article_compilation': article_compilation,
+        'product': product,
+        'product_compilation': product_compilation,
         'total_amount': total_amount,
     }
 
@@ -331,10 +331,10 @@ def order_form(bungalow_id, *, erroneous_form=None):
 def order(bungalow_id):
     """Order a bungalow."""
     bungalow = _get_bungalow_for_id_or_404(bungalow_id)
-    article = bungalow.category.article
+    product = bungalow.category.product
 
     storefront = _get_storefront_or_404()
-    if article.shop_id != storefront.shop_id:
+    if product.shop_id != storefront.shop_id:
         abort(404)
 
     if storefront.closed:
@@ -346,9 +346,9 @@ def order(bungalow_id):
         return order_form(bungalow_id)
 
     if (
-        not article
-        or article.quantity < 1
-        or not article_domain_service.is_article_available_now(article)
+        not product
+        or product.quantity < 1
+        or not product_domain_service.is_product_available_now(product)
     ):
         flash_error(
             f'Bungalow {bungalow.number} kann derzeit nicht reserviert werden.'
