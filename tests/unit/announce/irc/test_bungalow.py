@@ -5,10 +5,10 @@
 
 from datetime import datetime
 
-from flask import Flask
 import pytest
 
 from byceps.announce.announce import build_announcement_request
+from byceps.byceps_app import BycepsApp
 from byceps.events.base import EventUser
 from byceps.events.bungalow import (
     BungalowOccupancyAvatarUpdatedEvent,
@@ -32,7 +32,7 @@ BUNGALOW_851_ID = BungalowID(generate_uuid())
 
 
 def test_announce_bungalow_reserved(
-    app: Flask, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
 ):
     expected_text = 'Lucifer hat Bungalow 666 reserviert.'
 
@@ -50,7 +50,7 @@ def test_announce_bungalow_reserved(
 
 
 def test_announce_bungalow_occupied(
-    app: Flask, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
 ):
     expected_text = 'Lucifer hat Bungalow 666 belegt.'
 
@@ -67,7 +67,9 @@ def test_announce_bungalow_occupied(
     assert_text(actual, expected_text)
 
 
-def test_announce_bungalow_released(app: Flask, now: datetime, webhook_for_irc):
+def test_announce_bungalow_released(
+    app: BycepsApp, now: datetime, webhook_for_irc
+):
     expected_text = 'Bungalow 666 wurde wieder freigegeben.'
 
     event = BungalowReleasedEvent(
@@ -83,7 +85,7 @@ def test_announce_bungalow_released(app: Flask, now: datetime, webhook_for_irc):
 
 
 def test_announce_bungalow_occupancy_moved(
-    app: Flask, now: datetime, webhook_for_irc
+    app: BycepsApp, now: datetime, webhook_for_irc
 ):
     expected_text = (
         'Die Belegung von Bungalow 666 hat zu Bungalow 851 gewechselt.'
@@ -104,7 +106,7 @@ def test_announce_bungalow_occupancy_moved(
 
 
 def test_announce_bungalow_avatar_updated(
-    app: Flask, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
 ):
     expected_text = 'Lucifer hat das Avatarbild für Bungalow 666 aktualisiert.'
 
@@ -121,7 +123,7 @@ def test_announce_bungalow_avatar_updated(
 
 
 def test_announce_bungalow_description_updated(
-    app: Flask, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
 ):
     expected_text = 'Lucifer hat das Grußwort für Bungalow 666 aktualisiert.'
 
@@ -138,7 +140,7 @@ def test_announce_bungalow_description_updated(
 
 
 def test_announce_bungalow_occupant_added(
-    app: Flask,
+    app: BycepsApp,
     now: datetime,
     main_occupant: EventUser,
     other_occupant: EventUser,
@@ -160,7 +162,7 @@ def test_announce_bungalow_occupant_added(
 
 
 def test_announce_bungalow_occupant_removed(
-    app: Flask,
+    app: BycepsApp,
     now: datetime,
     main_occupant: EventUser,
     other_occupant: EventUser,
