@@ -10,6 +10,7 @@ from datetime import datetime
 from functools import wraps
 
 from flask import abort, g, render_template, request
+from flask_babel import gettext
 
 from byceps.blueprints.site.shop.order.forms import OrderForm
 from byceps.blueprints.site.site.navigation import subnavigation_for_view
@@ -50,7 +51,7 @@ from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
 from byceps.signals import bungalow as bungalow_signals, shop as shop_signals
 from byceps.util.framework.blueprint import create_blueprint
-from byceps.util.framework.flash import flash_error, flash_success
+from byceps.util.framework.flash import flash_error, flash_notice, flash_success
 from byceps.util.framework.templating import templated
 from byceps.util.views import login_required, redirect_to, respond_no_content
 
@@ -268,7 +269,7 @@ def order_form(bungalow_id, *, erroneous_form=None):
         abort(404)
 
     if storefront.closed:
-        flash_error('Der Shop ist derzeit geschlossen.')
+        flash_notice(gettext('The shop is closed.'))
         return {'bungalow': None}
 
     if bungalow.reserved_or_occupied:
@@ -338,7 +339,7 @@ def order(bungalow_id):
         abort(404)
 
     if storefront.closed:
-        flash_error('Der Shop ist derzeit geschlossen.')
+        flash_notice(gettext('The shop is closed.'))
         return order_form(bungalow_id)
 
     if bungalow.reserved_or_occupied:
@@ -394,12 +395,20 @@ def order(bungalow_id):
         )
     )
     if place_bungalow_order_result.is_err():
-        flash_error('Die Bestellung ist fehlgeschlagen.')
+        flash_error(gettext('Placing the order has failed.'))
         return order_form(bungalow_id)
 
     order, order_placed_event = place_bungalow_order_result.unwrap()
     shop_signals.order_placed.send(None, event=order_placed_event)
-    flash_success('Deine Bestellung wurde entgegen genommen. Vielen Dank!')
+
+    flash_success(
+        gettext(
+            'Your order <strong>%(order_number)s</strong> has been placed. '
+            'Thank you!',
+            order_number=order.order_number,
+        ),
+        text_is_safe=True,
+    )
 
     order_email_service.send_email_for_incoming_order_to_orderer(order)
 
