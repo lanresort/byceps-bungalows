@@ -11,7 +11,7 @@ from byceps.services.ticketing.models.ticket import TicketCategory
 
 @pytest.fixture(scope='session')
 def party(brand, make_party):
-    return make_party(brand.id)
+    return make_party(brand)
 
 
 @pytest.fixture(scope='package')

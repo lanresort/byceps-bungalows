@@ -53,7 +53,7 @@ def test_offer_bungalows(
     bungalow_category: DbBungalowCategory,
     ticket_category: TicketCategory,
 ):
-    party = make_party(brand.id)
+    party = make_party(brand)
 
     assert count_bungalows(party.id) == 0
 

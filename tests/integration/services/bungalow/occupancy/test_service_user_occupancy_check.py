@@ -15,12 +15,12 @@ from tests.integration.services.bungalow.helpers import reserve_bungalow
 
 @pytest.fixture(scope='module')
 def party1(bungalows_brand: Brand, make_party) -> Party:
-    return make_party(bungalows_brand.id)
+    return make_party(bungalows_brand)
 
 
 @pytest.fixture(scope='module')
 def party2(bungalows_brand: Brand, make_party) -> Party:
-    return make_party(bungalows_brand.id)
+    return make_party(bungalows_brand)
 
 
 @pytest.fixture()
