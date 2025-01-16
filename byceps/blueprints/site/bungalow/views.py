@@ -326,6 +326,7 @@ def order_form(bungalow_id, *, erroneous_form=None):
         'form': form,
         'country_names': country_names,
         'collections': collections,
+        'images_by_product_id': {},
         'total_amount': total_amount,
     }
 
