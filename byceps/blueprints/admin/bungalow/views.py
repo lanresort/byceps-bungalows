@@ -22,6 +22,7 @@ from byceps.services.bungalow import (
     bungalow_offer_service,
     bungalow_order_service,
     bungalow_service,
+    bungalow_stats_service,
 )
 from byceps.services.bungalow.bungalow_service import (
     UserAlreadyUsesATicketException,
@@ -35,6 +36,7 @@ from byceps.services.bungalow.models.category import (
 )
 from byceps.services.bungalow.models.occupation import (
     BungalowOccupancy,
+    CategoryOccupationSummary,
     OccupancyID,
 )
 from byceps.services.party import party_service
@@ -296,12 +298,26 @@ def index_for_party(party_id):
         user_ids, include_avatars=True
     )
 
+    offered_seats_total = sum(
+        bungalow.category.capacity for bungalow in bungalows
+    )
+
     return {
         'party': party,
         'bungalows': bungalows,
         'users_by_id': users_by_id,
         'orders_by_order_number': orders_by_order_number,
+        'offered_seats_total': offered_seats_total,
+        'bungalow_statistics': _get_bungalow_statistics(party.id),
     }
+
+
+def _get_bungalow_statistics(party_id: PartyID) -> CategoryOccupationSummary:
+    statistics_by_category = list(
+        bungalow_stats_service.get_statistics_by_category(party_id)
+    )
+
+    return bungalow_stats_service.get_statistics_total(statistics_by_category)
 
 
 @blueprint.get('/offers/<bungalow_id>')

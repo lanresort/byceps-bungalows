@@ -4,12 +4,22 @@
 {% from 'macros/admin/shop/order.html' import render_order_link %}
 {% from 'macros/admin/user.html' import render_user_avatar_and_admin_link %}
 {% from 'macros/icons.html' import render_icon %}
+{% from 'macros/misc.html' import render_distribution_bar %}
 {% set current_page_party = party %}
 {% set current_tab = 'offers' %}
 {% set page_title = ['Angebotene Bungalows', party.title] %}
 
 {% block head %}
 <style>
+.utilization .progress {
+  height: 0.25rem;
+}
+
+.utilization .small,
+.seats-total {
+  font-size: 0.75rem;
+}
+
 .tag.available {
   background-color: #11aa22;
 }
@@ -38,6 +48,27 @@
   </div>
 
   {%- if bungalows %}
+  <div class="row row--space-between block is-vcentered utilization">
+    <div>
+{{ render_distribution_bar(
+  [
+    (bungalow_statistics.occupied, 'color-success'),
+    (bungalow_statistics.reserved, 'color-warning'),
+    (bungalow_statistics.available, 'color-light'),
+  ],
+  bungalow_statistics.total,
+) }}
+      <div class="row row--space-between small">
+        <div><strong>{{ bungalow_statistics.occupied }}</strong> belegt</div>
+        <div><strong>{{ bungalow_statistics.reserved }}</strong> reserviert</div>
+        <div><strong>{{ bungalow_statistics.available }}</strong> verfügbar</div>
+      </div>
+    </div>
+    <div>
+      <div class="seats-total">Gesamtzahl angebotener Plätze: <strong>{{ offered_seats_total }}</strong></div>
+    </div>
+  </div>
+
   <table class="itemlist is-vcentered is-wide">
     <thead>
       <tr>
