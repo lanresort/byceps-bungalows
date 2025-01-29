@@ -436,6 +436,9 @@ def appoint_bungalow_manager(
 
     db_occupancy = db_occupancy_result.unwrap()
 
+    if db_occupancy.state != OccupancyState.occupied:
+        return Err('Bungalow is not occupied, cannot appoint bungalow manager.')
+
     # Set bungalow manager.
     db_occupancy.managed_by_id = new_manager.id
     db_log_entry = bungalow_log_service.build_entry(
