@@ -9,17 +9,19 @@
 {% set page_title = ['Angebotene Bungalows', party.title] %}
 
 {% block head %}
-    <style>
-      .tag.available {
-        background-color: #11aa22;
-      }
-      .tag.reserved {
-        background-color: #eecc00;
-      }
-      .tag.occupied {
-        background-color: #ee3322;
-      }
-    </style>
+<style>
+.tag.available {
+  background-color: #11aa22;
+}
+
+.tag.reserved {
+  background-color: #eecc00;
+}
+
+.tag.occupied {
+  background-color: #ee3322;
+}
+</style>
 {%- endblock %}
 
 {% block body %}
