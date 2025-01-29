@@ -579,7 +579,7 @@ def get_occupant_slots_for_occupancies(
         )
         .join(DbTicket)
         .filter(DbBungalowOccupancy.id.in_(occupancy_ids))
-        .order_by(DbTicket.created_at)
+        .order_by(DbTicket.id)
     ).all()
 
     user_ids = {user_id for _, _, user_id in rows if user_id is not None}
