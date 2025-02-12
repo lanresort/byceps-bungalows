@@ -9,11 +9,11 @@ byceps.services.bungalow.bungalow_occupancy_avatar_service
 from typing import BinaryIO
 
 from byceps.database import db
-from byceps.services.image import image_service
 from byceps.services.user.models.user import UserID
 from byceps.util import upload
-from byceps.util.image import create_thumbnail
-from byceps.util.image.models import Dimensions, ImageType
+from byceps.util.image.dimensions import determine_dimensions, Dimensions
+from byceps.util.image.image_type import determine_image_type, ImageType
+from byceps.util.image.thumbnail import create_thumbnail
 from byceps.util.result import Err, Ok, Result
 
 from . import bungalow_occupancy_service
@@ -48,14 +48,12 @@ def update_avatar_image(
         occupancy_id
     ).unwrap()
 
-    image_type_result = image_service.determine_image_type(
-        stream, allowed_types
-    )
+    image_type_result = determine_image_type(stream, allowed_types)
     if image_type_result.is_err():
         return Err(image_type_result.unwrap_err())
 
     image_type = image_type_result.unwrap()
-    image_dimensions = image_service.determine_dimensions(stream)
+    image_dimensions = determine_dimensions(stream)
 
     image_too_large = image_dimensions > maximum_dimensions
     if image_too_large or not image_dimensions.is_square:

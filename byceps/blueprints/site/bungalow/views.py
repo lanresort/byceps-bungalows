@@ -37,7 +37,6 @@ from byceps.services.bungalow.models.occupation import (
     OccupantSlot,
 )
 from byceps.services.country import country_service
-from byceps.services.image import image_service
 from byceps.services.orga_team import orga_team_service
 from byceps.services.party import party_service
 from byceps.services.shop.order.email import order_email_service
@@ -53,6 +52,7 @@ from byceps.signals import bungalow as bungalow_signals, shop as shop_signals
 from byceps.util.framework.blueprint import create_blueprint
 from byceps.util.framework.flash import flash_error, flash_notice, flash_success
 from byceps.util.framework.templating import templated
+from byceps.util.image.image_type import get_image_type_names
 from byceps.util.views import login_required, redirect_to, respond_no_content
 
 from .forms import AvatarUpdateForm, DescriptionUpdateForm, OccupantAddForm
@@ -774,7 +774,7 @@ def avatar_update_form(occupancy_id, *, erroneous_form=None):
     allowed_image_types = (
         bungalow_occupancy_avatar_service.get_allowed_image_types()
     )
-    image_type_names = image_service.get_image_type_names(allowed_image_types)
+    image_type_names = get_image_type_names(allowed_image_types)
 
     return {
         'bungalow': bungalow,
