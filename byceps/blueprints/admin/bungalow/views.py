@@ -12,7 +12,6 @@ from datetime import datetime
 from flask import abort, g, request, url_for
 from flask_babel import gettext
 
-from byceps.events.shop import ShopOrderCanceledEvent, ShopOrderPaidEvent
 from byceps.services.brand import brand_service
 from byceps.services.brand.models import Brand, BrandID
 from byceps.services.bungalow import (
@@ -42,6 +41,10 @@ from byceps.services.bungalow.models.occupation import (
 from byceps.services.party import party_service
 from byceps.services.party.models import Party, PartyID
 from byceps.services.shop.order import order_service
+from byceps.services.shop.order.events import (
+    ShopOrderCanceledEvent,
+    ShopOrderPaidEvent,
+)
 from byceps.services.shop.order.models.order import Order
 from byceps.services.shop.product import product_service
 from byceps.services.shop.product.models import ProductNumber, ProductType

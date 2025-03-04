@@ -11,9 +11,9 @@ from __future__ import annotations
 from sqlalchemy import select
 
 from byceps.database import db
-from byceps.events.shop import ShopOrderPlacedEvent
 from byceps.services.shop.cart.models import Cart
 from byceps.services.shop.order import order_checkout_service
+from byceps.services.shop.order.events import ShopOrderPlacedEvent
 from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service

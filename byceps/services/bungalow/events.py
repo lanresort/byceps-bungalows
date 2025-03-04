@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from byceps.events.base import _BaseEvent, EventUser
 from byceps.services.bungalow.models.bungalow import BungalowID
+from byceps.services.core.events import _BaseEvent, EventUser
 
 
 @dataclass(frozen=True)

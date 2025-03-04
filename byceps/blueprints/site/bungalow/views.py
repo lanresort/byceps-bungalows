@@ -15,7 +15,6 @@ from flask_babel import gettext
 from byceps.blueprints.site.shop.order.forms import OrderForm
 from byceps.blueprints.site.site.navigation import subnavigation_for_view
 from byceps.database import db
-from byceps.events.base import EventUser
 from byceps.services.bungalow import (
     bungalow_category_service,
     bungalow_occupancy_avatar_service,
@@ -36,6 +35,7 @@ from byceps.services.bungalow.models.occupation import (
     OccupancyID,
     OccupantSlot,
 )
+from byceps.services.core.events import EventUser
 from byceps.services.country import country_service
 from byceps.services.orga_team import orga_team_service
 from byceps.services.party import party_service

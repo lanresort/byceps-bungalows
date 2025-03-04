@@ -15,9 +15,9 @@ from datetime import datetime
 from sqlalchemy import select
 
 from byceps.database import db
-from byceps.events.base import EventUser
-from byceps.events.shop import ShopOrderPlacedEvent
+from byceps.services.core.events import EventUser
 from byceps.services.party.models import PartyID
+from byceps.services.shop.order.events import ShopOrderPlacedEvent
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service
 from byceps.services.shop.product.models import Product
