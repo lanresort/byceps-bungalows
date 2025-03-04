@@ -11,7 +11,7 @@ Announce bungalow events.
 from __future__ import annotations
 
 from byceps.announce.helpers import get_screen_name_or_fallback
-from byceps.events.bungalow import (
+from byceps.services.bungalow.events import (
     BungalowOccupancyAvatarUpdatedEvent,
     BungalowOccupancyDescriptionUpdatedEvent,
     BungalowOccupancyMovedEvent,

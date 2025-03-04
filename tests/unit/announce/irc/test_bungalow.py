@@ -10,7 +10,7 @@ import pytest
 from byceps.announce.announce import build_announcement_request
 from byceps.byceps_app import BycepsApp
 from byceps.events.base import EventUser
-from byceps.events.bungalow import (
+from byceps.services.bungalow.events import (
     BungalowOccupancyAvatarUpdatedEvent,
     BungalowOccupancyDescriptionUpdatedEvent,
     BungalowOccupancyMovedEvent,

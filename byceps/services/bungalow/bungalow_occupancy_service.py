@@ -16,12 +16,6 @@ from sqlalchemy import select
 
 from byceps.database import db
 from byceps.events.base import EventUser
-from byceps.events.bungalow import (
-    BungalowOccupancyMovedEvent,
-    BungalowOccupiedEvent,
-    BungalowReleasedEvent,
-    BungalowReservedEvent,
-)
 from byceps.events.shop import ShopOrderPlacedEvent
 from byceps.services.party.models import PartyID
 from byceps.services.shop.order.models.order import Order, Orderer
@@ -43,6 +37,12 @@ from . import bungalow_log_service, bungalow_order_service, bungalow_service
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
 from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation
+from .events import (
+    BungalowOccupancyMovedEvent,
+    BungalowOccupiedEvent,
+    BungalowReleasedEvent,
+    BungalowReservedEvent,
+)
 from .model_converters import _db_entity_to_occupancy, _db_entity_to_reservation
 from .models.bungalow import BungalowID, BungalowOccupationState
 from .models.occupation import (

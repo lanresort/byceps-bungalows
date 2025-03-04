@@ -1,6 +1,6 @@
 """
-byceps.events.bungalow
-~~~~~~~~~~~~~~~~~~~~~~
+byceps.services.bungalow.events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :Copyright: 2014-2025 Jochen Kupperschmidt
 :License: Revised BSD (see `LICENSE` file for details)
@@ -10,9 +10,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from byceps.events.base import _BaseEvent, EventUser
 from byceps.services.bungalow.models.bungalow import BungalowID
-
-from .base import _BaseEvent, EventUser
 
 
 @dataclass(frozen=True)

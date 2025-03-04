@@ -16,12 +16,6 @@ from byceps.blueprints.site.shop.order.forms import OrderForm
 from byceps.blueprints.site.site.navigation import subnavigation_for_view
 from byceps.database import db
 from byceps.events.base import EventUser
-from byceps.events.bungalow import (
-    BungalowOccupancyAvatarUpdatedEvent,
-    BungalowOccupancyDescriptionUpdatedEvent,
-    BungalowOccupantAddedEvent,
-    BungalowOccupantRemovedEvent,
-)
 from byceps.services.bungalow import (
     bungalow_category_service,
     bungalow_occupancy_avatar_service,
@@ -30,6 +24,12 @@ from byceps.services.bungalow import (
     bungalow_stats_service,
 )
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
+from byceps.services.bungalow.events import (
+    BungalowOccupancyAvatarUpdatedEvent,
+    BungalowOccupancyDescriptionUpdatedEvent,
+    BungalowOccupantAddedEvent,
+    BungalowOccupantRemovedEvent,
+)
 from byceps.services.bungalow.models.bungalow import BungalowOccupationState
 from byceps.services.bungalow.models.occupation import (
     BungalowOccupancy,
