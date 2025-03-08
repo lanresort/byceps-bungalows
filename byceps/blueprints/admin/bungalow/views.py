@@ -22,6 +22,7 @@ from byceps.services.bungalow import (
     bungalow_order_service,
     bungalow_service,
     bungalow_stats_service,
+    signals as bungalow_signals,
 )
 from byceps.services.bungalow.bungalow_service import (
     UserAlreadyUsesATicketException,
@@ -40,7 +41,10 @@ from byceps.services.bungalow.models.occupation import (
 )
 from byceps.services.party import party_service
 from byceps.services.party.models import Party, PartyID
-from byceps.services.shop.order import order_service
+from byceps.services.shop.order import (
+    order_service,
+    signals as shop_order_signals,
+)
 from byceps.services.shop.order.events import (
     ShopOrderCanceledEvent,
     ShopOrderPaidEvent,
@@ -56,7 +60,6 @@ from byceps.services.ticketing import (
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.user import user_service
 from byceps.services.user.models.user import UserID
-from byceps.signals import bungalow as bungalow_signals, shop as shop_signals
 from byceps.util.export import serialize_tuples_to_csv
 from byceps.util.framework.blueprint import create_blueprint
 from byceps.util.framework.flash import flash_error, flash_notice, flash_success
@@ -90,7 +93,7 @@ blueprint = create_blueprint('bungalow_admin', __name__)
 # hooks
 
 
-@shop_signals.order_canceled.connect
+@shop_order_signals.order_canceled.connect
 def release_bungalow(sender, *, event: ShopOrderCanceledEvent):
     """Release the bungalow that had been created for that order."""
     order = order_service.get_order(event.order_id)
@@ -116,7 +119,7 @@ def release_bungalow(sender, *, event: ShopOrderCanceledEvent):
     )
 
 
-@shop_signals.order_paid.connect
+@shop_order_signals.order_paid.connect
 def occupy_bungalow(sender, *, event: ShopOrderPaidEvent):
     """Mark a bungalow as occupied."""
     order = order_service.get_order(event.order_id)

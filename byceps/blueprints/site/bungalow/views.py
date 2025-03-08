@@ -21,6 +21,7 @@ from byceps.services.bungalow import (
     bungalow_occupancy_service,
     bungalow_service,
     bungalow_stats_service,
+    signals as bungalow_signals,
 )
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
 from byceps.services.bungalow.events import (
@@ -39,6 +40,7 @@ from byceps.services.core.events import EventUser
 from byceps.services.country import country_service
 from byceps.services.orga_team import orga_team_service
 from byceps.services.party import party_service
+from byceps.services.shop.order import signals as shop_order_signals
 from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.product import product_domain_service, product_service
 from byceps.services.shop.storefront import storefront_service
@@ -48,7 +50,6 @@ from byceps.services.ticketing import (
 )
 from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
-from byceps.signals import bungalow as bungalow_signals, shop as shop_signals
 from byceps.util.framework.blueprint import create_blueprint
 from byceps.util.framework.flash import flash_error, flash_notice, flash_success
 from byceps.util.framework.templating import templated
@@ -404,7 +405,7 @@ def order(bungalow_id):
         return order_form(bungalow_id)
 
     order, order_placed_event = place_bungalow_order_result.unwrap()
-    shop_signals.order_placed.send(None, event=order_placed_event)
+    shop_order_signals.order_placed.send(None, event=order_placed_event)
 
     flash_success(
         gettext(
