@@ -1,6 +1,6 @@
 """
-byceps.announce.handlers.bungalow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+byceps.services.bungalow.announcing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Announce bungalow events.
 
@@ -11,7 +11,9 @@ Announce bungalow events.
 from __future__ import annotations
 
 from byceps.announce.helpers import get_screen_name_or_fallback
-from byceps.services.bungalow.events import (
+from byceps.services.webhooks.models import Announcement, OutgoingWebhook
+
+from .events import (
     BungalowOccupancyAvatarUpdatedEvent,
     BungalowOccupancyDescriptionUpdatedEvent,
     BungalowOccupancyMovedEvent,
@@ -21,7 +23,6 @@ from byceps.services.bungalow.events import (
     BungalowReleasedEvent,
     BungalowReservedEvent,
 )
-from byceps.services.webhooks.models import Announcement, OutgoingWebhook
 
 
 def announce_bungalow_reserved(
