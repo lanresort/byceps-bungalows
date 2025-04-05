@@ -12,8 +12,6 @@ from functools import wraps
 from flask import abort, g, render_template, request
 from flask_babel import gettext
 
-from byceps.blueprints.site.shop.order.forms import OrderForm
-from byceps.blueprints.site.site.navigation import subnavigation_for_view
 from byceps.database import db
 from byceps.services.bungalow import (
     bungalow_category_service,
@@ -41,9 +39,11 @@ from byceps.services.country import country_service
 from byceps.services.orga_team import orga_team_service
 from byceps.services.party import party_service
 from byceps.services.shop.order import signals as shop_order_signals
+from byceps.services.shop.order.blueprints.site.forms import OrderForm
 from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.product import product_domain_service, product_service
 from byceps.services.shop.storefront import storefront_service
+from byceps.services.site.blueprints.site.navigation import subnavigation_for_view
 from byceps.services.ticketing import (
     ticket_service,
     ticket_user_management_service,
