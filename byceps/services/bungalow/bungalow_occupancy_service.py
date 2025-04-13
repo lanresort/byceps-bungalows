@@ -173,7 +173,6 @@ def reserve_bungalow(
     db_occupancy = DbBungalowOccupancy(
         db_bungalow.id, occupier.id, OccupancyState.reserved
     )
-    db_occupancy.title = f'Bungalow {db_bungalow.number}'
     db.session.add(db_occupancy)
 
     db_log_entry = bungalow_log_service.build_entry(
