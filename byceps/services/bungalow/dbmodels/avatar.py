@@ -55,7 +55,7 @@ class DbBungalowAvatar(db.Model):
         return Path(name_without_suffix).with_suffix(suffix)
 
     def get_path(self, party_id: PartyID) -> Path:
-        path_data = current_app.config['PATH_DATA']
+        path_data = current_app.byceps_config.data_path
         path = path_data / 'parties' / party_id / 'bungalow-avatars'
         return path / self.filename
 
