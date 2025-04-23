@@ -120,60 +120,64 @@
   {%- if bungalow.occupied %}
   <h2>Belegung</h2>
 
-  <div class="block row row--wrap">
+  <div class="row row--wrap">
 
-    <div class="box">
-      <div class="data-label">{{ _('Ticket bundle') }}</div>
-      <div class="data-value">
-        {%- with ticket_bundle_id = occupancy.ticket_bundle_id %}
-          {%- if ticket_bundle_id %}
-        <a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=ticket_bundle_id) }}">{{ ticket_bundle_id|string|truncate(9, end='…') }}</a>
-          {%- else %}
-        {{ _('not assigned')|dim }}
-          {%- endif %}
-        {%- endwith %}
-      </div>
-    </div>
+    <div class="block row row--wrap column--grow">
 
-    {%- with manager_id = occupancy.manager_id %}
-      {%- if manager_id != occupancy.occupied_by_id %}
-    <div class="box">
-      <div class="data-label">Verwaltung übertragen an</div>
-      <div class="data-value">
-        {{ render_user_avatar_and_admin_link(users_by_id[manager_id], size=16) }}
-      </div>
-    </div>
-      {%- endif %}
-    {%- endwith %}
-
-  </div>
-
-  <div>
-
-    <div class="block row row--wrap">
-
-      <div class="box">
-        <div class="data-label">{{ _('Avatar') }}</div>
+      <div class="box column--grow">
+        <div class="data-label">{{ _('Ticket bundle') }}</div>
         <div class="data-value">
-          <div class="avatar size-32">
-            <img src="{{ bungalow.avatar_url or url_for('static', filename='style/bungalow/avatar_fallback.svg') }}" alt="Avatar von Bungalow {{ bungalow.number }}">
-          </div>
+          {%- with ticket_bundle_id = occupancy.ticket_bundle_id %}
+            {%- if ticket_bundle_id %}
+          <a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=ticket_bundle_id) }}">{{ ticket_bundle_id|string|truncate(9, end='…') }}</a>
+            {%- else %}
+          {{ _('not assigned')|dim }}
+            {%- endif %}
+          {%- endwith %}
         </div>
       </div>
 
+      {%- with manager_id = occupancy.manager_id %}
+        {%- if manager_id != occupancy.occupied_by_id %}
       <div class="box column--grow">
-        <div class="data-label">{{ _('Title') }}</div>
-        <div class="data-value">{{ bungalow.occupancy.title|fallback }}</div>
+        <div class="data-label">Verwaltung übertragen an</div>
+        <div class="data-value">
+          {{ render_user_avatar_and_admin_link(users_by_id[manager_id], size=16) }}
+        </div>
+      </div>
+        {%- endif %}
+      {%- endwith %}
+
+    </div>
+
+    <div class="column--grow">
+
+      <div class="block row row--wrap">
+
+        <div class="box">
+          <div class="data-label">{{ _('Avatar') }}</div>
+          <div class="data-value">
+            <div class="avatar size-32">
+              <img src="{{ bungalow.avatar_url or url_for('static', filename='style/bungalow/avatar_fallback.svg') }}" alt="Avatar von Bungalow {{ bungalow.number }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="box column--grow">
+          <div class="data-label">{{ _('Title') }}</div>
+          <div class="data-value">{{ bungalow.occupancy.title|fallback }}</div>
+        </div>
+
       </div>
 
-    </div>
+      {%- if bungalow.occupancy.description %}
+      <div class="box">
+        <div class="data-label">{{ _('Description') }}</div>
+        <div class="data-value">{{ bungalow.occupancy.description|bbcode|safe }}</div>
+      </div>
+      {%- endif %}
 
-    {%- if bungalow.occupancy.description %}
-    <div class="box">
-      <div class="data-label">{{ _('Description') }}</div>
-      <div class="data-value">{{ bungalow.occupancy.description|bbcode|safe }}</div>
     </div>
-    {%- endif %}
 
   </div>
   {%- endif %}
