@@ -107,7 +107,7 @@
       <div class="data-label">{{ render_icon('note') }} Anmerkung</div>
       <div class="data-value">
         {%- if occupancy.internal_remark %}
-        <blockquote>{{ occupancy.internal_remark }}<blockquote>
+        {{ occupancy.internal_remark }}
         {%- else %}
         {{ 'keine'|dim }}
         {%- endif %}
