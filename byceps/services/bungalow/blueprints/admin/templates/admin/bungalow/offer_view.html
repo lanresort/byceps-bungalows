@@ -170,12 +170,16 @@
 
       </div>
 
-      {%- if bungalow.occupancy.description %}
       <div class="box">
         <div class="data-label">{{ _('Description') }}</div>
-        <div class="data-value">{{ bungalow.occupancy.description|bbcode|safe }}</div>
+        <div class="data-value">
+          {%- if bungalow.occupancy.description %}
+          {{ bungalow.occupancy.description|bbcode|safe }}
+          {%- else %}
+          {{ none|fallback }}
+          {%- endif %}
+        </div>
       </div>
-      {%- endif %}
 
     </div>
 
