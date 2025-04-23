@@ -3,9 +3,10 @@
 {% from 'macros/admin/bungalow.html' import render_bungalow_occupation_state %}
 {% from 'macros/admin/log.html' import render_log_entries, render_log_entry, render_log_reason, render_log_user %}
 {% from 'macros/admin/shop/order.html' import render_order_link %}
-{% from 'macros/admin/user.html' import render_user_avatar_and_admin_link %}
+{% from 'macros/admin/user.html' import render_user_admin_link, render_user_avatar_and_admin_link %}
 {% from 'macros/icons.html' import render_icon %}
 {% from 'macros/misc.html' import render_tag %}
+{% from 'macros/user.html' import render_user_avatar %}
 {% set current_page_party = party %}
 {% set current_tab = 'offers' %}
 {% set page_title = ['Angebotener Bungalow', bungalow.number, party.title] %}
@@ -24,6 +25,17 @@
       }
       .tag.occupied {
         background-color: #ee3322;
+      }
+
+      .occupant-slot--available {
+        --size: 24px;
+        background-color: #f8f8f8;
+        border-radius: 3px;
+        border: #cccccc dashed 1px;
+        display: inline-block;
+        height: var(--size);
+        vertical-align: middle;
+        width: var(--size);
       }
     </style>
 {%- endblock %}
@@ -129,31 +141,54 @@
 
   <div class="row row--wrap">
 
-    <div class="block row row--wrap column--grow">
+    <div class="column--grow">
 
-      <div class="box column--grow">
-        <div class="data-label">{{ _('Ticket bundle') }}</div>
-        <div class="data-value">
-          {%- with ticket_bundle_id = occupancy.ticket_bundle_id %}
-            {%- if ticket_bundle_id %}
-          <a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=ticket_bundle_id) }}">{{ ticket_bundle_id|string|truncate(9, end='…') }}</a>
-            {%- else %}
-          {{ _('not assigned')|dim }}
-            {%- endif %}
-          {%- endwith %}
+      <div class="block row row--wrap">
+
+        <div class="box column--grow">
+          <div class="data-label">{{ _('Ticket bundle') }}</div>
+          <div class="data-value">
+            {%- with ticket_bundle_id = occupancy.ticket_bundle_id %}
+              {%- if ticket_bundle_id %}
+            <a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=ticket_bundle_id) }}">{{ ticket_bundle_id|string|truncate(9, end='…') }}</a>
+              {%- else %}
+            {{ _('not assigned')|dim }}
+              {%- endif %}
+            {%- endwith %}
+          </div>
         </div>
+
+        {%- with manager_id = occupancy.manager_id %}
+          {%- if manager_id != occupancy.occupied_by_id %}
+        <div class="box column--grow">
+          <div class="data-label">Verwaltung übertragen an</div>
+          <div class="data-value">
+            {{ render_user_avatar_and_admin_link(users_by_id[manager_id], size=16) }}
+          </div>
+        </div>
+          {%- endif %}
+        {%- endwith %}
+
       </div>
 
-      {%- with manager_id = occupancy.manager_id %}
-        {%- if manager_id != occupancy.occupied_by_id %}
-      <div class="box column--grow">
-        <div class="data-label">Verwaltung übertragen an</div>
-        <div class="data-value">
-          {{ render_user_avatar_and_admin_link(users_by_id[manager_id], size=16) }}
-        </div>
-      </div>
-        {%- endif %}
-      {%- endwith %}
+      {%- if occupant_slots %}
+        {%- with occupant_slots_occupied = occupant_slots|selectattr('occupant')|list %}
+      <h3>Bewohnende {{ render_extra_in_heading(occupant_slots_occupied|length, label='/ ' ~ occupant_slots|length) }}</h3>
+        {%- endwith %}
+
+      <ol class="itemlist is-wide">
+        {%- for occupant_slot in occupant_slots %}
+        <li class="row is-compact is-vcentered">
+          {%- if occupant_slot.occupant -%}
+          <div>{{ render_user_avatar(occupant_slot.occupant, size=24) }}</div>
+          <div>{{ render_user_admin_link(occupant_slot.occupant) }}</div>
+          {%- else -%}
+          <span class="occupant-slot--available" title="frei"></span> <span>{{ 'frei'|dim }}</span>
+          {%- endif -%}
+        </li>
+        {%- endfor %}
+      </ol>
+      {%- endif %}
 
     </div>
 

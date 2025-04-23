@@ -27,6 +27,7 @@ from byceps.services.bungalow import (
 from byceps.services.bungalow.bungalow_service import (
     UserAlreadyUsesATicketException,
 )
+from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
 from byceps.services.bungalow.dbmodels.occupancy import DbBungalowOccupancy
 from byceps.services.bungalow.models.building import BungalowBuilding
 from byceps.services.bungalow.models.bungalow import Bungalow, BungalowID
@@ -38,6 +39,7 @@ from byceps.services.bungalow.models.occupation import (
     BungalowOccupancy,
     CategoryOccupationSummary,
     OccupancyID,
+    OccupantSlot,
 )
 from byceps.services.party import party_service
 from byceps.services.party.models import Party, PartyID
@@ -352,6 +354,8 @@ def offer_view(bungalow_id):
             user_ids, include_avatars=True
         )
 
+    occupant_slots = _get_occupant_slots(bungalow, occupancy)
+
     log_entries = list(service.get_log_entries(bungalow.id))
 
     return {
@@ -360,6 +364,7 @@ def offer_view(bungalow_id):
         'occupancy': occupancy,
         'users_by_id': users_by_id,
         'order': order,
+        'occupant_slots': occupant_slots,
         'log_entries': log_entries,
     }
 
@@ -375,6 +380,17 @@ def _collect_occupancy_user_ids(
         manager_id = occupancy.manager_id
         if manager_id != occupier_id:
             yield manager_id
+
+
+def _get_occupant_slots(
+    bungalow: DbBungalow, occupancy: BungalowOccupancy | None
+) -> list[OccupantSlot]:
+    if not bungalow.occupied or occupancy is None:
+        return None
+
+    return bungalow_occupancy_service.get_occupant_slots_for_occupancy(
+        occupancy.id
+    )
 
 
 @blueprint.get('/offers/for_party/<party_id>/create')
