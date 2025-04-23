@@ -89,9 +89,9 @@
     <tbody>
       {%- for bungalow in bungalows %}
       <tr>
-        <td><a href="{{ url_for('.offer_view', bungalow_id=bungalow.id) }}">{{ bungalow.number }}</a></td>
+        <td class="bignumber"><a href="{{ url_for('.offer_view', bungalow_id=bungalow.id) }}">{{ bungalow.number }}</a></td>
         <td class="centered">{{ bungalow.category.title }}</td>
-        <td class="centered">{{ bungalow.category.capacity }}</td>
+        <td class="centered bignumber">{{ bungalow.category.capacity }}</td>
         <td class="centered">
           {%- if bungalow.distributes_network -%}
             {{ render_icon('move', title='ist Netzwerk-Verteiler') }}
