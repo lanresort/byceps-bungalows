@@ -165,7 +165,7 @@
 
       <div>
         <div class="data-label">{{ _('Title') }}</div>
-        <div class="data-value">{{ bungalow.occupancy.title or '' }}</div>
+        <div class="data-value">{{ bungalow.occupancy.title|fallback }}</div>
       </div>
 
       {%- if bungalow.occupancy.description %}
