@@ -148,20 +148,24 @@
 
   </div>
 
-  <div class="block row row--wrap">
+  <div>
 
-    <div class="box">
-      <div class="data-label">{{ _('Avatar') }}</div>
-      <div class="data-value">
-        <div class="avatar size-32">
-          <img src="{{ bungalow.avatar_url or url_for('static', filename='style/bungalow/avatar_fallback.svg') }}" alt="Avatar von Bungalow {{ bungalow.number }}">
+    <div class="block row row--wrap">
+
+      <div class="box">
+        <div class="data-label">{{ _('Avatar') }}</div>
+        <div class="data-value">
+          <div class="avatar size-32">
+            <img src="{{ bungalow.avatar_url or url_for('static', filename='style/bungalow/avatar_fallback.svg') }}" alt="Avatar von Bungalow {{ bungalow.number }}">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="box">
-      <div class="data-label">{{ _('Title') }}</div>
-      <div class="data-value">{{ bungalow.occupancy.title|fallback }}</div>
+      <div class="box column--grow">
+        <div class="data-label">{{ _('Title') }}</div>
+        <div class="data-value">{{ bungalow.occupancy.title|fallback }}</div>
+      </div>
+
     </div>
 
     {%- if bungalow.occupancy.description %}
