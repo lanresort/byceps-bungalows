@@ -5,6 +5,7 @@
 {% from 'macros/admin/shop/order.html' import render_order_link %}
 {% from 'macros/admin/user.html' import render_user_avatar_and_admin_link %}
 {% from 'macros/icons.html' import render_icon %}
+{% from 'macros/misc.html' import render_tag %}
 {% set current_page_party = party %}
 {% set current_tab = 'offers' %}
 {% set page_title = ['Angebotener Bungalow', bungalow.number, party.title] %}
@@ -99,8 +100,14 @@
     </div>
 
     <div class="box">
-      <div class="data-label">{{ render_icon('pin') }} Wechsel blockiert</div>
-      <div class="data-value">{{ 'ja' if occupancy.pinned else 'nein' }}</div>
+      <div class="data-label">{{ render_icon('pin') }} Verschieben</div>
+      <div class="data-value">
+        {%- if occupancy.pinned %}
+        {{ render_tag('blockiert', class='color-danger') }}
+        {%- else %}
+        {{ render_tag('möglich', class='color-success') }}
+        {%- endif %}
+      </div>
     </div>
 
     <div class="box column--grow">
