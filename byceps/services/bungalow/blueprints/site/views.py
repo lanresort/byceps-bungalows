@@ -43,7 +43,9 @@ from byceps.services.shop.order.blueprints.site.forms import OrderForm
 from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.product import product_domain_service, product_service
 from byceps.services.shop.storefront import storefront_service
-from byceps.services.site.blueprints.site.navigation import subnavigation_for_view
+from byceps.services.site.blueprints.site.navigation import (
+    subnavigation_for_view,
+)
 from byceps.services.ticketing import (
     ticket_service,
     ticket_user_management_service,
@@ -113,12 +115,12 @@ def enabled_ticket_management_required(func):
 @subnavigation_for_view('bungalows')
 def index():
     """List all bungalows."""
-    bungalows = bungalow_service.get_bungalows_extended_for_party(g.party_id)
+    bungalows = bungalow_service.get_bungalows_extended_for_party(g.party.id)
 
     bungalows_by_number = {b.number: b for b in bungalows}
 
     bungalow_categories = bungalow_category_service.get_categories_for_party(
-        g.party_id
+        g.party.id
     )
     bungalow_categories_by_id = {c.id: c for c in bungalow_categories}
 
@@ -156,11 +158,11 @@ def index():
     )
 
     my_bungalow = bungalow_service.find_bungalow_inhabited_by_user(
-        g.user.id, g.party_id
+        g.user.id, g.party.id
     )
 
     ticket_categories_and_occupation_summaries = list(
-        bungalow_stats_service.get_statistics_by_category(g.party_id)
+        bungalow_stats_service.get_statistics_by_category(g.party.id)
     )
 
     occupation_summaries_by_ticket_category_id = {
@@ -241,7 +243,7 @@ def view(number: int):
 def view_mine():
     """Redirect to the current user's bungalow."""
     me_id = g.user.id
-    party_id = g.party_id
+    party_id = g.party.id
 
     bungalow = bungalow_service.find_bungalow_inhabited_by_user(me_id, party_id)
 
@@ -299,7 +301,7 @@ def order_form(bungalow_id, *, erroneous_form=None):
     user = user_service.find_user_with_details(g.user.id)
 
     if bungalow_occupancy_service.has_user_occupied_any_bungalow(
-        g.party_id, user.id
+        g.party.id, user.id
     ):
         flash_error(
             'Du hast bereits einen Bungalow für diese Party reserviert.'
@@ -365,7 +367,7 @@ def order(bungalow_id):
     user = g.user
 
     if bungalow_occupancy_service.has_user_occupied_any_bungalow(
-        g.party_id, user.id
+        g.party.id, user.id
     ):
         flash_error(
             'Du hast bereits einen Bungalow für diese Party reserviert.'
@@ -444,15 +446,15 @@ def occupant_index_all(page):
     search_term = request.args.get('search_term', default='').strip()
 
     tickets = bungalow_service.get_all_occupant_tickets_paginated(
-        g.party_id, page, per_page, search_term=search_term
+        g.party.id, page, per_page, search_term=search_term
     )
 
     ticket_user_ids = {
         ticket.used_by_id for ticket in tickets.items if ticket.used_by_id
     }
-    if g.party_id is not None:
+    if g.party:
         orga_ids = orga_team_service.select_orgas_for_party(
-            ticket_user_ids, g.party_id
+            ticket_user_ids, g.party.id
         )
     else:
         orga_ids = set()
@@ -511,12 +513,12 @@ def occupant_index(number: int):
     tickets = ticket_service.get_tickets(ticket_ids)
     tickets_by_id = {t.id: t for t in tickets}
 
-    if g.party_id is not None:
+    if g.party:
         occupant_ids = {
             slot.occupant.id for slot in occupant_slots if slot.occupant
         }
         orga_ids = orga_team_service.select_orgas_for_party(
-            occupant_ids, g.party_id
+            occupant_ids, g.party.id
         )
     else:
         orga_ids = set()
@@ -866,14 +868,14 @@ def avatar_remove(occupancy_id):
 def _get_bungalow_for_id_or_404(bungalow_id):
     bungalow = bungalow_service.find_db_bungalow(bungalow_id)
 
-    if (bungalow is None) or (bungalow.party_id != g.party_id):
+    if (bungalow is None) or (bungalow.party_id != g.party.id):
         abort(404)
 
     return bungalow
 
 
 def _get_bungalow_for_number_or_404(number: int):
-    bungalow = bungalow_service.find_db_bungalow_by_number(g.party_id, number)
+    bungalow = bungalow_service.find_db_bungalow_by_number(g.party.id, number)
 
     if bungalow is None:
         abort(404)
@@ -891,10 +893,10 @@ def _get_occupancy_or_404(occupancy_id: OccupancyID) -> BungalowOccupancy:
 
 
 def _is_ticket_management_enabled():
-    if g.party_id is None:
+    if not g.party:
         return False
 
-    party = party_service.get_party(g.party_id)
+    party = party_service.get_party(g.party.id)
     return party.ticket_management_enabled
 
 
@@ -905,7 +907,7 @@ def _get_bungalow_customization_enabled() -> bool:
 def _get_ticket_or_404(ticket_id):
     ticket = ticket_service.find_ticket(ticket_id)
 
-    if (ticket is None) or (ticket.category.party_id != g.party_id):
+    if (ticket is None) or (ticket.category.party_id != g.party.id):
         abort(404)
 
     return ticket

@@ -34,7 +34,7 @@ def validate_user(form, field):
         raise ValidationError(gettext('The user account is not active.'))
 
     required_consent_subjects = (
-        consent_subject_service.get_subjects_required_for_brand(g.brand_id)
+        consent_subject_service.get_subjects_required_for_brand(g.site.brand_id)
     )
     required_consent_subject_ids = {
         subject.id for subject in required_consent_subjects
@@ -71,7 +71,7 @@ def _has_full_name_given(user_id) -> bool:
 
 
 def _already_uses_ticket(user_id) -> bool:
-    return ticket_service.uses_any_ticket_for_party(user_id, g.party_id)
+    return ticket_service.uses_any_ticket_for_party(user_id, g.party.id)
 
 
 class OccupantAddForm(LocalizedForm):
