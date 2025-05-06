@@ -957,7 +957,7 @@ def export_first_time_attendees(party_id):
             first_time_attendees_by_bungalow_number.items(),
             key=lambda item: item[0],
         ):
-            attendee_count = len(first_time_attendees)
+            attendee_count = len(attendees)
             joined_screen_names = ', '.join(
                 attendee.screen_name for attendee in attendees
             )
