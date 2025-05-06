@@ -43,8 +43,8 @@
             </div>
           </button>
           <ol class="dropdown-menu dropdown-menu--right">
-            <li><a class="dropdown-item" href="{{ url_for('.export_occupants', party_id=party.id) }}">Bewohnernamen</a></li>
             <li><a class="dropdown-item" href="{{ url_for('.export_bungalow_numbers_and_titles', party_id=party.id) }}">Nummern und Namen belegter Bungalows</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('.export_occupants', party_id=party.id) }}">Bewohnernamen</a></li>
           </ol>
         </div>
       </div>
