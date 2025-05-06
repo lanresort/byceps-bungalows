@@ -952,18 +952,19 @@ def export_first_time_attendees(party_id):
         first_attendance_service.get_first_time_attendees_by_bungalow(party)
     )
 
-    def generate() -> Iterator[str]:
-        for bungalow_number, attendees in sorted(
-            first_time_attendees_by_bungalow_number.items(),
-            key=lambda item: item[0],
-        ):
-            attendee_count = len(attendees)
-            joined_screen_names = ', '.join(
-                attendee.screen_name for attendee in attendees
-            )
-            yield f'Bungalow {bungalow_number} ({attendee_count}): {joined_screen_names}\n'
+    rows = [('Bungalow', 'Anzahl', 'Namen')]
 
-    return generate()
+    for bungalow_number, attendees in sorted(
+        first_time_attendees_by_bungalow_number.items(),
+        key=lambda item: item[0],
+    ):
+        attendee_count = len(attendees)
+        joined_screen_names = ', '.join(
+            attendee.screen_name for attendee in attendees
+        )
+        rows.append((bungalow_number, attendee_count, joined_screen_names))
+
+    return serialize_tuples_to_csv(rows)
 
 
 # -------------------------------------------------------------------- #
