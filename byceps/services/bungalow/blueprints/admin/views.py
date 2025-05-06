@@ -22,6 +22,7 @@ from byceps.services.bungalow import (
     bungalow_order_service,
     bungalow_service,
     bungalow_stats_service,
+    first_attendance_service,
     signals as bungalow_signals,
 )
 from byceps.services.bungalow.bungalow_service import (
@@ -937,6 +938,30 @@ def export_bungalow_numbers_and_titles(party_id):
     def generate() -> Iterator[str]:
         for number, title in numbers_and_titles:
             yield f'{number:d} {title}\n'
+
+    return generate()
+
+
+@blueprint.get('/<party_id>/first_time_attendees')
+@permission_required('bungalow.view')
+@textified
+def export_first_time_attendees(party_id):
+    party = _get_party_or_404(party_id)
+
+    first_time_attendees_by_bungalow_number = (
+        first_attendance_service.get_first_time_attendees_by_bungalow(party)
+    )
+
+    def generate() -> Iterator[str]:
+        for bungalow_number, attendees in sorted(
+            first_time_attendees_by_bungalow_number.items(),
+            key=lambda item: item[0],
+        ):
+            attendee_count = len(first_time_attendees)
+            joined_screen_names = ', '.join(
+                attendee.screen_name for attendee in attendees
+            )
+            yield f'Bungalow {bungalow_number} ({attendee_count}): {joined_screen_names}'
 
     return generate()
 
