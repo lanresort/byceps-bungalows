@@ -961,7 +961,7 @@ def export_first_time_attendees(party_id):
             joined_screen_names = ', '.join(
                 attendee.screen_name for attendee in attendees
             )
-            yield f'Bungalow {bungalow_number} ({attendee_count}): {joined_screen_names}'
+            yield f'Bungalow {bungalow_number} ({attendee_count}): {joined_screen_names}\n'
 
     return generate()
 
