@@ -13,6 +13,7 @@ from sqlalchemy import select
 
 from byceps.database import db
 from byceps.services.brand.models import BrandID
+from byceps.services.bungalow import bungalow_service
 from byceps.services.party.models import Party, PartyID
 from byceps.services.ticketing import ticket_attendance_service
 from byceps.services.ticketing.dbmodels.category import DbTicketCategory
