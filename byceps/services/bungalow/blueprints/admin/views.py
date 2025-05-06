@@ -449,8 +449,7 @@ def offer_create(party_id):
 
     building_numbers_text = ', '.join(str(b.number) for b in buildings)
     flash_success(
-        'Diese Bungalows werden ab sofort angeboten: '
-        f'{building_numbers_text}'
+        f'Diese Bungalows werden ab sofort angeboten: {building_numbers_text}'
     )
 
     return redirect_to('.index_for_party', party_id=party.id)
