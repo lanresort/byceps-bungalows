@@ -18,7 +18,7 @@ from byceps.services.brand.models import BrandID
 BungalowLayoutID = NewType('BungalowLayoutID', UUID)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowLayout:
     id: BungalowLayoutID
     brand_id: BrandID
@@ -32,7 +32,7 @@ class BungalowLayout:
 BungalowBuildingID = NewType('BungalowBuildingID', UUID)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowBuilding:
     id: BungalowBuildingID
     brand_id: BrandID

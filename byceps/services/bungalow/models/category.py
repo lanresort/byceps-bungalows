@@ -23,7 +23,7 @@ from byceps.services.ticketing.models.ticket import TicketCategoryID
 BungalowCategoryID = NewType('BungalowCategoryID', UUID)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Product:
     id: ProductID
     item_number: ProductNumber
@@ -34,7 +34,7 @@ class Product:
     quantity: int
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowCategory:
     id: BungalowCategoryID
     party_id: PartyID

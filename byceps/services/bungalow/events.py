@@ -14,35 +14,35 @@ from byceps.services.bungalow.models.bungalow import BungalowID
 from byceps.services.core.events import _BaseEvent, EventUser
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class _BungalowEvent(_BaseEvent):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class _BungalowOccupancyEvent(_BungalowEvent):
     bungalow_id: BungalowID
     bungalow_number: int
     occupier: EventUser
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowReservedEvent(_BungalowOccupancyEvent):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowOccupiedEvent(_BungalowOccupancyEvent):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowReleasedEvent(_BungalowEvent):
     bungalow_id: BungalowID
     bungalow_number: int
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowOccupancyMovedEvent(_BungalowEvent):
     source_bungalow_id: BungalowID
     source_bungalow_number: int
@@ -50,30 +50,30 @@ class BungalowOccupancyMovedEvent(_BungalowEvent):
     target_bungalow_number: int
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowOccupancyAvatarUpdatedEvent(_BungalowEvent):
     bungalow_id: BungalowID
     bungalow_number: int
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowOccupancyDescriptionUpdatedEvent(_BungalowEvent):
     bungalow_id: BungalowID
     bungalow_number: int
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class _BungalowOccupantEvent(_BungalowEvent):
     bungalow_id: BungalowID
     bungalow_number: int
     occupant: EventUser
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowOccupantAddedEvent(_BungalowOccupantEvent):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowOccupantRemovedEvent(_BungalowOccupantEvent):
     pass

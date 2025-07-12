@@ -17,7 +17,7 @@ from .bungalow import BungalowID
 BungalowLogEntryData = dict[str, Any]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowLogEntry:
     id: UUID
     occurred_at: datetime

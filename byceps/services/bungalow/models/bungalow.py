@@ -26,7 +26,7 @@ BungalowOccupationState = Enum(
 )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Bungalow:
     id: BungalowID
     party_id: PartyID

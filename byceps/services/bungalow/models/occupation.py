@@ -30,7 +30,7 @@ ReservationID = NewType('ReservationID', UUID)
 OccupancyID = NewType('OccupancyID', UUID)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowReservation:
     id: ReservationID
     bungalow_id: BungalowID
@@ -40,7 +40,7 @@ class BungalowReservation:
     internal_remark: str | None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BungalowOccupancy:
     id: OccupancyID
     bungalow_id: BungalowID
@@ -56,20 +56,20 @@ class BungalowOccupancy:
     internal_remark: str | None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class OccupantSlot:
     ticket_id: TicketID
     occupant: User | None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class OccupationStateTotals:
     available: int
     reserved: int
     occupied: int
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CategoryOccupationSummary:
     available: int
     reserved: int
@@ -83,7 +83,12 @@ class CategoryOccupationSummary:
         """Create instance from state values, but have total calculated."""
         total = available + reserved + occupied
 
-        return cls(available, reserved, occupied, total)
+        return cls(
+            available=available,
+            reserved=reserved,
+            occupied=occupied,
+            total=total,
+        )
 
     @classmethod
     def from_counts_by_state(
