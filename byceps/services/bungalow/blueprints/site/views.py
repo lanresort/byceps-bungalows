@@ -34,7 +34,6 @@ from byceps.services.bungalow.models.occupation import (
     OccupancyID,
     OccupantSlot,
 )
-from byceps.services.core.events import EventUser
 from byceps.services.country import country_service
 from byceps.services.orga_team import orga_team_service
 from byceps.services.party import party_service
@@ -601,10 +600,10 @@ def occupant_add(ticket_id):
 
     event = BungalowOccupantAddedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=EventUser.from_user(manager),
+        initiator=manager,
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
-        occupant=EventUser.from_user(occupant),
+        occupant=occupant,
     )
     bungalow_signals.occupant_added.send(None, event=event)
 
@@ -671,10 +670,10 @@ def occupant_remove(ticket_id):
 
     event = BungalowOccupantRemovedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=EventUser.from_user(manager),
+        initiator=manager,
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
-        occupant=EventUser.from_user(occupant),
+        occupant=occupant,
     )
     bungalow_signals.occupant_removed.send(None, event=event)
 
@@ -744,7 +743,7 @@ def description_update(occupancy_id):
 
     event = BungalowOccupancyDescriptionUpdatedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=EventUser.from_user(manager),
+        initiator=manager,
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
     )
@@ -832,7 +831,7 @@ def avatar_update(occupancy_id):
 
     event = BungalowOccupancyAvatarUpdatedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=EventUser.from_user(manager),
+        initiator=manager,
         bungalow_id=bungalow.id,
         bungalow_number=bungalow.number,
     )

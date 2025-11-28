@@ -20,7 +20,7 @@ from byceps.services.bungalow.events import (
     BungalowReservedEvent,
 )
 from byceps.services.bungalow.models.bungalow import BungalowID
-from byceps.services.core.events import EventUser
+from byceps.services.user.models.user import User
 
 from tests.helpers import generate_uuid
 
@@ -32,7 +32,7 @@ BUNGALOW_851_ID = BungalowID(generate_uuid())
 
 
 def test_announce_bungalow_reserved(
-    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: User, webhook_for_irc
 ):
     expected_text = 'Lucifer hat Bungalow 666 reserviert.'
 
@@ -50,7 +50,7 @@ def test_announce_bungalow_reserved(
 
 
 def test_announce_bungalow_occupied(
-    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: User, webhook_for_irc
 ):
     expected_text = 'Lucifer hat Bungalow 666 belegt.'
 
@@ -106,7 +106,7 @@ def test_announce_bungalow_occupancy_moved(
 
 
 def test_announce_bungalow_avatar_updated(
-    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: User, webhook_for_irc
 ):
     expected_text = 'Lucifer hat das Avatarbild für Bungalow 666 aktualisiert.'
 
@@ -123,7 +123,7 @@ def test_announce_bungalow_avatar_updated(
 
 
 def test_announce_bungalow_description_updated(
-    app: BycepsApp, now: datetime, main_occupant: EventUser, webhook_for_irc
+    app: BycepsApp, now: datetime, main_occupant: User, webhook_for_irc
 ):
     expected_text = 'Lucifer hat das Grußwort für Bungalow 666 aktualisiert.'
 
@@ -142,8 +142,8 @@ def test_announce_bungalow_description_updated(
 def test_announce_bungalow_occupant_added(
     app: BycepsApp,
     now: datetime,
-    main_occupant: EventUser,
-    other_occupant: EventUser,
+    main_occupant: User,
+    other_occupant: User,
     webhook_for_irc,
 ):
     expected_text = 'Lucifer hat Mad_Dämon in Bungalow 666 aufgenommen.'
@@ -164,8 +164,8 @@ def test_announce_bungalow_occupant_added(
 def test_announce_bungalow_occupant_removed(
     app: BycepsApp,
     now: datetime,
-    main_occupant: EventUser,
-    other_occupant: EventUser,
+    main_occupant: User,
+    other_occupant: User,
     webhook_for_irc,
 ):
     expected_text = 'Lucifer hat Mad_Dämon aus Bungalow 666 rausgeworfen.'
@@ -187,10 +187,10 @@ def test_announce_bungalow_occupant_removed(
 
 
 @pytest.fixture(scope='module')
-def main_occupant(make_event_user) -> EventUser:
-    return make_event_user(screen_name='Lucifer')
+def main_occupant(make_user) -> User:
+    return make_user(screen_name='Lucifer')
 
 
 @pytest.fixture(scope='module')
-def other_occupant(make_event_user) -> EventUser:
-    return make_event_user(screen_name='Mad_Dämon')
+def other_occupant(make_user) -> User:
+    return make_user(screen_name='Mad_Dämon')

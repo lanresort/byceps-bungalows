@@ -15,7 +15,6 @@ from datetime import datetime
 from sqlalchemy import select
 
 from byceps.database import db
-from byceps.services.core.events import EventUser
 from byceps.services.party.models import PartyID
 from byceps.services.shop.order import order_command_service, order_service
 from byceps.services.shop.order.email import order_email_service
@@ -188,10 +187,10 @@ def reserve_bungalow(
 
     bungalow_reserved_event = BungalowReservedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=EventUser.from_user(occupier),
+        initiator=occupier,
         bungalow_id=db_bungalow.id,
         bungalow_number=db_bungalow.number,
-        occupier=EventUser.from_user(occupier),
+        occupier=occupier,
     )
 
     reservation = _db_entity_to_reservation(db_reservation)
@@ -354,10 +353,10 @@ def occupy_bungalow(
 
     event = BungalowOccupiedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=EventUser.from_user(occupier),
+        initiator=occupier,
         bungalow_id=db_bungalow.id,
         bungalow_number=db_bungalow.number,
-        occupier=EventUser.from_user(occupier),
+        occupier=occupier,
     )
 
     return Ok((occupancy, event))
@@ -442,7 +441,7 @@ def move_occupancy(
     return Ok(
         BungalowOccupancyMovedEvent(
             occurred_at=datetime.utcnow(),
-            initiator=EventUser.from_user(initiator),
+            initiator=initiator,
             source_bungalow_id=db_source_bungalow.id,
             source_bungalow_number=db_source_bungalow.number,
             target_bungalow_id=db_target_bungalow.id,
@@ -478,7 +477,7 @@ def release_bungalow(
 
     return BungalowReleasedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=EventUser.from_user(initiator) if initiator else None,
+        initiator=initiator,
         bungalow_id=db_bungalow.id,
         bungalow_number=db_bungalow.number,
     )

@@ -11,7 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from byceps.services.bungalow.models.bungalow import BungalowID
-from byceps.services.core.events import _BaseEvent, EventUser
+from byceps.services.core.events import _BaseEvent
+from byceps.services.user.models.user import User
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -23,7 +24,7 @@ class _BungalowEvent(_BaseEvent):
 class _BungalowOccupancyEvent(_BungalowEvent):
     bungalow_id: BungalowID
     bungalow_number: int
-    occupier: EventUser
+    occupier: User
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -66,7 +67,7 @@ class BungalowOccupancyDescriptionUpdatedEvent(_BungalowEvent):
 class _BungalowOccupantEvent(_BungalowEvent):
     bungalow_id: BungalowID
     bungalow_number: int
-    occupant: EventUser
+    occupant: User
 
 
 @dataclass(frozen=True, kw_only=True)
