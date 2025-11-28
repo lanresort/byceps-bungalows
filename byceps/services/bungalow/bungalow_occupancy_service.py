@@ -17,6 +17,8 @@ from sqlalchemy import select
 from byceps.database import db
 from byceps.services.core.events import EventUser
 from byceps.services.party.models import PartyID
+from byceps.services.shop.order import order_command_service, order_service
+from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.order.events import ShopOrderPlacedEvent
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service
@@ -244,6 +246,63 @@ def _get_product_for_occupancy(occupancy_id: OccupancyID) -> Product:
     ).scalar_one()
 
     return product_service.get_product(product_id)
+
+
+def transfer_reservation(
+    db_bungalow: DbBungalow, recipient: User, initiator: User
+) -> Result[None, str]:
+    """Transfer bungalow order and reservation to another user."""
+    if not db_bungalow.reserved:
+        return Err("'Bungalow is not in state 'reserved'.")
+
+    order = order_service.find_order_by_order_number(
+        db_bungalow.occupancy.order_number
+    )
+
+    if not order:
+        return Err('Order {order.order_number} not found.')
+
+    if not order.is_open:
+        return Err(f'Order {order.order_number} is not open.')
+
+    recipient_orderer = _build_recipient_orderer(recipient)
+
+    # Notify original orderer of (from their perspective) cancellation.
+    # Do this before changing the order.
+    order_email_service.send_email_for_canceled_order_to_orderer(order)
+
+    # Update order with new orderer.
+    order_update_result = order_command_service.update_orderer(
+        order.id, recipient_orderer, initiator
+    )
+    if order_update_result.is_err():
+        return Err(order_update_result.unwrap_err())
+
+    updated_order = order_update_result.unwrap()
+
+    # Set new bungalow occupier.
+    db_bungalow.occupancy.occupied_by_id = recipient.id
+    db_bungalow.reservation.reserved_by = recipient.id
+    db.session.commit()
+
+    # Notify new orderer of order transferred to them.
+    order_email_service.send_email_for_incoming_order_to_orderer(updated_order)
+
+    return Ok(None)
+
+
+def _build_recipient_orderer(recipient: User) -> Orderer:
+    user_detail = user_service.get_detail(recipient.id)
+    return Orderer(
+        user=recipient,
+        company=None,
+        first_name=user_detail.first_name,
+        last_name=user_detail.last_name,
+        country=user_detail.country,
+        postal_code=user_detail.postal_code,
+        city=user_detail.city,
+        street=user_detail.street,
+    )
 
 
 def occupy_bungalow(
