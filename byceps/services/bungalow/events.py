@@ -11,12 +11,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from byceps.services.bungalow.models.bungalow import BungalowID
-from byceps.services.core.events import _BaseEvent
+from byceps.services.core.events import BaseEvent
 from byceps.services.user.models.user import User
 
 
 @dataclass(frozen=True, kw_only=True)
-class _BungalowEvent(_BaseEvent):
+class _BungalowEvent(BaseEvent):
     pass
 
 
