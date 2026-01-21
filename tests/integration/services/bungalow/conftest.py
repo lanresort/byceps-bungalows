@@ -47,7 +47,7 @@ def storefront(
 
 
 @pytest.fixture(scope='module')
-def product(make_product, shop: Shop) -> Product:
+def bungalow_product(make_product, shop: Shop) -> Product:
     return make_product(shop.id)
 
 
@@ -71,13 +71,13 @@ def make_ticket_bundle(
 
 @pytest.fixture(scope='module')
 def bungalow_category(
-    party: Party, ticket_category: TicketCategory, product: Product
+    party: Party, ticket_category: TicketCategory, bungalow_product: Product
 ) -> BungalowCategory:
     title = f'Premium {generate_token()}'
     capacity = 6
 
     return bungalow_category_service.create_category(
-        party.id, title, capacity, ticket_category.id, product.id
+        party.id, title, capacity, ticket_category.id, bungalow_product.id
     )
 
 
