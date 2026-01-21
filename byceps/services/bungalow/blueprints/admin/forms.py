@@ -16,7 +16,7 @@ from wtforms import (
 )
 from wtforms.validators import InputRequired, Length, Optional
 
-from byceps.services.bungalow import bungalow_service
+from byceps.services.bungalow import bungalow_category_service, bungalow_service
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
 from byceps.services.party.models import PartyID
 from byceps.services.shop.product import product_service
@@ -77,11 +77,62 @@ class _CategoryBaseForm(LocalizedForm):
 
 
 class CategoryCreateForm(_CategoryBaseForm):
-    pass
+    def __init__(self, party_id: PartyID, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._party_id = party_id
+
+    def validate(self, extra_validators=None) -> bool:
+        if not super().validate():
+            return False
+
+        title = self.title.data.strip()
+        capacity = self.capacity.data
+
+        if not bungalow_category_service.is_title_capacity_combo_available(
+            self._party_id, title, capacity
+        ):
+            self.form_errors.append(
+                'Diese Kombination aus Titel und Kapazität wird bereits verwendet.'
+            )
+            return False
+
+        return True
 
 
 class CategoryUpdateForm(_CategoryBaseForm):
-    pass
+    def __init__(
+        self,
+        party_id: PartyID,
+        current_title: str,
+        current_capacity: int,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self._party_id = party_id
+        self._current_title = current_title
+        self._current_capacity = current_capacity
+
+    def validate(self, extra_validators=None) -> bool:
+        if not super().validate():
+            return False
+
+        title = self.title.data.strip()
+        capacity = self.capacity.data
+
+        if (
+            title != self._current_title
+            and capacity != self._current_capacity
+            and not bungalow_category_service.is_title_capacity_combo_available(
+                self._party_id, title, capacity
+            )
+        ):
+            self.form_errors.append(
+                'Diese Kombination aus Titel und Kapazität wird bereits verwendet.'
+            )
+            return False
+
+        return True
 
 
 class OfferCreateForm(LocalizedForm):

@@ -1,6 +1,6 @@
 {% extends 'layout/admin/base.html' %}
 {% from 'macros/admin.html' import render_backlink %}
-{% from 'macros/forms.html' import form_buttons, form_field %}
+{% from 'macros/forms.html' import form_buttons, form_field, form_form_errors %}
 {% from 'macros/icons.html' import render_icon %}
 {% set current_page = 'bungalow_admin' %}
 {% set current_page_party = party %}
@@ -16,6 +16,8 @@
 
   <form action="{{ url_for('.category_update', category_id=category.id) }}" method="post">
     <div class="box">
+{{ form_form_errors(form) }}
+
       {{ form_field(form.title, autofocus='autofocus') }}
       {{ form_field(form.capacity, type='number', min=1, max=20, style='width: 5.5rem;', suffix='Personen') }}
       {{ form_field(form.ticket_category_id) }}

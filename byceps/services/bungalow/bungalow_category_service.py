@@ -112,3 +112,17 @@ def get_categories_for_party(party_id: PartyID) -> list[BungalowCategory]:
         _db_entity_to_bungalow_category(db_bungalow_category)
         for db_bungalow_category in db_bungalow_categories
     ]
+
+
+def is_title_capacity_combo_available(
+    party_id: PartyID, title: str, capacity: int
+) -> bool:
+    """Check if the title/ is unused in the scope of this party."""
+    return not db.session.scalar(
+        select(
+            db.exists()
+            .where(DbBungalowCategory.party_id == party_id)
+            .where(db.func.lower(DbBungalowCategory.title) == title.lower())
+            .where(DbBungalowCategory.capacity == capacity)
+        )
+    )

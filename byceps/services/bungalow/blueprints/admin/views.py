@@ -740,7 +740,7 @@ def category_create_form(party_id, erroneous_form=None):
         )
         return redirect_to('.categories', party_id=party.id)
 
-    form = erroneous_form if erroneous_form else CategoryCreateForm()
+    form = erroneous_form if erroneous_form else CategoryCreateForm(party_id)
     form.set_ticket_category_choices(party.id)
     form.set_product_choices(shop.id)
 
@@ -761,7 +761,7 @@ def category_create(party_id):
         flash_error('Kein Shop für die Marke dieser Party gefunden.')
         return category_create_form(party.id)
 
-    form = CategoryCreateForm(request.form)
+    form = CategoryCreateForm(party_id, request.form)
     form.set_ticket_category_choices(party.id)
     form.set_product_choices(shop.id)
 
@@ -819,7 +819,13 @@ def category_update_form(category_id, erroneous_form=None):
     form = (
         erroneous_form
         if erroneous_form
-        else CategoryUpdateForm(obj=category, product_id=category.product.id)
+        else CategoryUpdateForm(
+            party.id,
+            category.title,
+            category.capacity,
+            obj=category,
+            product_id=category.product.id,
+        )
     )
     form.set_ticket_category_choices(party.id)
     form.set_product_choices(shop.id)
@@ -844,7 +850,9 @@ def category_update(category_id):
         flash_error('Kein Shop für die Marke dieser Party gefunden.')
         return category_update_form(category.id)
 
-    form = CategoryUpdateForm(request.form)
+    form = CategoryUpdateForm(
+        party.id, category.title, category.capacity, request.form
+    )
     form.set_ticket_category_choices(category.party_id)
     form.set_product_choices(shop.id)
 
