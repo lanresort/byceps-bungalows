@@ -49,7 +49,7 @@
         <div class="bungalow-profile-header-column">
 
           <div class="dropdown">
-            <button class="dropdown-toggle button"><span>Aktionen</span> {{ render_icon('caret-down') }}</button>
+            <button class="dropdown-toggle button"><span>Aktionen</span> {{ render_icon('chevron-down') }}</button>
             <ol class="dropdown-menu dropdown-menu--right">
               <li><a class="dropdown-item" href="{{ url_for('bungalow.description_update_form', occupancy_id=bungalow.occupancy.id) }}">{{ render_icon('edit') }} <span>Name und Beschreibung bearbeiten</span></a></li>
               <li class="dropdown-divider"></li>
