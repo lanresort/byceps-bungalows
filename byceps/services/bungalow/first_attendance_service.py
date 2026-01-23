@@ -19,8 +19,8 @@ from byceps.services.ticketing import ticket_attendance_service
 from byceps.services.ticketing.dbmodels.category import DbTicketCategory
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.user import user_service
-from byceps.services.user.dbmodels.user import DbUser
-from byceps.services.user.models.user import User
+from byceps.services.user.dbmodels import DbUser
+from byceps.services.user.models import User
 
 
 def get_first_time_attendees_by_bungalow(party: Party) -> dict[int, list[User]]:

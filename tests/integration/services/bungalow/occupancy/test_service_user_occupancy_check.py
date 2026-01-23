@@ -8,7 +8,7 @@ import pytest
 from byceps.services.brand.models import Brand
 from byceps.services.bungalow import bungalow_occupancy_service
 from byceps.services.party.models import Party
-from byceps.services.user.models.user import User
+from byceps.services.user.models import User
 
 from tests.integration.services.bungalow.helpers import reserve_bungalow
 

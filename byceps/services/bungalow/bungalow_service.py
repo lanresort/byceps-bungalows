@@ -21,8 +21,8 @@ from byceps.services.shop.product.dbmodels.product import DbProduct
 from byceps.services.ticketing import ticket_service
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from byceps.services.user.dbmodels.user import DbUser
-from byceps.services.user.models.user import User, UserID
+from byceps.services.user.dbmodels import DbUser
+from byceps.services.user.models import User, UserID
 from byceps.util.result import Err, Ok, Result
 
 from .dbmodels.bungalow import DbBungalow

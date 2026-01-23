@@ -16,7 +16,7 @@ from byceps.services.bungalow.models.log import (
     BungalowLogEntryData,
 )
 from byceps.services.user import user_service
-from byceps.services.user.models.user import User
+from byceps.services.user.models import User
 
 
 def get_log_entries(bungalow_id: BungalowID) -> Iterator[BungalowLogEntryData]:

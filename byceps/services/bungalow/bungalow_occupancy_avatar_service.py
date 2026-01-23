@@ -9,7 +9,7 @@ byceps.services.bungalow.bungalow_occupancy_avatar_service
 from typing import BinaryIO
 
 from byceps.database import db
-from byceps.services.user.models.user import UserID
+from byceps.services.user.models import UserID
 from byceps.util import upload
 from byceps.util.image.dimensions import determine_dimensions, Dimensions
 from byceps.util.image.image_type import determine_image_type, ImageType

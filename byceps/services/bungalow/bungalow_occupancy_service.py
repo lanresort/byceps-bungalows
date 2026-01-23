@@ -31,7 +31,7 @@ from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
-from byceps.services.user.models.user import User, UserForAdmin, UserID
+from byceps.services.user.models import User, UserForAdmin, UserID
 from byceps.util.result import Err, Ok, Result
 
 from . import bungalow_log_service, bungalow_order_service, bungalow_service

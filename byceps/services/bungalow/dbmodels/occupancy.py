@@ -21,7 +21,7 @@ from byceps.services.bungalow.models.bungalow import BungalowID
 from byceps.services.bungalow.models.occupation import OccupancyState
 from byceps.services.party.models import PartyID
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from byceps.services.user.models.user import UserID
+from byceps.services.user.models import UserID
 from byceps.util.instances import ReprBuilder
 from byceps.util.uuid import generate_uuid7
 

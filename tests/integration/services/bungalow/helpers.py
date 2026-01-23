@@ -11,7 +11,7 @@ from byceps.services.bungalow.models.occupation import (
     ReservationID,
 )
 from byceps.services.ticketing.models.ticket import TicketBundleID
-from byceps.services.user.models.user import User
+from byceps.services.user.models import User
 
 
 def reserve_bungalow(

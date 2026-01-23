@@ -5,7 +5,7 @@
 
 import pytest
 
-from byceps.services.user.models.user import User
+from byceps.services.user.models import User
 
 from tests.integration.services.bungalow.helpers import (
     occupy_bungalow,

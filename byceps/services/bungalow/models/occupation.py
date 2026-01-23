@@ -16,7 +16,7 @@ from uuid import UUID
 
 from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.ticketing.models.ticket import TicketBundleID, TicketID
-from byceps.services.user.models.user import User, UserID
+from byceps.services.user.models import User, UserID
 
 from .bungalow import BungalowID, BungalowOccupationState
 

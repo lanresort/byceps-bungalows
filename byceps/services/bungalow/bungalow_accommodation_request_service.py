@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from byceps.database import db
-from byceps.services.user.models.user import UserID
+from byceps.services.user.models import UserID
 
 from .dbmodels.accommodation_request import DbAccommodationRequest
 from .models.accommodation_request import (

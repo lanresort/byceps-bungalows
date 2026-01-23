@@ -20,7 +20,7 @@ from byceps.services.bungalow.models.accommodation_request import (
     AccommodationRequestState,
 )
 from byceps.services.bungalow.models.bungalow import BungalowID
-from byceps.services.user.models.user import UserID
+from byceps.services.user.models import UserID
 from byceps.util.uuid import generate_uuid4, generate_uuid7
 
 
