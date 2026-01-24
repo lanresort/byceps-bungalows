@@ -8,6 +8,7 @@ byceps.services.bungalow.blueprints.admin.views
 
 from collections.abc import Iterable, Iterator
 from datetime import datetime
+from uuid import UUID
 
 from flask import abort, g, request, url_for
 from flask_babel import gettext
@@ -61,6 +62,7 @@ from byceps.services.ticketing import (
     ticket_category_service,
 )
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
+from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
 from byceps.services.user.models import UserID
 from byceps.util.export import serialize_tuples_to_csv
@@ -209,7 +211,7 @@ def _get_ticket_bundle_for_line_item(
         )
 
     bundle_ids = line_item.processing_result['ticket_bundle_ids']
-    bundle_id = bundle_ids[0]
+    bundle_id = TicketBundleID(UUID(bundle_ids[0]))
 
     return ticket_bundle_service.get_bundle(bundle_id)
 
