@@ -8,7 +8,6 @@ byceps.services.bungalow.blueprints.admin.views
 
 from collections.abc import Iterable, Iterator
 from datetime import datetime
-from uuid import UUID
 
 from flask import abort, g, request, url_for
 from flask_babel import gettext
@@ -20,14 +19,10 @@ from byceps.services.bungalow import (
     bungalow_category_service,
     bungalow_occupancy_service,
     bungalow_offer_service,
-    bungalow_order_service,
     bungalow_service,
     bungalow_stats_service,
     first_attendance_service,
     signals as bungalow_signals,
-)
-from byceps.services.bungalow.bungalow_service import (
-    UserAlreadyUsesATicketException,
 )
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
 from byceps.services.bungalow.dbmodels.occupancy import DbBungalowOccupancy
@@ -45,31 +40,16 @@ from byceps.services.bungalow.models.occupation import (
 )
 from byceps.services.party import party_service
 from byceps.services.party.models import Party, PartyID
-from byceps.services.shop.order import (
-    order_service,
-    signals as shop_order_signals,
-)
-from byceps.services.shop.order.events import (
-    ShopOrderCanceledEvent,
-    ShopOrderPaidEvent,
-)
-from byceps.services.shop.order.models.order import Order
+from byceps.services.shop.order import order_service
 from byceps.services.shop.product import product_service
-from byceps.services.shop.product.models import ProductNumber, ProductType
 from byceps.services.shop.shop import shop_service
-from byceps.services.ticketing import (
-    ticket_bundle_service,
-    ticket_category_service,
-)
-from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from byceps.services.ticketing.models.ticket import TicketBundleID
+from byceps.services.ticketing import ticket_category_service
 from byceps.services.user import user_service
 from byceps.services.user.models import UserID
 from byceps.util.export import serialize_tuples_to_csv
 from byceps.util.framework.blueprint import create_blueprint
-from byceps.util.framework.flash import flash_error, flash_notice, flash_success
+from byceps.util.framework.flash import flash_error, flash_success
 from byceps.util.framework.templating import templated
-from byceps.util.iterables import find
 from byceps.util.result import Err, Ok
 from byceps.util.views import (
     permission_required,
@@ -92,132 +72,6 @@ from .forms import (
 
 
 blueprint = create_blueprint('bungalow_admin', __name__)
-
-
-# -------------------------------------------------------------------- #
-# hooks
-
-
-@shop_order_signals.order_canceled.connect
-def release_bungalow(sender, *, event: ShopOrderCanceledEvent):
-    """Release the bungalow that had been created for that order."""
-    order = order_service.get_order(event.order_id)
-
-    bungalow = bungalow_order_service.find_bungalow_by_order(order.order_number)
-    if not bungalow:
-        return
-
-    try:
-        bungalow_released_event = bungalow_occupancy_service.release_bungalow(
-            bungalow.id, initiator=event.initiator
-        )
-    except ValueError as e:
-        flash_error(
-            f'Fehler bei der Freigabe von Bungalow {bungalow.number}: {e}'
-        )
-        return
-
-    bungalow_signals.bungalow_released.send(None, event=bungalow_released_event)
-
-    flash_success(
-        f'Bungalow {bungalow.number} wurde wieder zur Reservierung freigegeben.'
-    )
-
-
-@shop_order_signals.order_paid.connect
-def occupy_bungalow(sender, *, event: ShopOrderPaidEvent):
-    """Mark a bungalow as occupied."""
-    order = order_service.get_order(event.order_id)
-
-    bungalow = bungalow_order_service.find_bungalow_by_order(order.order_number)
-    if not bungalow:
-        return
-
-    if not bungalow.reserved:
-        flash_error(
-            f'Bungalow {bungalow.number} muss reserviert sein um belegt werden zu können.'
-        )
-        return
-
-    product_number = bungalow.category.product.item_number
-    try:
-        ticket_bundle = _get_ticket_bundle_for_line_item(order, product_number)
-        occupation_result = bungalow_occupancy_service.occupy_bungalow(
-            bungalow.reservation.id, bungalow.occupancy.id, ticket_bundle.id
-        )
-        if occupation_result.is_err():
-            flash_error(
-                f'Bungalow {bungalow.number} konnte nicht belegt werden.'
-            )
-            return
-
-        occupancy, bungalow_occupied_event = occupation_result.unwrap()
-    except ValueError as e:
-        flash_error(
-            f'Fehler bei der Belegung von Bungalow {bungalow.number}: {e}'
-        )
-        return
-
-    main_occupant_id = occupancy.occupied_by_id
-    main_occupant = user_service.get_user(main_occupant_id)
-
-    bungalow_signals.bungalow_occupied.send(None, event=bungalow_occupied_event)
-
-    flash_success(
-        f'Bungalow {bungalow.number} wurde '
-        f'als von {main_occupant.screen_name} belegt markiert.'
-    )
-
-    if ticket_bundle.tickets:
-        first_ticket = bungalow_service.get_first_ticket_in_bundle(
-            ticket_bundle
-        )
-
-        assignment_result = bungalow_service.assign_ticket_to_main_occupant(
-            first_ticket, main_occupant
-        )
-        if assignment_result.is_err():
-            err = assignment_result.unwrap_err()
-            if isinstance(err, UserAlreadyUsesATicketException):
-                flash_notice(
-                    f'Benutzer {main_occupant.screen_name} '
-                    'nutzt bereits ein Ticket. '
-                    f'Kein Ticket aus Bungalow {bungalow.number} '
-                    'wurde einem Nutzer zugewiesen.'
-                )
-            else:
-                flash_error(
-                    f'Fehler beim zuweisen eines Tickets an Benutzer {main_occupant.screen_name}.'
-                )
-        else:
-            flash_success(
-                f'Benutzer {main_occupant.screen_name} wurde '
-                'ein Ticket als Nutzer zugewiesen.'
-            )
-
-
-def _get_ticket_bundle_for_line_item(
-    order: Order, product_number: ProductNumber
-) -> DbTicketBundle:
-    line_item = find(
-        order.line_items,
-        lambda li: li.product_number == product_number
-        and li.product_type == ProductType.ticket_bundle,
-    )
-
-    if line_item is None:
-        raise ValueError(
-            f'Product number "{product_number!s} not in line items'
-        )
-
-    bundle_ids = line_item.processing_result['ticket_bundle_ids']
-    bundle_id = TicketBundleID(UUID(bundle_ids[0]))
-
-    return ticket_bundle_service.get_bundle(bundle_id)
-
-
-# -------------------------------------------------------------------- #
-# view functions
 
 
 @blueprint.get('/buildings/for_brand/<brand_id>')
