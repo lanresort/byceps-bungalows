@@ -30,7 +30,7 @@
         <th>Bild-Dateiname</th>
         <th class="number">Bildbreite</th>
         <th class="number">Bildhöhe</th>
-        {%- if has_current_user_permission('bungalow.update') %}
+        {%- if g.user.has_permission('bungalow.update') %}
         <th></th>
         {%- endif %}
       </tr>
@@ -51,7 +51,7 @@
         <td>{{ category.image_filename|fallback }}</td>
         <td class="number">{{ category.image_width|fallback }}</td>
         <td class="number">{{ category.image_height|fallback }}</td>
-        {%- if has_current_user_permission('bungalow.update') %}
+        {%- if g.user.has_permission('bungalow.update') %}
           <td><a href="{{ url_for('.category_update_form', category_id=category.id) }}" class="button is-compact" title="{{ _('Edit category') }}">{{ render_icon('edit') }}</a></td>
         {%- endif %}
       </tr>
