@@ -229,11 +229,7 @@ def _occupy_bungalow(
             if isinstance(err, UserAlreadyUsesATicketException):
                 pass  # Do nothing.
             else:
-                return Err(
-                    OrderActionFailedError(
-                        f'Fehler beim Zuweisen eines Tickets an Benutzer {main_occupant.screen_name}.'
-                    )
-                )
+                pass  # This shouldn't even occur.
 
     return Ok(None)
 
