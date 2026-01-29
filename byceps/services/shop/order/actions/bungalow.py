@@ -221,15 +221,14 @@ def _occupy_bungalow(
             db_ticket_bundle
         )
 
-        assignment_result = bungalow_service.assign_ticket_to_main_occupant(
+        match bungalow_service.assign_ticket_to_main_occupant(
             first_ticket, main_occupant
-        )
-        if assignment_result.is_err():
-            err = assignment_result.unwrap_err()
-            if isinstance(err, UserAlreadyUsesATicketException):
-                pass  # Do nothing.
-            else:
-                pass  # This shouldn't even occur.
+        ):
+            case Err(err):
+                if isinstance(err, UserAlreadyUsesATicketException):
+                    pass  # Do nothing.
+                else:
+                    pass  # This shouldn't even occur.
 
     return Ok(None)
 
