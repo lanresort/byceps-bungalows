@@ -225,10 +225,11 @@ def _occupy_bungalow(
             first_ticket, main_occupant
         ):
             case Err(err):
-                if isinstance(err, UserAlreadyUsesATicketException):
-                    pass  # Do nothing.
-                else:
-                    pass  # This shouldn't even occur.
+                match err:
+                    case UserAlreadyUsesATicketException():
+                        pass  # Do nothing.
+                    case _:
+                        pass  # This shouldn't even occur.
 
     return Ok(None)
 
