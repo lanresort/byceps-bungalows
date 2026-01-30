@@ -253,7 +253,7 @@ def _release_bungalow(
 
     try:
         bungalow_released_event = bungalow_occupancy_service.release_bungalow(
-            db_bungalow.id, initiator=initiator
+            db_bungalow.id, initiator
         )
     except ValueError as e:
         return Err(

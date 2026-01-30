@@ -462,7 +462,7 @@ def move_occupancy(
 
 
 def release_bungalow(
-    bungalow_id: BungalowID, *, initiator: User | None = None
+    bungalow_id: BungalowID, initiator: User
 ) -> BungalowReleasedEvent:
     """Release a bungalow from its occupancy so it becomes available
     again.
@@ -476,9 +476,7 @@ def release_bungalow(
 
     db.session.delete(db_bungalow.occupancy)
 
-    log_entry_data = {}
-    if initiator:
-        log_entry_data = {'initiator_id': str(initiator.id)}
+    log_entry_data = {'initiator_id': str(initiator.id)}
     db_log_entry = bungalow_log_service.build_entry(
         'bungalow-released', db_bungalow.id, log_entry_data
     )

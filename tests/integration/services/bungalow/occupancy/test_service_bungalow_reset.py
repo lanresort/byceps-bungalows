@@ -7,6 +7,7 @@ from byceps.services.bungalow import bungalow_occupancy_service
 from byceps.services.bungalow.models.bungalow import BungalowOccupationState
 from byceps.services.bungalow.models.occupation import OccupancyState
 from byceps.services.shop.order.models.order import Orderer
+from byceps.services.user.models import User
 
 from tests.integration.services.bungalow.helpers import (
     occupy_bungalow,
@@ -14,7 +15,9 @@ from tests.integration.services.bungalow.helpers import (
 )
 
 
-def test_release_bungalow(make_bungalow, orderer: Orderer, make_ticket_bundle):
+def test_release_bungalow(
+    make_bungalow, admin_user: User, orderer: Orderer, make_ticket_bundle
+):
     ticket_bundle = make_ticket_bundle()
 
     bungalow = make_bungalow()
@@ -33,8 +36,10 @@ def test_release_bungalow(make_bungalow, orderer: Orderer, make_ticket_bundle):
     assert occupancy.state == OccupancyState.occupied
     assert occupancy.manager_id == orderer.user.id
 
-    release_event = bungalow_occupancy_service.release_bungalow(bungalow.id)
-    assert release_event.initiator is None
+    release_event = bungalow_occupancy_service.release_bungalow(
+        bungalow.id, admin_user
+    )
+    assert release_event.initiator == admin_user
     assert release_event.bungalow_id == bungalow.id
     assert release_event.bungalow_number == bungalow.number
 
