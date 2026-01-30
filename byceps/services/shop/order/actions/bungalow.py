@@ -167,13 +167,13 @@ def _occupy_bungalow(
     order: Order, ticket_bundle_id: TicketBundleID
 ) -> Result[None, OrderActionFailedError]:
     """Occupy reserved bungalow."""
-    db_bungalow = bungalow_order_service.find_bungalow_by_order(
-        order.order_number
-    )
+    order_number = order.order_number
+
+    db_bungalow = bungalow_order_service.find_bungalow_by_order(order_number)
     if not db_bungalow:
         return Err(
             OrderActionFailedError(
-                f'Could not find bungalow for order number {order.order_number}.'
+                f'Could not find bungalow for order number {order_number}.'
             )
         )
 
@@ -241,13 +241,13 @@ def _create_revocation_order_log_entry(
 def _release_bungalow(
     order: Order, initiator: User
 ) -> Result[None, OrderActionFailedError]:
-    db_bungalow = bungalow_order_service.find_bungalow_by_order(
-        order.order_number
-    )
+    order_number = order.order_number
+
+    db_bungalow = bungalow_order_service.find_bungalow_by_order(order_number)
     if not db_bungalow:
         return Err(
             OrderActionFailedError(
-                f'Could not find bungalow for order number {order.order_number}.'
+                f'Could not find bungalow for order number {order_number}.'
             )
         )
 
