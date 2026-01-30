@@ -80,8 +80,10 @@ def get_statistics_by_category(
 
     for category in categories:
         counts_by_state = {state: d[(category, state)] for state in states}
-        counts = CategoryOccupationSummary.from_counts_by_state(counts_by_state)
-        yield category, counts
+        summary = CategoryOccupationSummary.from_counts_by_state(
+            counts_by_state
+        )
+        yield category, summary
 
 
 def _get_bungalow_counts_by_category_and_state(
