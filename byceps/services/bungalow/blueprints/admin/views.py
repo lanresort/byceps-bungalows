@@ -547,17 +547,14 @@ def occupancy_move(occupancy_id):
     target_bungalow = bungalow_service.get_db_bungalow(target_bungalow_id)
 
     try:
-        move_result = bungalow_occupancy_service.move_occupancy(
+        match bungalow_occupancy_service.move_occupancy(
             occupancy.id, target_bungalow.id, g.user
-        )
-        if move_result.is_err():
-            flash_error(
-                'Bungalow konnte nicht verschoben werden: '
-                + move_result.unwrap_err()
-            )
-            return occupancy_move_form(occupancy.id, form)
-
-        event = move_result.unwrap()
+        ):
+            case Ok(event):
+                pass
+            case Err(err):
+                flash_error(f'Bungalow konnte nicht verschoben werden: {err}')
+                return occupancy_move_form(occupancy.id, form)
     except ValueError as e:
         flash_error(e)
         return occupancy_move_form(occupancy.id, form)

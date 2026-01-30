@@ -206,27 +206,27 @@ def place_bungalow_order(
     orderer: Orderer,
 ) -> Result[tuple[Order, ShopOrderPlacedEvent], str]:
     """Place an order for the bungalow."""
-    db_reservation_result = get_db_reservation(reservation_id)
-    if db_reservation_result.is_err():
-        return Err(db_reservation_result.unwrap_err())
+    match get_db_reservation(reservation_id):
+        case Ok(db_reservation):
+            pass
+        case Err(reservation_error):
+            return Err(reservation_error)
 
-    db_reservation = db_reservation_result.unwrap()
-
-    db_occupancy_result = get_db_occupancy(occupancy_id)
-    if db_occupancy_result.is_err():
-        return Err(db_occupancy_result.unwrap_err())
-
-    db_occupancy = db_occupancy_result.unwrap()
+    match get_db_occupancy(occupancy_id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
 
     product = _get_product_for_occupancy(occupancy_id)
 
-    placement_result = bungalow_order_service.place_bungalow_order(
+    match bungalow_order_service.place_bungalow_order(
         storefront, product, orderer
-    )
-    if placement_result.is_err():
-        return Err('Placing the order for the bungalow failed.')
-
-    order, order_placed_event = placement_result.unwrap()
+    ):
+        case Ok((order, order_placed_event)):
+            pass
+        case Err(_):
+            return Err('Placing the order for the bungalow failed.')
 
     db_reservation.order_number = order.order_number
     db_occupancy.order_number = order.order_number
@@ -271,13 +271,13 @@ def transfer_reservation(
     order_email_service.send_email_for_canceled_order_to_orderer(order)
 
     # Update order with new orderer.
-    order_update_result = order_command_service.update_orderer(
+    match order_command_service.update_orderer(
         order.id, recipient_orderer, initiator
-    )
-    if order_update_result.is_err():
-        return Err(order_update_result.unwrap_err())
-
-    updated_order = order_update_result.unwrap()
+    ):
+        case Ok(updated_order):
+            pass
+        case Err(update_error):
+            return Err(update_error)
 
     # Set new bungalow occupier.
     db_bungalow.occupancy.occupied_by_id = recipient.id
@@ -321,17 +321,17 @@ def occupy_bungalow(
     ticket_bundle_id: TicketBundleID,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Mark the bungalow as occupied."""
-    db_reservation_result = get_db_reservation(reservation_id)
-    if db_reservation_result.is_err():
-        return Err(db_reservation_result.unwrap_err())
+    match get_db_reservation(reservation_id):
+        case Ok(db_reservation):
+            pass
+        case Err(reservation_lookup_error):
+            return Err(reservation_lookup_error)
 
-    db_reservation = db_reservation_result.unwrap()
-
-    db_occupancy_result = get_db_occupancy(occupancy_id)
-    if db_occupancy_result.is_err():
-        return Err(db_occupancy_result.unwrap_err())
-
-    db_occupancy = db_occupancy_result.unwrap()
+    match get_db_occupancy(occupancy_id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
 
     db_bungalow = bungalow_service.get_db_bungalow(db_occupancy.bungalow_id)
 
@@ -379,11 +379,11 @@ def move_occupancy(
     initiator: User,
 ) -> Result[BungalowOccupancyMovedEvent, str]:
     """Move occupancy to another bungalow and reset the source bungalow."""
-    db_occupancy_result = get_db_occupancy(occupancy_id)
-    if db_occupancy_result.is_err():
-        return Err(db_occupancy_result.unwrap_err())
-
-    db_occupancy = db_occupancy_result.unwrap()
+    match get_db_occupancy(occupancy_id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
 
     db_source_bungalow = db_occupancy.bungalow
     db_target_bungalow = bungalow_service.get_db_bungalow(target_bungalow_id)
@@ -507,11 +507,11 @@ def appoint_bungalow_manager(
     occupancy_id: OccupancyID, new_manager: User, initiator: User
 ) -> Result[None, str]:
     """Appoint the user as the bungalow's new manager."""
-    db_occupancy_result = get_db_occupancy(occupancy_id)
-    if db_occupancy_result.is_err():
-        return Err(db_occupancy_result.unwrap_err())
-
-    db_occupancy = db_occupancy_result.unwrap()
+    match get_db_occupancy(occupancy_id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
 
     if db_occupancy.state != OccupancyState.occupied:
         return Err('Bungalow is not occupied, cannot appoint bungalow manager.')
@@ -544,11 +544,11 @@ def set_internal_remark(
     occupancy_id: OccupancyID, remark: str | None
 ) -> Result[None, str]:
     """Set an internal remark."""
-    db_occupancy_result = get_db_occupancy(occupancy_id)
-    if db_occupancy_result.is_err():
-        return Err(db_occupancy_result.unwrap_err())
-
-    db_occupancy = db_occupancy_result.unwrap()
+    match get_db_occupancy(occupancy_id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
 
     db_occupancy.internal_remark = remark
     db.session.commit()

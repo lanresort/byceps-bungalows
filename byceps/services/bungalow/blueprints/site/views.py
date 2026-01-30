@@ -55,6 +55,7 @@ from byceps.util.framework.blueprint import create_blueprint
 from byceps.util.framework.flash import flash_error, flash_notice, flash_success
 from byceps.util.framework.templating import templated
 from byceps.util.image.image_type import get_image_type_names
+from byceps.util.result import Err, Ok
 from byceps.util.views import login_required, redirect_to, respond_no_content
 
 from .forms import AvatarUpdateForm, DescriptionUpdateForm, OccupantAddForm
@@ -311,17 +312,14 @@ def order_form(bungalow_id, *, erroneous_form=None):
 
     country_names = country_service.get_country_names()
 
-    total_amount_result = (
-        product_domain_service.calculate_product_compilation_total_amount(
-            compilation
-        )
-    )
-
-    if total_amount_result.is_err():
-        flash_error('Für einige Artikel ist keine Stückzahl vorgegeben.')
-        return {'bungalow': None}
-
-    total_amount = total_amount_result.unwrap()
+    match product_domain_service.calculate_product_compilation_total_amount(
+        compilation
+    ):
+        case Ok(total_amount):
+            pass
+        case Err(_):
+            flash_error('Für einige Artikel ist keine Stückzahl vorgegeben.')
+            return {'bungalow': None}
 
     return {
         'bungalow': bungalow,
@@ -379,33 +377,27 @@ def order(bungalow_id):
 
     orderer = form.get_orderer(user)
 
-    reservation_result = bungalow_occupancy_service.reserve_bungalow(
-        bungalow.id, user
-    )
-    if reservation_result.is_err():
-        flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')
-        return order_form(bungalow_id)
+    match bungalow_occupancy_service.reserve_bungalow(bungalow.id, user):
+        case Ok((reservation, occupancy, bungalow_reserved_event)):
+            pass
+        case Err(_):
+            flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')
+            return order_form(bungalow_id)
 
-    (
-        reservation,
-        occupancy,
-        bungalow_reserved_event,
-    ) = reservation_result.unwrap()
     bungalow_signals.bungalow_reserved.send(None, event=bungalow_reserved_event)
     flash_success(
         f'Bungalow {bungalow.number} wurde als von dir reserviert markiert.'
     )
 
-    place_bungalow_order_result = (
-        bungalow_occupancy_service.place_bungalow_order(
-            storefront, reservation.id, occupancy.id, orderer
-        )
-    )
-    if place_bungalow_order_result.is_err():
-        flash_error(gettext('Placing the order has failed.'))
-        return order_form(bungalow_id)
+    match bungalow_occupancy_service.place_bungalow_order(
+        storefront, reservation.id, occupancy.id, orderer
+    ):
+        case Ok((order, order_placed_event)):
+            pass
+        case Err(_):
+            flash_error(gettext('Placing the order has failed.'))
+            return order_form(bungalow_id)
 
-    order, order_placed_event = place_bungalow_order_result.unwrap()
     shop_order_signals.order_placed.send(None, event=order_placed_event)
 
     flash_success(
@@ -816,11 +808,11 @@ def avatar_update(occupancy_id):
         abort(400, 'No file to upload has been specified.')
 
     try:
-        update_result = bungalow_occupancy_avatar_service.update_avatar_image(
+        match bungalow_occupancy_avatar_service.update_avatar_image(
             occupancy.id, manager.id, image.stream
-        )
-        if update_result.is_err():
-            abort(400, update_result.unwrap_err())
+        ):
+            case Err(err):
+                abort(400, err)
     except FileExistsError:
         abort(409, 'File already exists, not overwriting.')
 

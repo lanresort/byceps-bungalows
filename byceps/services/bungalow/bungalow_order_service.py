@@ -33,13 +33,11 @@ def place_bungalow_order(
     """Place an order for that bungalow."""
     cart = _build_cart(product)
 
-    placement_result = order_checkout_service.place_order(
-        storefront, orderer, cart
-    )
-    if placement_result.is_err():
-        return Err(placement_result.unwrap_err())
-
-    order, event = placement_result.unwrap()
+    match order_checkout_service.place_order(storefront, orderer, cart):
+        case Ok((order, event)):
+            pass
+        case Err(e):
+            return Err(e)
 
     return Ok((order, event))
 
