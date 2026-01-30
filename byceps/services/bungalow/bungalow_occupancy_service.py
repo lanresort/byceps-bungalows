@@ -292,6 +292,17 @@ def transfer_reservation(
 
 def _build_recipient_orderer(recipient: User) -> Orderer:
     user_detail = user_service.get_detail(recipient.id)
+
+    if (
+        (user_detail.first_name is None)
+        or (user_detail.last_name is None)
+        or (user_detail.country is None)
+        or (user_detail.postal_code is None)
+        or (user_detail.city is None)
+        or (user_detail.street is None)
+    ):
+        raise ValueError('User details incomplete')
+
     return Orderer(
         user=recipient,
         company=None,
