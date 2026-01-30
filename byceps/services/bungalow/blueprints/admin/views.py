@@ -158,7 +158,7 @@ def index_for_party(party_id):
     orders = order_service.get_orders_for_order_numbers(order_numbers)
     orders_by_order_number = {order.order_number: order for order in orders}
 
-    user_ids = frozenset(_collect_occupancy_user_ids(occupancies))
+    user_ids = set(_collect_occupancy_user_ids(occupancies))
     users_by_id = user_service.get_users_indexed_by_id(
         user_ids, include_avatars=True
     )
@@ -206,7 +206,7 @@ def offer_view(bungalow_id):
                 occupancy.order_number
             )
 
-        user_ids = frozenset(_collect_occupancy_user_ids([occupancy]))
+        user_ids = set(_collect_occupancy_user_ids([occupancy]))
         users_by_id = user_service.get_users_indexed_by_id(
             user_ids, include_avatars=True
         )
