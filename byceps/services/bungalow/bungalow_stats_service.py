@@ -26,7 +26,9 @@ from .models.bungalow import BungalowOccupationState
 from .models.occupation import CategoryOccupationSummary, OccupationStateTotals
 
 
-BungalowCountByCategoryAndState = list[tuple[TicketCategory, str, int]]
+BungalowCountByCategoryAndState = list[
+    tuple[TicketCategory, BungalowOccupationState, int]
+]
 
 
 def get_occupation_state_totals_for_party(
@@ -70,8 +72,7 @@ def get_statistics_by_category(
     )
 
     counts = get_counts_func(party_id)
-    for category, state_name, count in counts:
-        state = BungalowOccupationState[state_name]
+    for category, state, count in counts:
         d[(category, state)] = count
 
     categories = ticket_category_service.get_categories_for_party(party_id)
@@ -102,8 +103,12 @@ def _get_bungalow_counts_by_category_and_state(
     ).all()
 
     return [
-        (_to_ticket_category(db_ticket_category), state, count)
-        for db_ticket_category, state, count in rows
+        (
+            _to_ticket_category(db_ticket_category),
+            BungalowOccupationState[state_name],
+            count,
+        )
+        for db_ticket_category, state_name, count in rows
     ]
 
 

@@ -23,15 +23,15 @@ def test_get_statistics_by_category_with_realistic_values(
 
     def get_counts(party_id):
         return [
-            (ticket_category1, BungalowOccupationState.available.name, 5),
-            (ticket_category1, BungalowOccupationState.reserved.name, 1),
-            (ticket_category1, BungalowOccupationState.occupied.name, 2),
-            (ticket_category2, BungalowOccupationState.available.name, 19),
-            (ticket_category2, BungalowOccupationState.reserved.name, 3),
-            (ticket_category2, BungalowOccupationState.occupied.name, 4),
-            (ticket_category3, BungalowOccupationState.available.name, 1),
-            (ticket_category3, BungalowOccupationState.reserved.name, 0),
-            (ticket_category3, BungalowOccupationState.occupied.name, 2),
+            (ticket_category1, BungalowOccupationState.available, 5),
+            (ticket_category1, BungalowOccupationState.reserved, 1),
+            (ticket_category1, BungalowOccupationState.occupied, 2),
+            (ticket_category2, BungalowOccupationState.available, 19),
+            (ticket_category2, BungalowOccupationState.reserved, 3),
+            (ticket_category2, BungalowOccupationState.occupied, 4),
+            (ticket_category3, BungalowOccupationState.available, 1),
+            (ticket_category3, BungalowOccupationState.reserved, 0),
+            (ticket_category3, BungalowOccupationState.occupied, 2),
         ]
 
     actual = bungalow_stats_service.get_statistics_by_category(
