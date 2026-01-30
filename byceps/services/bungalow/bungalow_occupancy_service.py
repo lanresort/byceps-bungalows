@@ -462,15 +462,21 @@ def move_occupancy(
 
 
 def release_bungalow(
-    bungalow_id: BungalowID, initiator: User
+    occupancy_id: OccupancyID, initiator: User
 ) -> Result[BungalowReleasedEvent, str]:
-    """Release a bungalow from its occupancy so it becomes available
+    """Release the bungalow occupied by the occupancy so it becomes available
     again.
     """
+    match get_occupancy(occupancy_id):
+        case Ok(occupancy):
+            pass
+        case Err(e):
+            return Err(e)
+
     try:
-        db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
+        db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
     except ValueError:
-        return Err(f'No bungalow found with ID "{bungalow_id}"')
+        return Err(f'No bungalow found with ID "{occupancy.bungalow_id}"')
 
     db_bungalow.occupation_state = BungalowOccupationState.available
 

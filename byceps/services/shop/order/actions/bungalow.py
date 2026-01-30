@@ -251,8 +251,18 @@ def _release_bungalow(
             )
         )
 
+    bungalow_number = db_bungalow.number
+
+    db_occupancy = db_bungalow.occupancy
+    if not db_occupancy:
+        return Err(
+            OrderActionFailedError(
+                f'Could not find occupancy for bungalow {bungalow_number} for order number {order_number}.'
+            )
+        )
+
     match bungalow_occupancy_service.release_bungalow(
-        db_bungalow.id, initiator
+        db_occupancy.id, initiator
     ):
         case Ok(bungalow_released_event):
             bungalow_signals.bungalow_released.send(
@@ -261,7 +271,7 @@ def _release_bungalow(
         case Err(e):
             return Err(
                 OrderActionFailedError(
-                    f'Fehler bei der Freigabe von Bungalow {db_bungalow.number}: {e}'
+                    f'Fehler bei der Freigabe von Bungalow {bungalow_number}: {e}'
                 )
             )
 
