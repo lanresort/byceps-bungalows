@@ -24,7 +24,6 @@ from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user.dbmodels import DbUser
 from byceps.services.user.models import User, UserID
-from byceps.util.result import Err, Ok, Result
 
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
@@ -150,7 +149,11 @@ def get_bungalows_extended_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
 def assign_first_ticket_to_main_occupant(
     ticket_bundle_id: TicketBundleID, main_occupant: User
 ) -> None:
-    """Assign the bundle's first ticket to the bungalow's main occupant."""
+    """Assign the bundle's first ticket to the bungalow's main occupant.
+
+    If the user already uses another ticket, none of this bundle will be
+    assigned to them.
+    """
     db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
     if not db_ticket_bundle.tickets:
         return
@@ -160,38 +163,15 @@ def assign_first_ticket_to_main_occupant(
     )
     first_ticket = db_tickets[0]
 
-    match assign_ticket_to_main_occupant(first_ticket, main_occupant):
-        case Err(err):
-            match err:
-                case UserAlreadyUsesATicketException():
-                    pass  # Do nothing.
-                case _:
-                    pass  # This shouldn't even occur.
-
-
-class UserAlreadyUsesATicketException:
-    pass
-
-
-def assign_ticket_to_main_occupant(
-    db_ticket: DbTicket, main_occupant: User
-) -> Result[None, UserAlreadyUsesATicketException]:
-    """Mark a ticket as being used by the bungalow's main occupant (as
-    long as there are no other tickets used by the user).
-    """
-    party_id = db_ticket.category.party_id
-
+    party_id = first_ticket.category.party_id
     already_uses_ticket = ticket_service.uses_any_ticket_for_party(
         main_occupant.id, party_id
     )
-
     if already_uses_ticket:
-        return Err(UserAlreadyUsesATicketException())
+        return
 
-    db_ticket.used_by_id = main_occupant.id
+    first_ticket.used_by_id = main_occupant.id
     db.session.commit()
-
-    return Ok(None)
 
 
 def find_bungalow_inhabited_by_user(
