@@ -229,7 +229,7 @@ def place_bungalow_order(
             return Err('Placing the order for the bungalow failed.')
 
     for line_item in order.line_items:
-        if line_item.product_type == ProductType.bungalow:
+        if line_item.product_type == ProductType.bungalow_with_preselection:
             data = line_item.processing_result
             data['bungalow_reservation_id'] = str(reservation_id)
             data['bungalow_occupancy_id'] = str(occupancy_id)
