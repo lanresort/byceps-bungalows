@@ -514,7 +514,7 @@ def appoint_bungalow_manager(
     tickets = ticket_bundle_service.get_tickets_for_bundle(ticket_bundle_id)
     for ticket in tickets:
         ticket_user_management_service.appoint_user_manager(
-            ticket.id, new_manager.id, initiator.id
+            ticket.id, new_manager, initiator
         )
 
     return Ok(None)
