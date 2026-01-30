@@ -21,7 +21,7 @@ from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.order.events import ShopOrderPlacedEvent
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service
-from byceps.services.shop.product.models import Product
+from byceps.services.shop.product.models import Product, ProductType
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import (
     ticket_bundle_service,
@@ -227,6 +227,15 @@ def place_bungalow_order(
             pass
         case Err(_):
             return Err('Placing the order for the bungalow failed.')
+
+    for line_item in order.line_items:
+        if line_item.product_type == ProductType.bungalow:
+            data = line_item.processing_result
+            data['bungalow_reservation_id'] = str(reservation_id)
+            data['bungalow_occupancy_id'] = str(occupancy_id)
+            order_command_service.update_line_item_processing_result(
+                line_item.id, data
+            )
 
     db_reservation.order_number = order.order_number
     db_occupancy.order_number = order.order_number

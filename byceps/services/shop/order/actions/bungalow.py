@@ -15,6 +15,10 @@ from byceps.services.bungalow import (
     bungalow_service,
     signals as bungalow_signals,
 )
+from byceps.services.bungalow.models.occupation import (
+    OccupancyID,
+    ReservationID,
+)
 from byceps.services.seating.errors import SeatingError
 from byceps.services.shop.order import (
     order_command_service,
@@ -138,7 +142,8 @@ def _create_ticket_bundle(
     )
     _create_creation_order_log_entry(order.id, bundle)
 
-    data: dict[str, Any] = {'ticket_bundle_id': str(bundle.id)}
+    data = line_item.processing_result
+    data['ticket_bundle_id'] = str(bundle.id)
     order_command_service.update_line_item_processing_result(line_item.id, data)
 
     tickets_sold_event = order_event_service.create_tickets_sold_event(
@@ -167,43 +172,34 @@ def _occupy_bungalow(
     line_item: LineItem, ticket_bundle_id: TicketBundleID
 ) -> Result[None, OrderActionFailedError]:
     """Occupy reserved bungalow."""
-    order_number = line_item.order_number
+    reservation_id_str = line_item.processing_result['bungalow_reservation_id']
+    reservation_id = ReservationID(UUID(reservation_id_str))
 
-    db_bungalow = bungalow_order_service.find_bungalow_by_order(order_number)
-    if not db_bungalow:
-        return Err(
-            OrderActionFailedError(
-                f'Could not find bungalow for order number {order_number}.'
-            )
-        )
-
-    if not db_bungalow.reserved:
-        return Err(
-            OrderActionFailedError(
-                f'Bungalow {db_bungalow.number} muss reserviert sein um belegt werden zu können.'
-            )
-        )
+    occupancy_id_str = line_item.processing_result['bungalow_occupancy_id']
+    occupancy_id = OccupancyID(UUID(occupancy_id_str))
 
     try:
         occupation_result = bungalow_occupancy_service.occupy_bungalow(
-            db_bungalow.reservation.id,
-            db_bungalow.occupancy.id,
+            reservation_id,
+            occupancy_id,
             ticket_bundle_id,
         )
         if occupation_result.is_err():
             return Err(
-                OrderActionFailedError(
-                    f'Bungalow {db_bungalow.number} konnte nicht belegt werden.'
-                )
+                OrderActionFailedError('Bungalow konnte nicht belegt werden.')
             )
 
         occupancy, bungalow_occupied_event = occupation_result.unwrap()
     except ValueError as e:
         return Err(
             OrderActionFailedError(
-                f'Fehler bei der Belegung von Bungalow {db_bungalow.number}: {e}'
+                f'Fehler bei der Belegung des Bungalows: {e}'
             )
         )
+
+    data = line_item.processing_result
+    del data['bungalow_reservation_id']
+    order_command_service.update_line_item_processing_result(line_item.id, data)
 
     bungalow_signals.bungalow_occupied.send(None, event=bungalow_occupied_event)
 
@@ -241,29 +237,10 @@ def _create_revocation_order_log_entry(
 def _release_bungalow(
     line_item: LineItem, initiator: User
 ) -> Result[None, OrderActionFailedError]:
-    order_number = line_item.order_number
+    occupancy_id_str = line_item.processing_result['bungalow_occupancy_id']
+    occupancy_id = OccupancyID(UUID(occupancy_id_str))
 
-    db_bungalow = bungalow_order_service.find_bungalow_by_order(order_number)
-    if not db_bungalow:
-        return Err(
-            OrderActionFailedError(
-                f'Could not find bungalow for order number {order_number}.'
-            )
-        )
-
-    bungalow_number = db_bungalow.number
-
-    db_occupancy = db_bungalow.occupancy
-    if not db_occupancy:
-        return Err(
-            OrderActionFailedError(
-                f'Could not find occupancy for bungalow {bungalow_number} for order number {order_number}.'
-            )
-        )
-
-    match bungalow_occupancy_service.release_bungalow(
-        db_occupancy.id, initiator
-    ):
+    match bungalow_occupancy_service.release_bungalow(occupancy_id, initiator):
         case Ok(bungalow_released_event):
             bungalow_signals.bungalow_released.send(
                 None, event=bungalow_released_event
@@ -271,7 +248,7 @@ def _release_bungalow(
         case Err(e):
             return Err(
                 OrderActionFailedError(
-                    f'Fehler bei der Freigabe von Bungalow {bungalow_number}: {e}'
+                    f'Fehler bei der Freigabe von Bungalow-Belegung {occupancy_id}: {e}'
                 )
             )
 
