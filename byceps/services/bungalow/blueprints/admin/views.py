@@ -351,12 +351,14 @@ def offer_delete(bungalow_id):
 def occupants(party_id):
     party = _get_party_or_404(party_id)
 
-    bungalows = bungalow_occupancy_service.get_occupied_bungalows_for_party(
+    db_bungalows = bungalow_occupancy_service.get_occupied_bungalows_for_party(
         party.id
     )
 
     occupancy_ids = {
-        bungalow.occupancy.id for bungalow in bungalows if bungalow.occupancy
+        db_bungalow.occupancy.id
+        for db_bungalow in db_bungalows
+        if db_bungalow.occupancy
     }
     occupant_slots_by_occupancy_id = (
         bungalow_occupancy_service.get_occupant_slots_for_occupancies(
@@ -366,7 +368,7 @@ def occupants(party_id):
 
     return {
         'party': party,
-        'bungalows': bungalows,
+        'bungalows': db_bungalows,
         'occupant_slots_by_occupancy_id': occupant_slots_by_occupancy_id,
         'now': datetime.utcnow(),
     }
