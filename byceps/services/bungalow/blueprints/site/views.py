@@ -257,12 +257,12 @@ def view_mine():
 # ordering
 
 
-@blueprint.get('/order/<uuid:bungalow_id>')
+@blueprint.get('/order_with_preselection/<uuid:bungalow_id>')
 @login_required
 @bungalow_support_required
 @templated
 @subnavigation_for_view('bungalows')
-def order_form(bungalow_id, *, erroneous_form=None):
+def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
     """Show a form to order a bungalow."""
     bungalow = _get_bungalow_for_id_or_404(bungalow_id)
     product = bungalow.category.product
@@ -331,10 +331,10 @@ def order_form(bungalow_id, *, erroneous_form=None):
     }
 
 
-@blueprint.post('/order/<uuid:bungalow_id>')
+@blueprint.post('/order_with_preselection/<uuid:bungalow_id>')
 @bungalow_support_required
 @login_required
-def order(bungalow_id):
+def order_with_preselection(bungalow_id):
     """Order a bungalow."""
     bungalow = _get_bungalow_for_id_or_404(bungalow_id)
     product = bungalow.category.product
@@ -345,11 +345,11 @@ def order(bungalow_id):
 
     if storefront.closed:
         flash_notice(gettext('The shop is closed.'))
-        return order_form(bungalow_id)
+        return order_with_preselection_form(bungalow_id)
 
     if bungalow.reserved_or_occupied:
         flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')
-        return order_form(bungalow_id)
+        return order_with_preselection_form(bungalow_id)
 
     if (
         not product
@@ -359,7 +359,7 @@ def order(bungalow_id):
         flash_error(
             f'Bungalow {bungalow.number} kann derzeit nicht reserviert werden.'
         )
-        return order_form(bungalow_id)
+        return order_with_preselection_form(bungalow_id)
 
     user = g.user
 
@@ -369,11 +369,11 @@ def order(bungalow_id):
         flash_error(
             'Du hast bereits einen Bungalow für diese Party reserviert.'
         )
-        return order_form(bungalow_id)
+        return order_with_preselection_form(bungalow_id)
 
     form = OrderForm(request.form)
     if not form.validate():
-        return order_form(bungalow_id, erroneous_form=form)
+        return order_with_preselection_form(bungalow_id, erroneous_form=form)
 
     orderer = form.get_orderer(user)
 
@@ -382,21 +382,21 @@ def order(bungalow_id):
             pass
         case Err(_):
             flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')
-            return order_form(bungalow_id)
+            return order_with_preselection_form(bungalow_id)
 
     bungalow_signals.bungalow_reserved.send(None, event=bungalow_reserved_event)
     flash_success(
         f'Bungalow {bungalow.number} wurde als von dir reserviert markiert.'
     )
 
-    match bungalow_occupancy_service.place_bungalow_order(
+    match bungalow_occupancy_service.place_bungalow_with_preselection_order(
         storefront, reservation.id, occupancy.id, orderer
     ):
         case Ok((order, order_placed_event)):
             pass
         case Err(_):
             flash_error(gettext('Placing the order has failed.'))
-            return order_form(bungalow_id)
+            return order_with_preselection_form(bungalow_id)
 
     shop_order_signals.order_placed.send(None, event=order_placed_event)
 

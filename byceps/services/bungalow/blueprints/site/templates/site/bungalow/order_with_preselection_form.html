@@ -9,7 +9,7 @@
   <h1 class="title">{{ page_title }}</h1>
 
 {%- if bungalow %}
-  <form action="{{ url_for('.order', bungalow_id=bungalow.id) }}" method="post">
+  <form action="{{ url_for('.order_with_preselection', bungalow_id=bungalow.id) }}" method="post">
 
 {%- include 'site/shop/order/_order_form_orderer.html' %}
 {%- include 'site/shop/order/_order_form_products.html' %}

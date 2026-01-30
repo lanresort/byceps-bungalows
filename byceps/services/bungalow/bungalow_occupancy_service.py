@@ -199,7 +199,7 @@ def reserve_bungalow(
     return Ok((reservation, occupancy, bungalow_reserved_event))
 
 
-def place_bungalow_order(
+def place_bungalow_with_preselection_order(
     storefront: Storefront,
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,

@@ -40,7 +40,7 @@ def test_reserve_bungalow(
 
     reservation, occupancy, _ = reservation_result.unwrap()
 
-    bungalow_occupancy_service.place_bungalow_order(
+    bungalow_occupancy_service.place_bungalow_with_preselection_order(
         storefront, reservation.id, occupancy.id, orderer
     ).unwrap()
 
