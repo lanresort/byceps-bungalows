@@ -245,7 +245,7 @@ def _collect_occupancy_user_ids(
 
 def _get_occupant_slots(
     bungalow: DbBungalow, occupancy: BungalowOccupancy | None
-) -> list[OccupantSlot]:
+) -> list[OccupantSlot] | None:
     if not bungalow.occupied or occupancy is None:
         return None
 
