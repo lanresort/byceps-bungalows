@@ -15,9 +15,6 @@ from byceps.services.bungalow import (
     bungalow_service,
     signals as bungalow_signals,
 )
-from byceps.services.bungalow.bungalow_service import (
-    UserAlreadyUsesATicketException,
-)
 from byceps.services.seating.errors import SeatingError
 from byceps.services.shop.order import (
     order_command_service,
@@ -189,12 +186,10 @@ def _occupy_bungalow(
         )
 
     try:
-        db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
-
         occupation_result = bungalow_occupancy_service.occupy_bungalow(
             db_bungalow.reservation.id,
             db_bungalow.occupancy.id,
-            db_ticket_bundle.id,
+            ticket_bundle_id,
         )
         if occupation_result.is_err():
             return Err(
@@ -216,20 +211,9 @@ def _occupy_bungalow(
 
     bungalow_signals.bungalow_occupied.send(None, event=bungalow_occupied_event)
 
-    if db_ticket_bundle.tickets:
-        first_ticket = bungalow_service.get_first_ticket_in_bundle(
-            db_ticket_bundle
-        )
-
-        match bungalow_service.assign_ticket_to_main_occupant(
-            first_ticket, main_occupant
-        ):
-            case Err(err):
-                match err:
-                    case UserAlreadyUsesATicketException():
-                        pass  # Do nothing.
-                    case _:
-                        pass  # This shouldn't even occur.
+    bungalow_service.assign_first_ticket_to_main_occupant(
+        ticket_bundle_id, main_occupant
+    )
 
     return Ok(None)
 

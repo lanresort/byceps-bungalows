@@ -18,9 +18,10 @@ from byceps.services.brand.models import BrandID
 from byceps.services.party import party_service
 from byceps.services.party.models import Party, PartyID
 from byceps.services.shop.product.dbmodels.product import DbProduct
-from byceps.services.ticketing import ticket_service
+from byceps.services.ticketing import ticket_bundle_service, ticket_service
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
+from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user.dbmodels import DbUser
 from byceps.services.user.models import User, UserID
 from byceps.util.result import Err, Ok, Result
@@ -144,6 +145,25 @@ def get_bungalows_extended_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
 
 # -------------------------------------------------------------------- #
 # ticket
+
+
+def assign_first_ticket_to_main_occupant(
+    ticket_bundle_id: TicketBundleID, main_occupant: User
+) -> None:
+    """Assign the bundle's first ticket to the bungalow's main occupant."""
+    db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
+    if not db_ticket_bundle.tickets:
+        return
+
+    first_ticket = get_first_ticket_in_bundle(db_ticket_bundle)
+
+    match assign_ticket_to_main_occupant(first_ticket, main_occupant):
+        case Err(err):
+            match err:
+                case UserAlreadyUsesATicketException():
+                    pass  # Do nothing.
+                case _:
+                    pass  # This shouldn't even occur.
 
 
 def get_first_ticket_in_bundle(db_bundle: DbTicketBundle) -> DbTicket:
