@@ -79,7 +79,7 @@ def on_payment(
         order, line_item, ticket_category, ticket_quantity, initiator
     )
 
-    _occupy_bungalow(order, ticket_bundle_id)
+    _occupy_bungalow(line_item, ticket_bundle_id)
 
     return Ok(None)
 
@@ -91,7 +91,7 @@ def on_cancellation_before_payment(
     parameters: ActionParameters,
 ) -> Result[None, OrderActionFailedError]:
     """Release the bungalow that had been created for that order."""
-    match _release_bungalow(order, initiator):
+    match _release_bungalow(line_item, initiator):
         case Err(e):
             return Err(e)
 
@@ -111,7 +111,7 @@ def on_cancellation_after_payment(
         case Err(seating_error):
             return Err(OrderActionFailedError(seating_error))
 
-    match _release_bungalow(order, initiator):
+    match _release_bungalow(line_item, initiator):
         case Err(e):
             return Err(e)
 
@@ -164,10 +164,10 @@ def _create_creation_order_log_entry(
 
 
 def _occupy_bungalow(
-    order: Order, ticket_bundle_id: TicketBundleID
+    line_item: LineItem, ticket_bundle_id: TicketBundleID
 ) -> Result[None, OrderActionFailedError]:
     """Occupy reserved bungalow."""
-    order_number = order.order_number
+    order_number = line_item.order_number
 
     db_bungalow = bungalow_order_service.find_bungalow_by_order(order_number)
     if not db_bungalow:
@@ -239,9 +239,9 @@ def _create_revocation_order_log_entry(
 
 
 def _release_bungalow(
-    order: Order, initiator: User
+    line_item: LineItem, initiator: User
 ) -> Result[None, OrderActionFailedError]:
-    order_number = order.order_number
+    order_number = line_item.order_number
 
     db_bungalow = bungalow_order_service.find_bungalow_by_order(order_number)
     if not db_bungalow:
