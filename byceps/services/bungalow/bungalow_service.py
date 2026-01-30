@@ -21,7 +21,6 @@ from byceps.services.shop.product.dbmodels.product import DbProduct
 from byceps.services.ticketing import ticket_bundle_service, ticket_service
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
-from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user.dbmodels import DbUser
 from byceps.services.user.models import User, UserID
 
@@ -30,6 +29,7 @@ from .dbmodels.category import DbBungalowCategory
 from .dbmodels.occupancy import DbBungalowOccupancy
 from .model_converters import _db_entity_to_bungalow
 from .models.bungalow import Bungalow, BungalowID
+from .models.occupation import BungalowOccupancy
 
 
 def get_active_bungalow_parties() -> list[Party]:
@@ -146,15 +146,15 @@ def get_bungalows_extended_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
 # ticket
 
 
-def assign_first_ticket_to_main_occupant(
-    ticket_bundle_id: TicketBundleID, main_occupant_id: UserID
-) -> None:
+def assign_first_ticket_to_main_occupant(occupancy: BungalowOccupancy) -> None:
     """Assign the bundle's first ticket to the bungalow's main occupant.
 
     If the user already uses another ticket, none of this bundle will be
     assigned to them.
     """
-    db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
+    db_ticket_bundle = ticket_bundle_service.get_bundle(
+        occupancy.ticket_bundle_id
+    )
     if not db_ticket_bundle.tickets:
         return
 
@@ -162,6 +162,8 @@ def assign_first_ticket_to_main_occupant(
         sorted(db_ticket_bundle.tickets, key=lambda t: t.created_at)
     )
     first_ticket = db_tickets[0]
+
+    main_occupant_id = occupancy.occupied_by_id
 
     party_id = first_ticket.category.party_id
     already_uses_ticket = ticket_service.uses_any_ticket_for_party(
