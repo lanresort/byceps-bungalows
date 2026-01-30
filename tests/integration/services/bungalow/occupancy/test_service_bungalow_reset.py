@@ -38,7 +38,7 @@ def test_release_bungalow(
 
     release_event = bungalow_occupancy_service.release_bungalow(
         bungalow.id, admin_user
-    )
+    ).unwrap()
     assert release_event.initiator == admin_user
     assert release_event.bungalow_id == bungalow.id
     assert release_event.bungalow_number == bungalow.number

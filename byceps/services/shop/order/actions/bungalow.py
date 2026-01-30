@@ -251,17 +251,18 @@ def _release_bungalow(
             )
         )
 
-    try:
-        bungalow_released_event = bungalow_occupancy_service.release_bungalow(
-            db_bungalow.id, initiator
-        )
-    except ValueError as e:
-        return Err(
-            OrderActionFailedError(
-                f'Fehler bei der Freigabe von Bungalow {db_bungalow.number}: {e}'
+    match bungalow_occupancy_service.release_bungalow(
+        db_bungalow.id, initiator
+    ):
+        case Ok(bungalow_released_event):
+            bungalow_signals.bungalow_released.send(
+                None, event=bungalow_released_event
             )
-        )
-
-    bungalow_signals.bungalow_released.send(None, event=bungalow_released_event)
+        case Err(e):
+            return Err(
+                OrderActionFailedError(
+                    f'Fehler bei der Freigabe von Bungalow {db_bungalow.number}: {e}'
+                )
+            )
 
     return Ok(None)
