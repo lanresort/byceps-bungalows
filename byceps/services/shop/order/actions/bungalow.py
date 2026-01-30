@@ -6,11 +6,9 @@ byceps.services.shop.order.actions.bungalow
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
-from typing import Any
 from uuid import UUID
 
 from byceps.services.bungalow import (
-    bungalow_order_service,
     bungalow_occupancy_service,
     bungalow_service,
     signals as bungalow_signals,
