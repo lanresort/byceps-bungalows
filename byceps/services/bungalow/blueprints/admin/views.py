@@ -158,7 +158,7 @@ def index_for_party(party_id):
     orders = order_service.get_orders_for_order_numbers(order_numbers)
     orders_by_order_number = {order.order_number: order for order in orders}
 
-    user_ids = set(_collect_occupancy_user_ids(occupancies))
+    user_ids = _collect_occupancy_user_ids(occupancies)
     users_by_id = user_service.get_users_indexed_by_id(
         user_ids, include_avatars=True
     )
@@ -206,7 +206,7 @@ def offer_view(bungalow_id):
                 occupancy.order_number
             )
 
-        user_ids = set(_collect_occupancy_user_ids([occupancy]))
+        user_ids = _collect_occupancy_user_ids([occupancy])
         users_by_id = user_service.get_users_indexed_by_id(
             user_ids, include_avatars=True
         )
@@ -228,15 +228,19 @@ def offer_view(bungalow_id):
 
 def _collect_occupancy_user_ids(
     occupancies: Iterable[DbBungalowOccupancy],
-) -> Iterator[UserID]:
+) -> set[UserID]:
+    user_ids = set()
+
     for occupancy in occupancies:
         occupier_id = occupancy.occupied_by_id
         if occupier_id:
-            yield occupier_id
+            user_ids.add(occupier_id)
 
         manager_id = occupancy.manager_id
         if manager_id != occupier_id:
-            yield manager_id
+            user_ids.add(manager_id)
+
+    return user_ids
 
 
 def _get_occupant_slots(
