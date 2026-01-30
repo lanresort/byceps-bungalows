@@ -147,7 +147,7 @@ def get_bungalows_extended_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
 
 
 def assign_first_ticket_to_main_occupant(
-    ticket_bundle_id: TicketBundleID, main_occupant: User
+    ticket_bundle_id: TicketBundleID, main_occupant_id: UserID
 ) -> None:
     """Assign the bundle's first ticket to the bungalow's main occupant.
 
@@ -165,12 +165,12 @@ def assign_first_ticket_to_main_occupant(
 
     party_id = first_ticket.category.party_id
     already_uses_ticket = ticket_service.uses_any_ticket_for_party(
-        main_occupant.id, party_id
+        main_occupant_id, party_id
     )
     if already_uses_ticket:
         return
 
-    first_ticket.used_by_id = main_occupant.id
+    first_ticket.used_by_id = main_occupant_id
     db.session.commit()
 
 

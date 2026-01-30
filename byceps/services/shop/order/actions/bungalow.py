@@ -45,7 +45,6 @@ from byceps.services.ticketing.models.ticket import (
     TicketBundleID,
     TicketCategory,
 )
-from byceps.services.user import user_service
 from byceps.services.user.models import User
 from byceps.util.result import Err, Ok, Result
 
@@ -206,13 +205,11 @@ def _occupy_bungalow(
             )
         )
 
-    main_occupant_id = occupancy.occupied_by_id
-    main_occupant = user_service.get_user(main_occupant_id)
-
     bungalow_signals.bungalow_occupied.send(None, event=bungalow_occupied_event)
 
+    main_occupant_id = occupancy.occupied_by_id
     bungalow_service.assign_first_ticket_to_main_occupant(
-        ticket_bundle_id, main_occupant
+        ticket_bundle_id, main_occupant_id
     )
 
     return Ok(None)
