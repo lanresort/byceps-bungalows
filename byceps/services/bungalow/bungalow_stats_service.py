@@ -26,9 +26,7 @@ from .models.bungalow import BungalowOccupationState
 from .models.occupation import CategoryOccupationSummary, OccupationStateTotals
 
 
-BungalowCountByCategoryAndState = list[
-    tuple[TicketCategory, BungalowOccupationState, int]
-]
+BungalowCountByCategoryAndState = list[tuple[TicketCategory, str, int]]
 
 
 def get_occupation_state_totals_for_party(
