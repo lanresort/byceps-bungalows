@@ -10,14 +10,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from flask import current_app
-
 
 if TYPE_CHECKING:
     hybrid_property = property
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
+from byceps.byceps_app import get_current_byceps_app
 from byceps.database import db
 from byceps.services.party.models import PartyID
 from byceps.services.user.models import UserID
@@ -55,7 +54,7 @@ class DbBungalowAvatar(db.Model):
         return Path(name_without_suffix).with_suffix(suffix)
 
     def get_path(self, party_id: PartyID) -> Path:
-        path_data = current_app.byceps_config.data_path
+        path_data = get_current_byceps_app().byceps_config.data_path
         path = path_data / 'parties' / party_id / 'bungalow-avatars'
         return path / self.filename
 
