@@ -155,7 +155,10 @@ def assign_first_ticket_to_main_occupant(
     if not db_ticket_bundle.tickets:
         return
 
-    first_ticket = get_first_ticket_in_bundle(db_ticket_bundle)
+    db_tickets = list(
+        sorted(db_ticket_bundle.tickets, key=lambda t: t.created_at)
+    )
+    first_ticket = db_tickets[0]
 
     match assign_ticket_to_main_occupant(first_ticket, main_occupant):
         case Err(err):
@@ -164,12 +167,6 @@ def assign_first_ticket_to_main_occupant(
                     pass  # Do nothing.
                 case _:
                     pass  # This shouldn't even occur.
-
-
-def get_first_ticket_in_bundle(db_bundle: DbTicketBundle) -> DbTicket:
-    """Return the first ticket in the bundle."""
-    db_tickets = list(sorted(db_bundle.tickets, key=lambda t: t.created_at))
-    return db_tickets[0]
 
 
 class UserAlreadyUsesATicketException:
