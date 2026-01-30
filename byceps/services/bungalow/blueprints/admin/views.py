@@ -830,7 +830,7 @@ def export_first_time_attendees(party_id):
     ):
         attendee_count = len(attendees)
         joined_screen_names = ', '.join(
-            attendee.screen_name for attendee in attendees
+            (attendee.screen_name or 'unbekannt') for attendee in attendees
         )
         rows.append((bungalow_number, attendee_count, joined_screen_names))
 
