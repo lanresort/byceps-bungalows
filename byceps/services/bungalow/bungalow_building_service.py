@@ -12,6 +12,7 @@ from sqlalchemy import delete, select
 
 from byceps.database import db
 from byceps.services.brand.models import BrandID
+from byceps.util.uuid import generate_uuid4
 
 from .dbmodels.building import DbBungalowBuilding
 from .dbmodels.layout import DbBungalowLayout
@@ -95,7 +96,9 @@ def _db_entity_to_layout(db_layout: DbBungalowLayout) -> BungalowLayout:
 
 def create_building(layout: BungalowLayout, number: int) -> BungalowBuilding:
     """Create a building."""
-    db_building = DbBungalowBuilding(layout, number)
+    building_id = BungalowBuildingID(generate_uuid4())
+
+    db_building = DbBungalowBuilding(building_id, layout, number)
 
     db.session.add(db_building)
     db.session.commit()
