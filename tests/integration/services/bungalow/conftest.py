@@ -12,6 +12,7 @@ import pytest
 from byceps.database import db
 from byceps.services.bungalow import bungalow_category_service
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
+from byceps.services.bungalow.models.bungalow import BungalowID
 from byceps.services.bungalow.models.category import (
     BungalowCategory,
     BungalowCategoryID,
@@ -24,7 +25,7 @@ from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import ticket_bundle_service
 from byceps.services.ticketing.models.ticket import TicketBundle, TicketCategory
 
-from tests.helpers import generate_token
+from tests.helpers import generate_token, generate_uuid
 
 
 @pytest.fixture(scope='session')
@@ -89,6 +90,8 @@ def make_bungalow(party: Party, bungalow_category: BungalowCategory):
         number: int | None = None,
         bungalow_category_id: BungalowCategoryID | None = None,
     ) -> DbBungalow:
+        bungalow_id = BungalowID(generate_uuid())
+
         if party_id is None:
             party_id = party.id
 
@@ -98,7 +101,9 @@ def make_bungalow(party: Party, bungalow_category: BungalowCategory):
         if bungalow_category_id is None:
             bungalow_category_id = bungalow_category.id
 
-        db_bungalow = DbBungalow(party_id, number, bungalow_category_id)
+        db_bungalow = DbBungalow(
+            bungalow_id, party_id, number, bungalow_category_id
+        )
 
         db.session.add(db_bungalow)
         db.session.commit()

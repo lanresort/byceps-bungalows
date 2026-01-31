@@ -17,11 +17,13 @@ else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
 from byceps.database import db
-from byceps.services.bungalow.models.bungalow import BungalowOccupationState
+from byceps.services.bungalow.models.bungalow import (
+    BungalowID,
+    BungalowOccupationState,
+)
 from byceps.services.bungalow.models.category import BungalowCategoryID
 from byceps.services.party.models import PartyID
 from byceps.util.instances import ReprBuilder
-from byceps.util.uuid import generate_uuid7
 
 from .category import DbBungalowCategory
 
@@ -32,7 +34,7 @@ class DbBungalow(db.Model):
     __tablename__ = 'bungalows'
     __table_args__ = (db.UniqueConstraint('party_id', 'number'),)
 
-    id = db.Column(db.Uuid, default=generate_uuid7, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     party_id = db.Column(
         db.UnicodeText, db.ForeignKey('parties.id'), index=True, nullable=False
     )
@@ -51,10 +53,12 @@ class DbBungalow(db.Model):
 
     def __init__(
         self,
+        bungalow_id: BungalowID,
         party_id: PartyID,
         number: int,
         category_id: BungalowCategoryID,
     ) -> None:
+        self.id = bungalow_id
         self.party_id = party_id
         self.number = number
         self.category_id = category_id

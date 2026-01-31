@@ -10,6 +10,7 @@ from sqlalchemy import delete
 
 from byceps.database import db
 from byceps.services.party.models import PartyID
+from byceps.util.uuid import generate_uuid7
 
 from . import bungalow_service
 from .bungalow_service import _db_entity_to_bungalow
@@ -49,7 +50,11 @@ def _offer_bungalow(
     building: BungalowBuilding,
     bungalow_category_id: BungalowCategoryID,
 ) -> DbBungalow:
-    db_bungalow = DbBungalow(party_id, building.number, bungalow_category_id)
+    bungalow_id = BungalowID(generate_uuid7())
+
+    db_bungalow = DbBungalow(
+        bungalow_id, party_id, building.number, bungalow_category_id
+    )
     db.session.add(db_bungalow)
 
     return db_bungalow
