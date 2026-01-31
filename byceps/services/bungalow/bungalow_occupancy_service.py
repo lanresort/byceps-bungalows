@@ -567,7 +567,7 @@ def set_internal_remark(
 
 def find_occupancy_managed_by_user(
     party_id: PartyID, user_id: UserID
-) -> DbBungalow | None:
+) -> DbBungalowOccupancy | None:
     """Try to find a bungalow occupancy managed by that user that party."""
     return db.session.scalars(
         select(DbBungalowOccupancy)
