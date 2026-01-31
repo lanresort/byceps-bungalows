@@ -47,12 +47,13 @@ class DbAccommodationRequest(db.Model):
         request_id: AccommodationRequestID,
         bungalow_id: BungalowID,
         candidate_id: UserID,
+        state: AccommodationRequestState,
         token: UUID,
     ) -> None:
         self.id = request_id
         self.bungalow_id = bungalow_id
         self.candidate_id = candidate_id
-        self.state = AccommodationRequestState.open
+        self.state = state
         self.token = token
 
     @hybrid_property

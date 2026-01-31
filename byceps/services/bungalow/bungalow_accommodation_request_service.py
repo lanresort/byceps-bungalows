@@ -27,10 +27,11 @@ def create_request(
 ) -> DbAccommodationRequest:
     """Create an accommodation request for that bungalow."""
     request_id = AccommodationRequestID(generate_uuid7())
+    state = AccommodationRequestState.open
     token = generate_uuid4()
 
     db_request = DbAccommodationRequest(
-        request_id, bungalow_id, candidate_id, token
+        request_id, bungalow_id, candidate_id, state, token
     )
 
     db.session.add(db_request)
