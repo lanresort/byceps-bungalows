@@ -15,6 +15,7 @@ from byceps.util.image.dimensions import determine_dimensions, Dimensions
 from byceps.util.image.image_type import determine_image_type, ImageType
 from byceps.util.image.thumbnail import create_thumbnail
 from byceps.util.result import Err, Ok, Result
+from byceps.util.uuid import generate_uuid7
 
 from . import bungalow_occupancy_service
 from .dbmodels.avatar import DbBungalowAvatar
@@ -48,6 +49,8 @@ def update_avatar_image(
         occupancy_id
     ).unwrap()
 
+    avatar_id = generate_uuid7()
+
     match determine_image_type(stream, allowed_types):
         case Ok(image_type):
             pass
@@ -60,7 +63,7 @@ def update_avatar_image(
     if image_too_large or not image_dimensions.is_square:
         stream = create_thumbnail(stream, image_type.name, maximum_dimensions)
 
-    avatar = DbBungalowAvatar(creator_id, image_type)
+    avatar = DbBungalowAvatar(avatar_id, creator_id, image_type)
     db.session.add(avatar)
     db.session.commit()
 

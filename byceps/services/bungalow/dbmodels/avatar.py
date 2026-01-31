@@ -9,6 +9,7 @@ byceps.services.bungalow.dbmodels.avatar
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 
 if TYPE_CHECKING:
@@ -22,7 +23,6 @@ from byceps.services.party.models import PartyID
 from byceps.services.user.models import UserID
 from byceps.util.image.image_type import ImageType
 from byceps.util.instances import ReprBuilder
-from byceps.util.uuid import generate_uuid7
 
 
 class DbBungalowAvatar(db.Model):
@@ -30,12 +30,15 @@ class DbBungalowAvatar(db.Model):
 
     __tablename__ = 'bungalow_occupancy_avatars'
 
-    id = db.Column(db.Uuid, default=generate_uuid7, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     creator_id = db.Column(db.Uuid, db.ForeignKey('users.id'), nullable=False)
     _image_type = db.Column('image_type', db.UnicodeText, nullable=False)
 
-    def __init__(self, creator_id: UserID, image_type: ImageType) -> None:
+    def __init__(
+        self, avatar_id: UUID, creator_id: UserID, image_type: ImageType
+    ) -> None:
+        self.id = avatar_id
         self.creator_id = creator_id
         self.image_type = image_type
 
