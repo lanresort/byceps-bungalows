@@ -8,21 +8,14 @@ byceps.services.bungalow.bungalow_order_service
 
 from __future__ import annotations
 
-from sqlalchemy import select
-
-from byceps.database import db
 from byceps.services.shop.cart.models import Cart
 from byceps.services.shop.order import order_checkout_service
 from byceps.services.shop.order.events import ShopOrderPlacedEvent
-from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service
 from byceps.services.shop.product.models import Product
 from byceps.services.shop.storefront.models import Storefront
 from byceps.util.result import Err, Ok, Result
-
-from .dbmodels.bungalow import DbBungalow
-from .dbmodels.occupancy import DbBungalowOccupancy
 
 
 def place_bungalow_order(
@@ -53,12 +46,3 @@ def _build_cart(product: Product) -> Cart:
         cart.add_item(item.product, item.fixed_quantity)
 
     return cart
-
-
-def find_bungalow_by_order(order_number: OrderNumber) -> DbBungalow | None:
-    """Return the bungalow that was occupied with this order, if any."""
-    return db.session.scalars(
-        select(DbBungalow)
-        .join(DbBungalowOccupancy)
-        .filter(DbBungalowOccupancy.order_number == order_number)
-    ).one_or_none()
