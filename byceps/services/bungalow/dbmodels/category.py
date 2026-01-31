@@ -9,13 +9,15 @@ byceps.services.bungalow.dbmodels.category
 from __future__ import annotations
 
 from byceps.database import db
+from byceps.services.bungalow.bungalow_category_service import (
+    BungalowCategoryID,
+)
 from byceps.services.party.models import PartyID
 from byceps.services.shop.product.dbmodels.product import DbProduct
 from byceps.services.shop.product.models import ProductID
 from byceps.services.ticketing.dbmodels.category import DbTicketCategory
 from byceps.services.ticketing.models.ticket import TicketCategoryID
 from byceps.util.instances import ReprBuilder
-from byceps.util.uuid import generate_uuid7
 
 
 class DbBungalowCategory(db.Model):
@@ -24,7 +26,7 @@ class DbBungalowCategory(db.Model):
     __tablename__ = 'bungalow_categories'
     __table_args__ = (db.UniqueConstraint('party_id', 'title', 'capacity'),)
 
-    id = db.Column(db.Uuid, default=generate_uuid7, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     party_id = db.Column(
         db.UnicodeText, db.ForeignKey('parties.id'), index=True, nullable=False
     )
@@ -44,6 +46,7 @@ class DbBungalowCategory(db.Model):
 
     def __init__(
         self,
+        category_id: BungalowCategoryID,
         party_id: PartyID,
         title: str,
         capacity: int,
@@ -54,6 +57,7 @@ class DbBungalowCategory(db.Model):
         image_width: int | None = None,
         image_height: int | None = None,
     ) -> None:
+        self.id = category_id
         self.party_id = party_id
         self.title = title
         self.capacity = capacity

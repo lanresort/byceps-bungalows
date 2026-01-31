@@ -14,6 +14,7 @@ from byceps.database import db
 from byceps.services.party.models import PartyID
 from byceps.services.shop.product.models import ProductID
 from byceps.services.ticketing.models.ticket import TicketCategoryID
+from byceps.util.uuid import generate_uuid7
 
 from .dbmodels.category import DbBungalowCategory
 from .model_converters import _db_entity_to_bungalow_category
@@ -32,7 +33,10 @@ def create_category(
     image_height: int | None = None,
 ) -> BungalowCategory:
     """Create a bungalow category."""
+    category_id = BungalowCategoryID(generate_uuid7())
+
     db_bungalow_category = DbBungalowCategory(
+        category_id,
         party_id,
         title,
         capacity,
