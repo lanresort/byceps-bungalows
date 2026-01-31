@@ -18,12 +18,15 @@ else:
 
 from byceps.database import db
 from byceps.services.bungalow.models.bungalow import BungalowID
-from byceps.services.bungalow.models.occupation import OccupancyState
+from byceps.services.bungalow.models.occupation import (
+    OccupancyID,
+    OccupancyState,
+    ReservationID,
+)
 from byceps.services.party.models import PartyID
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.user.models import UserID
 from byceps.util.instances import ReprBuilder
-from byceps.util.uuid import generate_uuid7
 
 from .avatar import DbBungalowAvatar
 from .bungalow import DbBungalow
@@ -34,7 +37,7 @@ class DbBungalowReservation(db.Model):
 
     __tablename__ = 'bungalow_reservations'
 
-    id = db.Column(db.Uuid, default=generate_uuid7, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     bungalow_id = db.Column(
         db.Uuid,
         db.ForeignKey('bungalows.id'),
@@ -58,7 +61,13 @@ class DbBungalowReservation(db.Model):
     pinned = db.Column(db.Boolean, default=False, nullable=False)
     internal_remark = db.Column(db.UnicodeText, nullable=True)
 
-    def __init__(self, bungalow_id: BungalowID, reserved_by_id: UserID) -> None:
+    def __init__(
+        self,
+        reservation_id: ReservationID,
+        bungalow_id: BungalowID,
+        reserved_by_id: UserID,
+    ) -> None:
+        self.id = reservation_id
         self.bungalow_id = bungalow_id
         self.reserved_by_id = reserved_by_id
 
@@ -68,7 +77,7 @@ class DbBungalowOccupancy(db.Model):
 
     __tablename__ = 'bungalow_occupancies'
 
-    id = db.Column(db.Uuid, default=generate_uuid7, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     bungalow_id = db.Column(
         db.Uuid,
         db.ForeignKey('bungalows.id'),
@@ -112,10 +121,12 @@ class DbBungalowOccupancy(db.Model):
 
     def __init__(
         self,
+        occupancy_id: OccupancyID,
         bungalow_id: BungalowID,
         occupier_id: UserID,
         state: OccupancyState,
     ) -> None:
+        self.id = occupancy_id
         self.bungalow_id = bungalow_id
         self.occupied_by_id = occupier_id
         self._state = state.name

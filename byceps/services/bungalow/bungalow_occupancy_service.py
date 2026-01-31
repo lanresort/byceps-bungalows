@@ -29,6 +29,7 @@ from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
 from byceps.services.user.models import User, UserForAdmin, UserID
 from byceps.util.result import Err, Ok, Result
+from byceps.util.uuid import generate_uuid7
 
 from . import (
     bungalow_log_service,
@@ -133,11 +134,15 @@ def reserve_bungalow(
 
     db_bungalow.occupation_state = BungalowOccupationState.reserved
 
-    db_reservation = DbBungalowReservation(db_bungalow.id, occupier.id)
+    reservation_id = ReservationID(generate_uuid7())
+    db_reservation = DbBungalowReservation(
+        reservation_id, db_bungalow.id, occupier.id
+    )
     db.session.add(db_reservation)
 
+    occupancy_id = OccupancyID(generate_uuid7())
     db_occupancy = DbBungalowOccupancy(
-        db_bungalow.id, occupier.id, OccupancyState.reserved
+        occupancy_id, db_bungalow.id, occupier.id, OccupancyState.reserved
     )
     db.session.add(db_occupancy)
 
