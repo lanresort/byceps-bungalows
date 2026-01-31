@@ -517,14 +517,24 @@ def appoint_bungalow_manager(
     occupancy_id: OccupancyID, new_manager: User, initiator: User
 ) -> Result[None, str]:
     """Appoint the user as the bungalow's new manager."""
-    match get_db_occupancy(occupancy_id):
-        case Ok(db_occupancy):
+    match get_occupancy(occupancy_id):
+        case Ok(occupancy):
             pass
         case Err(occupancy_lookup_error):
             return Err(occupancy_lookup_error)
 
-    if db_occupancy.state != OccupancyState.occupied:
+    if occupancy.state != OccupancyState.occupied:
         return Err('Bungalow is not occupied, cannot appoint bungalow manager.')
+
+    ticket_bundle_id = occupancy.ticket_bundle_id
+    if ticket_bundle_id is None:
+        return Err('Occupancy has no ticket bundle assigned.')
+
+    match get_db_occupancy(occupancy.id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
 
     # Set bungalow manager.
     db_occupancy.managed_by_id = new_manager.id
@@ -540,7 +550,6 @@ def appoint_bungalow_manager(
     db.session.commit()
 
     # Set tickets' user manager.
-    ticket_bundle_id = db_occupancy.ticket_bundle.id
     tickets = ticket_bundle_service.get_tickets_for_bundle(ticket_bundle_id)
     for ticket in tickets:
         ticket_user_management_service.appoint_user_manager(
