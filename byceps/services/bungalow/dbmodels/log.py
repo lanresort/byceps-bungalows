@@ -7,12 +7,12 @@ byceps.services.bungalow.dbmodels.log
 """
 
 from datetime import datetime
+from uuid import UUID
 
 from byceps.database import db
 from byceps.services.bungalow.models.bungalow import BungalowID
 from byceps.services.bungalow.models.log import BungalowLogEntryData
 from byceps.util.instances import ReprBuilder
-from byceps.util.uuid import generate_uuid7
 
 
 class DbBungalowLogEntry(db.Model):
@@ -20,7 +20,7 @@ class DbBungalowLogEntry(db.Model):
 
     __tablename__ = 'bungalow_log_entries'
 
-    id = db.Column(db.Uuid, default=generate_uuid7, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     occurred_at = db.Column(db.DateTime, nullable=False)
     event_type = db.Column(db.UnicodeText, index=True, nullable=False)
     bungalow_id = db.Column(
@@ -30,11 +30,13 @@ class DbBungalowLogEntry(db.Model):
 
     def __init__(
         self,
+        entry_id: UUID,
         occurred_at: datetime,
         event_type: str,
         bungalow_id: BungalowID,
         data: BungalowLogEntryData,
     ) -> None:
+        self.id = entry_id
         self.occurred_at = occurred_at
         self.event_type = event_type
         self.bungalow_id = bungalow_id

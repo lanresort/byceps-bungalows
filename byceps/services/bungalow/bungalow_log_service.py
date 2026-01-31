@@ -13,6 +13,7 @@ from datetime import datetime
 from sqlalchemy import select
 
 from byceps.database import db
+from byceps.util.uuid import generate_uuid7
 
 from .dbmodels.log import DbBungalowLogEntry
 from .models.bungalow import BungalowID
@@ -43,10 +44,14 @@ def build_entry(
     occurred_at: datetime | None = None,
 ) -> DbBungalowLogEntry:
     """Assemble, but not persist, a bungalow log entry."""
+    entry_id = generate_uuid7()
+
     if occurred_at is None:
         occurred_at = datetime.utcnow()
 
-    return DbBungalowLogEntry(occurred_at, event_type, bungalow_id, data)
+    return DbBungalowLogEntry(
+        entry_id, occurred_at, event_type, bungalow_id, data
+    )
 
 
 def get_entries_for_bungalow(bungalow_id: BungalowID) -> list[BungalowLogEntry]:
