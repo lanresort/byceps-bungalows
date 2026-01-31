@@ -12,7 +12,6 @@ from functools import wraps
 from flask import abort, g, render_template, request
 from flask_babel import gettext
 
-from byceps.database import db
 from byceps.services.bungalow import (
     bungalow_category_service,
     bungalow_occupancy_avatar_service,
@@ -24,7 +23,6 @@ from byceps.services.bungalow import (
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
 from byceps.services.bungalow.events import (
     BungalowOccupancyAvatarUpdatedEvent,
-    BungalowOccupancyDescriptionUpdatedEvent,
     BungalowOccupantAddedEvent,
     BungalowOccupantRemovedEvent,
 )
@@ -722,24 +720,17 @@ def description_update(occupancy_id):
     if not form.validate():
         return description_update_form(occupancy_id, erroneous_form=form)
 
-    db_occupancy = bungalow_occupancy_service.get_db_occupancy(
-        occupancy.id
-    ).unwrap()
+    title = form.title.data.strip()
+    description = form.description.data.strip()
 
-    db_occupancy.title = form.title.data.strip()
-    db_occupancy.description = form.description.data.strip()
-
-    db.session.commit()
-
-    flash_success('Die Beschreibung wurde aktualisiert.')
-
-    event = BungalowOccupancyDescriptionUpdatedEvent(
-        occurred_at=datetime.utcnow(),
-        initiator=manager,
-        bungalow_id=bungalow.id,
-        bungalow_number=bungalow.number,
-    )
-    bungalow_signals.description_updated.send(None, event=event)
+    match bungalow_occupancy_service.update_description(
+        occupancy.id, title, description, manager
+    ):
+        case Ok(event):
+            flash_success('Die Beschreibung wurde aktualisiert.')
+            bungalow_signals.description_updated.send(None, event=event)
+        case Err(_):
+            flash_error(gettext('An unexpected error occurred.'))
 
     return redirect_to('.view', number=bungalow.number)
 

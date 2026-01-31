@@ -39,6 +39,7 @@ from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
 from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation
 from .events import (
+    BungalowOccupancyDescriptionUpdatedEvent,
     BungalowOccupancyMovedEvent,
     BungalowOccupiedEvent,
     BungalowReleasedEvent,
@@ -563,6 +564,37 @@ def set_internal_remark(
     db.session.commit()
 
     return Ok(None)
+
+
+def update_description(
+    occupancy_id: OccupancyID,
+    title: str | None,
+    description: str | None,
+    initiator: User,
+) -> Result[BungalowOccupancyDescriptionUpdatedEvent, str]:
+    """Update the occupancy's title and description."""
+    match get_db_occupancy(occupancy_id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
+
+    db_occupancy.title = title
+    db_occupancy.description = description
+
+    db.session.commit()
+
+    updated_at = datetime.utcnow()
+    bungalow = bungalow_service.get_db_bungalow(db_occupancy.bungalow_id)
+
+    event = BungalowOccupancyDescriptionUpdatedEvent(
+        occurred_at=updated_at,
+        initiator=initiator,
+        bungalow_id=bungalow.id,
+        bungalow_number=bungalow.number,
+    )
+
+    return Ok(event)
 
 
 def find_occupancy_managed_by_user(
