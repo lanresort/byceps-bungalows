@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from byceps.database import db
 from byceps.services.brand.models import BrandID
+from byceps.services.bungalow.models.building import BungalowLayoutID
 from byceps.util.instances import ReprBuilder
-from byceps.util.uuid import generate_uuid4
 
 
 class DbBungalowLayout(db.Model):
@@ -20,7 +20,7 @@ class DbBungalowLayout(db.Model):
     __tablename__ = 'bungalow_layouts'
     __table_args__ = (db.UniqueConstraint('brand_id', 'title', 'capacity'),)
 
-    id = db.Column(db.Uuid, default=generate_uuid4, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     brand_id = db.Column(
         db.UnicodeText, db.ForeignKey('brands.id'), index=True, nullable=False
     )
@@ -32,6 +32,7 @@ class DbBungalowLayout(db.Model):
 
     def __init__(
         self,
+        layout_id: BungalowLayoutID,
         brand_id: BrandID,
         title: str,
         capacity: int,
@@ -40,6 +41,7 @@ class DbBungalowLayout(db.Model):
         image_width: int | None = None,
         image_height: int | None = None,
     ) -> None:
+        self.id = layout_id
         self.brand_id = brand_id
         self.title = title
         self.capacity = capacity

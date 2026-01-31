@@ -38,7 +38,10 @@ def create_layout(
     image_height: int | None = None,
 ) -> BungalowLayout:
     """Create a layout."""
+    layout_id = BungalowLayoutID(generate_uuid4())
+
     db_layout = DbBungalowLayout(
+        layout_id,
         brand_id,
         title,
         capacity,
