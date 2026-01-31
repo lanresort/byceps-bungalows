@@ -8,6 +8,7 @@ byceps.services.bungalow.dbmodels.accommodation_request
 
 from datetime import datetime
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 
 if TYPE_CHECKING:
@@ -17,11 +18,11 @@ else:
 
 from byceps.database import db
 from byceps.services.bungalow.models.accommodation_request import (
+    AccommodationRequestID,
     AccommodationRequestState,
 )
 from byceps.services.bungalow.models.bungalow import BungalowID
 from byceps.services.user.models import UserID
-from byceps.util.uuid import generate_uuid4, generate_uuid7
 
 
 class DbAccommodationRequest(db.Model):
@@ -31,7 +32,7 @@ class DbAccommodationRequest(db.Model):
 
     __tablename__ = 'bungalow_accommodation_requests'
 
-    id = db.Column(db.Uuid, default=generate_uuid7, primary_key=True)
+    id = db.Column(db.Uuid, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=True)
     bungalow_id = db.Column(
@@ -39,12 +40,20 @@ class DbAccommodationRequest(db.Model):
     )
     candidate_id = db.Column(db.Uuid, db.ForeignKey('users.id'), nullable=False)
     _state = db.Column('state', db.UnicodeText, nullable=False)
-    token = db.Column(db.Uuid, default=generate_uuid4, nullable=True)
+    token = db.Column(db.Uuid, nullable=True)
 
-    def __init__(self, bungalow_id: BungalowID, candidate_id: UserID) -> None:
+    def __init__(
+        self,
+        request_id: AccommodationRequestID,
+        bungalow_id: BungalowID,
+        candidate_id: UserID,
+        token: UUID,
+    ) -> None:
+        self.id = request_id
         self.bungalow_id = bungalow_id
         self.candidate_id = candidate_id
         self.state = AccommodationRequestState.open
+        self.token = token
 
     @hybrid_property
     def state(self) -> AccommodationRequestState:
