@@ -12,8 +12,6 @@ from collections import defaultdict
 from collections.abc import Sequence
 from datetime import datetime
 
-from sqlalchemy import select
-
 from byceps.database import db
 from byceps.services.party.models import PartyID
 from byceps.services.shop.order import order_command_service, order_service
@@ -27,16 +25,18 @@ from byceps.services.ticketing import (
     ticket_bundle_service,
     ticket_user_management_service,
 )
-from byceps.services.ticketing.dbmodels.ticket import DbTicket
-from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
 from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
 from byceps.services.user.models import User, UserForAdmin, UserID
 from byceps.util.result import Err, Ok, Result
 
-from . import bungalow_log_service, bungalow_order_service, bungalow_service
+from . import (
+    bungalow_log_service,
+    bungalow_occupancy_repository,
+    bungalow_order_service,
+    bungalow_service,
+)
 from .dbmodels.bungalow import DbBungalow
-from .dbmodels.category import DbBungalowCategory
 from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation
 from .events import (
     BungalowOccupancyDescriptionUpdatedEvent,
@@ -61,19 +61,14 @@ def find_reservation(
     reservation_id: ReservationID,
 ) -> BungalowReservation | None:
     """Return the reservation with that id, or `None` if not found."""
-    db_reservation = find_db_reservation(reservation_id)
+    db_reservation = bungalow_occupancy_repository.find_reservation(
+        reservation_id
+    )
 
     if db_reservation is None:
         return None
 
     return _db_entity_to_reservation(db_reservation)
-
-
-def find_db_reservation(
-    reservation_id: ReservationID,
-) -> DbBungalowReservation | None:
-    """Return the reservation with that id, or `None` if not found."""
-    return db.session.get(DbBungalowReservation, reservation_id)
 
 
 def get_reservation(
@@ -88,33 +83,14 @@ def get_reservation(
     return Ok(reservation)
 
 
-def get_db_reservation(
-    reservation_id: ReservationID,
-) -> Result[DbBungalowReservation, str]:
-    """Return the reservation with that id."""
-    db_reservation = find_db_reservation(reservation_id)
-
-    if db_reservation is None:
-        return Err(f'Unknown reservation ID "{reservation_id}"')
-
-    return Ok(db_reservation)
-
-
 def find_occupancy(occupancy_id: OccupancyID) -> BungalowOccupancy | None:
     """Return the occupancy with that id, or `None` if not found."""
-    db_occupancy = find_db_occupancy(occupancy_id)
+    db_occupancy = bungalow_occupancy_repository.find_occupancy(occupancy_id)
 
     if db_occupancy is None:
         return None
 
     return _db_entity_to_occupancy(db_occupancy)
-
-
-def find_db_occupancy(
-    occupancy_id: OccupancyID,
-) -> DbBungalowOccupancy | None:
-    """Return the occupancy with that id, or `None` if not found."""
-    return db.session.get(DbBungalowOccupancy, occupancy_id)
 
 
 def get_occupancy(occupancy_id: OccupancyID) -> Result[BungalowOccupancy, str]:
@@ -127,18 +103,6 @@ def get_occupancy(occupancy_id: OccupancyID) -> Result[BungalowOccupancy, str]:
     return Ok(occupancy)
 
 
-def get_db_occupancy(
-    occupancy_id: OccupancyID,
-) -> Result[DbBungalowOccupancy, str]:
-    """Return the occupancy with that id."""
-    db_occupancy = find_db_occupancy(occupancy_id)
-
-    if db_occupancy is None:
-        return Err(f'Unknown occupancy ID "{occupancy_id}"')
-
-    return Ok(db_occupancy)
-
-
 def find_occupancy_for_bungalow(
     bungalow_id: BungalowID,
 ) -> BungalowOccupancy | None:
@@ -147,9 +111,9 @@ def find_occupancy_for_bungalow(
     Return `None` if either no bungalow with that ID or no occupation
     for the bungalow with that ID was found.
     """
-    db_occupancy = db.session.execute(
-        select(DbBungalowOccupancy).filter_by(bungalow_id=bungalow_id)
-    ).scalar_one_or_none()
+    db_occupancy = bungalow_occupancy_repository.find_occupancy_for_bungalow(
+        bungalow_id
+    )
 
     if db_occupancy is None:
         return None
@@ -207,13 +171,13 @@ def place_bungalow_with_preselection_order(
     orderer: Orderer,
 ) -> Result[tuple[Order, ShopOrderPlacedEvent], str]:
     """Place an order for the bungalow."""
-    match get_db_reservation(reservation_id):
+    match bungalow_occupancy_repository.get_reservation(reservation_id):
         case Ok(db_reservation):
             pass
         case Err(reservation_error):
             return Err(reservation_error)
 
-    match get_db_occupancy(occupancy_id):
+    match bungalow_occupancy_repository.get_occupancy(occupancy_id):
         case Ok(db_occupancy):
             pass
         case Err(occupancy_lookup_error):
@@ -247,13 +211,9 @@ def place_bungalow_with_preselection_order(
 
 def _get_product_for_occupancy(occupancy_id: OccupancyID) -> Product:
     """Return the shop product for the occupied bungalow's category."""
-    product_id = db.session.execute(
-        select(DbBungalowCategory.product_id)
-        .join(DbBungalow)
-        .join(DbBungalowOccupancy)
-        .filter(DbBungalowOccupancy.id == occupancy_id)
-    ).scalar_one()
-
+    product_id = bungalow_occupancy_repository.get_product_id_for_occupancy(
+        occupancy_id
+    )
     return product_service.get_product(product_id)
 
 
@@ -331,13 +291,13 @@ def occupy_bungalow(
     ticket_bundle_id: TicketBundleID,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Mark the bungalow as occupied."""
-    match get_db_reservation(reservation_id):
+    match bungalow_occupancy_repository.get_reservation(reservation_id):
         case Ok(db_reservation):
             pass
         case Err(reservation_lookup_error):
             return Err(reservation_lookup_error)
 
-    match get_db_occupancy(occupancy_id):
+    match bungalow_occupancy_repository.get_occupancy(occupancy_id):
         case Ok(db_occupancy):
             pass
         case Err(occupancy_lookup_error):
@@ -389,7 +349,7 @@ def move_occupancy(
     initiator: User,
 ) -> Result[BungalowOccupancyMovedEvent, str]:
     """Move occupancy to another bungalow and reset the source bungalow."""
-    match get_db_occupancy(occupancy_id):
+    match bungalow_occupancy_repository.get_occupancy(occupancy_id):
         case Ok(db_occupancy):
             pass
         case Err(occupancy_lookup_error):
@@ -530,24 +490,14 @@ def appoint_bungalow_manager(
     if ticket_bundle_id is None:
         return Err('Occupancy has no ticket bundle assigned.')
 
-    match get_db_occupancy(occupancy.id):
-        case Ok(db_occupancy):
-            pass
-        case Err(occupancy_lookup_error):
-            return Err(occupancy_lookup_error)
-
     # Set bungalow manager.
-    db_occupancy.managed_by_id = new_manager.id
-    db_log_entry = bungalow_log_service.build_entry(
-        'manager-appointed',
-        db_occupancy.bungalow_id,
-        data={
-            'initiator_id': str(initiator.id),
-            'new_manager_id': str(new_manager.id),
-        },
-    )
-    db.session.add(db_log_entry)
-    db.session.commit()
+    match bungalow_occupancy_repository.appoint_bungalow_manager(
+        occupancy.id, new_manager.id, initiator.id
+    ):
+        case Ok(None):
+            pass
+        case Err(appointment_error):
+            return Err(appointment_error)
 
     # Set tickets' user manager.
     tickets = ticket_bundle_service.get_tickets_for_bundle(ticket_bundle_id)
@@ -563,16 +513,9 @@ def set_internal_remark(
     occupancy_id: OccupancyID, remark: str | None
 ) -> Result[None, str]:
     """Set an internal remark."""
-    match get_db_occupancy(occupancy_id):
-        case Ok(db_occupancy):
-            pass
-        case Err(occupancy_lookup_error):
-            return Err(occupancy_lookup_error)
-
-    db_occupancy.internal_remark = remark
-    db.session.commit()
-
-    return Ok(None)
+    return bungalow_occupancy_repository.set_internal_remark(
+        occupancy_id, remark
+    )
 
 
 def update_description(
@@ -582,19 +525,22 @@ def update_description(
     initiator: User,
 ) -> Result[BungalowOccupancyDescriptionUpdatedEvent, str]:
     """Update the occupancy's title and description."""
-    match get_db_occupancy(occupancy_id):
-        case Ok(db_occupancy):
+    match get_occupancy(occupancy_id):
+        case Ok(occupancy):
             pass
         case Err(occupancy_lookup_error):
             return Err(occupancy_lookup_error)
 
-    db_occupancy.title = title
-    db_occupancy.description = description
-
-    db.session.commit()
+    match bungalow_occupancy_repository.update_description(
+        occupancy.id, title, description
+    ):
+        case Ok(_):
+            pass
+        case Err(e):
+            return Err(e)
 
     updated_at = datetime.utcnow()
-    bungalow = bungalow_service.get_db_bungalow(db_occupancy.bungalow_id)
+    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
 
     event = BungalowOccupancyDescriptionUpdatedEvent(
         occurred_at=updated_at,
@@ -610,40 +556,17 @@ def find_occupancy_managed_by_user(
     party_id: PartyID, user_id: UserID
 ) -> DbBungalowOccupancy | None:
     """Try to find a bungalow occupancy managed by that user that party."""
-    return db.session.scalars(
-        select(DbBungalowOccupancy)
-        .join(DbBungalow)
-        .filter(DbBungalow.party_id == party_id)
-        .filter(
-            db.or_(
-                DbBungalowOccupancy.occupied_by_id == user_id,
-                DbBungalowOccupancy.managed_by_id == user_id,
-            )
-        )
-    ).one_or_none()
+    return bungalow_occupancy_repository.find_occupancy_managed_by_user(
+        party_id, user_id
+    )
 
 
 def get_occupied_bungalows_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
     """Return all occupied (but not reserved) bungalows for the party,
     ordered by number.
     """
-    return (
-        db.session.scalars(
-            select(DbBungalow)
-            .options(
-                db.load_only(
-                    DbBungalow.party_id,
-                    DbBungalow.number,
-                    DbBungalow._occupation_state,
-                ),
-                db.joinedload(DbBungalow.occupancy),
-            )
-            .filter_by(party_id=party_id)
-            .filter_by(_occupation_state=BungalowOccupationState.occupied.name)
-            .order_by(DbBungalow.number)
-        )
-        .unique()
-        .all()
+    return bungalow_occupancy_repository.get_occupied_bungalows_for_party(
+        party_id
     )
 
 
@@ -654,37 +577,17 @@ def get_occupied_bungalow_numbers_and_titles(
     party, ordered by number.
     """
     return (
-        db.session.execute(
-            select(
-                DbBungalow.number,
-                DbBungalowOccupancy.title,
-            )
-            .join(DbBungalowOccupancy)
-            .filter(DbBungalow.party_id == party_id)
-            .filter(
-                DbBungalowOccupancy._state
-                == BungalowOccupationState.occupied.name
-            )
-            .order_by(DbBungalow.number)
+        bungalow_occupancy_repository.get_occupied_bungalow_numbers_and_titles(
+            party_id
         )
-        .tuples()
-        .all()
     )
 
 
 def has_user_occupied_any_bungalow(party_id: PartyID, user_id: UserID) -> bool:
     """Return `True` if the user has occupied a bungalow for the party."""
-    count = (
-        db.session.scalar(
-            select(db.func.count(DbBungalowOccupancy.id))
-            .join(DbBungalow)
-            .filter(DbBungalow.party_id == party_id)
-            .filter(DbBungalowOccupancy.occupied_by_id == user_id)
-        )
-        or 0
+    return bungalow_occupancy_repository.has_user_occupied_any_bungalow(
+        party_id, user_id
     )
-
-    return count > 0
 
 
 def get_occupant_slots_for_occupancy(
@@ -701,16 +604,9 @@ def get_occupant_slots_for_occupancies(
     occupancy_ids: set[OccupancyID], *, for_admin: bool = False
 ) -> dict[OccupancyID, list[OccupantSlot]]:
     """Return the occupant slots for multiple occupancies."""
-    rows = db.session.execute(
-        select(DbBungalowOccupancy.id, DbTicket.id, DbTicket.used_by_id)
-        .join(
-            DbTicketBundle,
-            DbTicketBundle.id == DbBungalowOccupancy.ticket_bundle_id,
-        )
-        .join(DbTicket)
-        .filter(DbBungalowOccupancy.id.in_(occupancy_ids))
-        .order_by(DbTicket.created_at)
-    ).all()
+    rows = bungalow_occupancy_repository.get_occupant_slots_for_occupancies(
+        occupancy_ids
+    )
 
     user_ids = {user_id for _, _, user_id in rows if user_id is not None}
     users: set[User] | set[UserForAdmin]
@@ -733,30 +629,17 @@ def get_bungalow_for_ticket_bundle(
     ticket_bundle_id: TicketBundleID,
 ) -> DbBungalow:
     """Return the bungalow occupied by this ticket bundle."""
-    return db.session.execute(
-        select(DbBungalow)
-        .join(DbBungalowOccupancy)
-        .join(DbTicketBundle)
-        .filter(DbTicketBundle.id == ticket_bundle_id)
-    ).scalar_one()
+    return bungalow_occupancy_repository.get_bungalow_for_ticket_bundle(
+        ticket_bundle_id
+    )
 
 
 def get_bungalows_for_ticket_bundles(
     ticket_bundle_ids: set[TicketBundleID],
 ) -> dict[TicketBundleID, DbBungalow]:
     """Return the bungalows occupied by these ticket bundles."""
-    rows = (
-        db.session.execute(
-            select(DbTicketBundle.id, DbBungalow)
-            .join(
-                DbBungalowOccupancy,
-                DbBungalowOccupancy.bungalow_id == DbBungalow.id,
-            )
-            .join(DbTicketBundle)
-            .filter(DbTicketBundle.id.in_(ticket_bundle_ids))
-        )
-        .tuples()
-        .all()
+    rows = bungalow_occupancy_repository.get_bungalows_for_ticket_bundles(
+        ticket_bundle_ids
     )
 
     return dict(rows)

@@ -8,7 +8,6 @@ byceps.services.bungalow.bungalow_occupancy_avatar_service
 
 from typing import BinaryIO
 
-from byceps.database import db
 from byceps.services.user.models import UserID
 from byceps.util import upload
 from byceps.util.image.dimensions import determine_dimensions, Dimensions
@@ -17,8 +16,7 @@ from byceps.util.image.thumbnail import create_thumbnail
 from byceps.util.result import Err, Ok, Result
 from byceps.util.uuid import generate_uuid7
 
-from . import bungalow_occupancy_service
-from .dbmodels.avatar import DbBungalowAvatar
+from . import bungalow_occupancy_repository
 from .models.occupation import OccupancyID
 
 
@@ -45,7 +43,7 @@ def update_avatar_image(
     maximum_dimensions: Dimensions = MAXIMUM_DIMENSIONS,
 ) -> Result[None, str]:
     """Set a new avatar image for the bungalow occupancy."""
-    db_occupancy = bungalow_occupancy_service.get_db_occupancy(
+    db_occupancy = bungalow_occupancy_repository.get_occupancy(
         occupancy_id
     ).unwrap()
 
@@ -63,12 +61,12 @@ def update_avatar_image(
     if image_too_large or not image_dimensions.is_square:
         stream = create_thumbnail(stream, image_type.name, maximum_dimensions)
 
-    avatar = DbBungalowAvatar(avatar_id, creator_id, image_type)
-    db.session.add(avatar)
-    db.session.commit()
+    db_avatar = bungalow_occupancy_repository.create_avatar_image(
+        avatar_id, creator_id, image_type
+    )
 
     party_id = db_occupancy.bungalow.party_id
-    avatar_path = avatar.get_path(party_id)
+    avatar_path = db_avatar.get_path(party_id)
 
     # Create parent path if it doesn't exist.
     parent_path = avatar_path.resolve().parent
@@ -78,10 +76,9 @@ def update_avatar_image(
     # Might raise `FileExistsError`.
     upload.store(stream, avatar_path)
 
-    db_occupancy.avatar_id = avatar.id
-    db.session.commit()
-
-    return Ok(None)
+    return bungalow_occupancy_repository.assign_avatar_image(
+        db_avatar.id, db_occupancy.id
+    )
 
 
 def remove_avatar_image(occupancy_id: OccupancyID) -> None:
@@ -90,9 +87,4 @@ def remove_avatar_image(occupancy_id: OccupancyID) -> None:
     The avatar will be unlinked from the bungalow, but the database record
     as well as the image file itself won't be removed, though.
     """
-    db_occupancy = bungalow_occupancy_service.get_db_occupancy(
-        occupancy_id
-    ).unwrap()
-
-    db_occupancy.avatar_id = None
-    db.session.commit()
+    bungalow_occupancy_repository.remove_avatar_image(occupancy_id).unwrap()
