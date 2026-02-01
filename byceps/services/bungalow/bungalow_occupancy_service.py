@@ -61,7 +61,7 @@ from .models.occupation import (
 def find_reservation(
     reservation_id: ReservationID,
 ) -> BungalowReservation | None:
-    """Return the reservation with that id, or `None` if not found."""
+    """Return the reservation with that ID, or `None` if not found."""
     db_reservation = bungalow_occupancy_repository.find_reservation(
         reservation_id
     )
@@ -75,7 +75,7 @@ def find_reservation(
 def get_reservation(
     reservation_id: ReservationID,
 ) -> Result[BungalowReservation, str]:
-    """Return the reservation with that id."""
+    """Return the reservation with that ID."""
     reservation = find_reservation(reservation_id)
 
     if reservation is None:
@@ -85,7 +85,7 @@ def get_reservation(
 
 
 def find_occupancy(occupancy_id: OccupancyID) -> BungalowOccupancy | None:
-    """Return the occupancy with that id, or `None` if not found."""
+    """Return the occupancy with that ID, or `None` if not found."""
     db_occupancy = bungalow_occupancy_repository.find_occupancy(occupancy_id)
 
     if db_occupancy is None:
@@ -95,7 +95,7 @@ def find_occupancy(occupancy_id: OccupancyID) -> BungalowOccupancy | None:
 
 
 def get_occupancy(occupancy_id: OccupancyID) -> Result[BungalowOccupancy, str]:
-    """Return the occupancy with that id."""
+    """Return the occupancy with that ID."""
     occupancy = find_occupancy(occupancy_id)
 
     if occupancy is None:
@@ -107,7 +107,7 @@ def get_occupancy(occupancy_id: OccupancyID) -> Result[BungalowOccupancy, str]:
 def find_occupancy_for_bungalow(
     bungalow_id: BungalowID,
 ) -> BungalowOccupancy | None:
-    """Return the occupancy for the bungalow with that id.
+    """Return the occupancy for the bungalow with that ID.
 
     Return `None` if either no bungalow with that ID or no occupation
     for the bungalow with that ID was found.

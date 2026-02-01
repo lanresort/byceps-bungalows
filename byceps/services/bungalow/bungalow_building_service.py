@@ -63,7 +63,7 @@ def delete_layout(layout_id: BungalowLayoutID):
 
 
 def find_layout(layout_id: BungalowLayoutID) -> BungalowLayout | None:
-    """Return the layout with that id, or `None` if not found."""
+    """Return the layout with that ID, or `None` if not found."""
     db_layout = db.session.get(DbBungalowLayout, layout_id)
 
     if db_layout is None:

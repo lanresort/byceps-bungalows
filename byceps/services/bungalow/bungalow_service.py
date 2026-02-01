@@ -55,7 +55,7 @@ def has_brand_bungalows(brand_id: BrandID) -> bool:
 
 
 def find_bungalow(bungalow_id: BungalowID) -> Bungalow | None:
-    """Return the bungalow with that id, or `None` if not found."""
+    """Return the bungalow with that ID, or `None` if not found."""
     db_bungalow = db.session.execute(
         select(DbBungalow)
         .options(
@@ -72,12 +72,12 @@ def find_bungalow(bungalow_id: BungalowID) -> Bungalow | None:
 
 
 def find_db_bungalow(bungalow_id: BungalowID) -> DbBungalow | None:
-    """Return the bungalow with that id, or `None` if not found."""
+    """Return the bungalow with that ID, or `None` if not found."""
     return db.session.get(DbBungalow, bungalow_id)
 
 
 def get_db_bungalow(bungalow_id: BungalowID) -> DbBungalow:
-    """Return the bungalow with that id."""
+    """Return the bungalow with that ID."""
     db_bungalow = find_db_bungalow(bungalow_id)
 
     if db_bungalow is None:

@@ -85,7 +85,7 @@ def update_category(
 def find_category(
     category_id: BungalowCategoryID,
 ) -> BungalowCategory | None:
-    """Return the category with that id, or `None` if not found."""
+    """Return the category with that ID, or `None` if not found."""
     db_bungalow_category = _find_db_category(category_id)
 
     if db_bungalow_category is None:

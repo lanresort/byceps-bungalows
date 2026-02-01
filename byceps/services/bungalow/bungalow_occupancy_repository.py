@@ -35,14 +35,14 @@ from .models.occupation import OccupancyID, ReservationID
 def find_reservation(
     reservation_id: ReservationID,
 ) -> DbBungalowReservation | None:
-    """Return the reservation with that id, or `None` if not found."""
+    """Return the reservation with that ID, or `None` if not found."""
     return db.session.get(DbBungalowReservation, reservation_id)
 
 
 def get_reservation(
     reservation_id: ReservationID,
 ) -> Result[DbBungalowReservation, str]:
-    """Return the reservation with that id."""
+    """Return the reservation with that ID."""
     db_reservation = find_reservation(reservation_id)
 
     if db_reservation is None:
@@ -54,14 +54,14 @@ def get_reservation(
 def find_occupancy(
     occupancy_id: OccupancyID,
 ) -> DbBungalowOccupancy | None:
-    """Return the occupancy with that id, or `None` if not found."""
+    """Return the occupancy with that ID, or `None` if not found."""
     return db.session.get(DbBungalowOccupancy, occupancy_id)
 
 
 def get_occupancy(
     occupancy_id: OccupancyID,
 ) -> Result[DbBungalowOccupancy, str]:
-    """Return the occupancy with that id."""
+    """Return the occupancy with that ID."""
     db_occupancy = find_occupancy(occupancy_id)
 
     if db_occupancy is None:
@@ -73,7 +73,7 @@ def get_occupancy(
 def find_occupancy_for_bungalow(
     bungalow_id: BungalowID,
 ) -> DbBungalowOccupancy | None:
-    """Return the occupancy for the bungalow with that id.
+    """Return the occupancy for the bungalow with that ID.
 
     Return `None` if either no bungalow with that ID or no occupation
     for the bungalow with that ID was found.
