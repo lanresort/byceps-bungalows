@@ -34,7 +34,7 @@ class DbAccommodationRequest(db.Model):
     __tablename__ = 'bungalow_accommodation_requests'
 
     id: Mapped[AccommodationRequestID] = mapped_column(primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime]
     updated_at: Mapped[datetime | None]
     bungalow_id: Mapped[BungalowID] = mapped_column(
         db.ForeignKey('bungalows.id'), index=True
@@ -46,12 +46,14 @@ class DbAccommodationRequest(db.Model):
     def __init__(
         self,
         request_id: AccommodationRequestID,
+        created_at: datetime,
         bungalow_id: BungalowID,
         candidate_id: UserID,
         state: AccommodationRequestState,
         token: UUID,
     ) -> None:
         self.id = request_id
+        self.created_at = created_at
         self.bungalow_id = bungalow_id
         self.candidate_id = candidate_id
         self.state = state
