@@ -6,6 +6,7 @@ byceps.services.bungalow.bungalow_occupancy_avatar_service
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from datetime import datetime
 from typing import BinaryIO
 
 from byceps.services.user.models import UserID
@@ -48,6 +49,7 @@ def update_avatar_image(
     ).unwrap()
 
     avatar_id = generate_uuid7()
+    created_at = datetime.utcnow()
 
     match determine_image_type(stream, allowed_types):
         case Ok(image_type):
@@ -62,7 +64,7 @@ def update_avatar_image(
         stream = create_thumbnail(stream, image_type.name, maximum_dimensions)
 
     db_avatar = bungalow_occupancy_repository.create_avatar_image(
-        avatar_id, creator_id, image_type
+        avatar_id, created_at, creator_id, image_type
     )
 
     party_id = db_occupancy.bungalow.party_id

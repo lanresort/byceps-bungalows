@@ -32,14 +32,19 @@ class DbBungalowAvatar(db.Model):
     __tablename__ = 'bungalow_occupancy_avatars'
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime]
     creator_id: Mapped[UserID] = mapped_column(db.ForeignKey('users.id'))
     _image_type: Mapped[str] = mapped_column('image_type', db.UnicodeText)
 
     def __init__(
-        self, avatar_id: UUID, creator_id: UserID, image_type: ImageType
+        self,
+        avatar_id: UUID,
+        created_at: datetime,
+        creator_id: UserID,
+        image_type: ImageType,
     ) -> None:
         self.id = avatar_id
+        self.created_at = created_at
         self.creator_id = creator_id
         self.image_type = image_type
 

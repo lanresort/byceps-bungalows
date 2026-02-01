@@ -9,6 +9,7 @@ byceps.services.bungalow.bungalow_occupancy_repository
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -290,10 +291,13 @@ def update_description(
 
 
 def create_avatar_image(
-    avatar_id: UUID, creator_id: UserID, image_type: ImageType
+    avatar_id: UUID,
+    created_at: datetime,
+    creator_id: UserID,
+    image_type: ImageType,
 ) -> DbBungalowAvatar:
     """Create avatar image for occupancy."""
-    db_avatar = DbBungalowAvatar(avatar_id, creator_id, image_type)
+    db_avatar = DbBungalowAvatar(avatar_id, created_at, creator_id, image_type)
 
     db.session.add(db_avatar)
 
