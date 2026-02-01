@@ -9,9 +9,7 @@ byceps.services.bungalow.dbmodels.category
 from __future__ import annotations
 
 from byceps.database import db
-from byceps.services.bungalow.bungalow_category_service import (
-    BungalowCategoryID,
-)
+from byceps.services.bungalow.models.category import BungalowCategoryID
 from byceps.services.party.models import PartyID
 from byceps.services.shop.product.dbmodels.product import DbProduct
 from byceps.services.shop.product.models import ProductID
