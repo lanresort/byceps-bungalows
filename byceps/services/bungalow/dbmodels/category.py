@@ -8,6 +8,8 @@ byceps.services.bungalow.dbmodels.category
 
 from __future__ import annotations
 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from byceps.database import db
 from byceps.services.bungalow.models.category import BungalowCategoryID
 from byceps.services.party.models import PartyID
@@ -24,23 +26,23 @@ class DbBungalowCategory(db.Model):
     __tablename__ = 'bungalow_categories'
     __table_args__ = (db.UniqueConstraint('party_id', 'title', 'capacity'),)
 
-    id = db.Column(db.Uuid, primary_key=True)
-    party_id = db.Column(
-        db.UnicodeText, db.ForeignKey('parties.id'), index=True, nullable=False
+    id: Mapped[BungalowCategoryID] = mapped_column(primary_key=True)
+    party_id: Mapped[PartyID] = mapped_column(
+        db.UnicodeText, db.ForeignKey('parties.id'), index=True
     )
-    title = db.Column(db.UnicodeText, nullable=False)
-    capacity = db.Column(db.SmallInteger, nullable=False)
-    ticket_category_id = db.Column(
-        db.Uuid, db.ForeignKey('ticket_categories.id'), nullable=False
+    title: Mapped[str] = mapped_column(db.UnicodeText)
+    capacity: Mapped[int] = mapped_column(db.SmallInteger)
+    ticket_category_id: Mapped[TicketCategoryID] = mapped_column(
+        db.ForeignKey('ticket_categories.id')
     )
-    ticket_category = db.relationship(DbTicketCategory)
-    product_id = db.Column(
-        db.Uuid, db.ForeignKey('shop_products.id'), unique=True, nullable=False
+    ticket_category: Mapped[DbTicketCategory] = relationship()
+    product_id: Mapped[ProductID] = mapped_column(
+        db.ForeignKey('shop_products.id'), unique=True
     )
-    product = db.relationship(DbProduct)
-    image_filename = db.Column(db.UnicodeText, nullable=True)
-    image_width = db.Column(db.SmallInteger, nullable=True)
-    image_height = db.Column(db.SmallInteger, nullable=True)
+    product: Mapped[DbProduct] = relationship()
+    image_filename: Mapped[str | None] = mapped_column(db.UnicodeText)
+    image_width: Mapped[int | None] = mapped_column(db.SmallInteger)
+    image_height: Mapped[int | None] = mapped_column(db.SmallInteger)
 
     def __init__(
         self,

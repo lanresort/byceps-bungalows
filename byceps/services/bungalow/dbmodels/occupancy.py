@@ -9,7 +9,9 @@ byceps.services.bungalow.dbmodels.occupancy
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import UUID
 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     hybrid_property = property
@@ -24,7 +26,9 @@ from byceps.services.bungalow.models.occupation import (
     ReservationID,
 )
 from byceps.services.party.models import PartyID
+from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.ticketing.dbmodels.ticket_bundle import DbTicketBundle
+from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user.models import UserID
 from byceps.util.instances import ReprBuilder
 
@@ -37,29 +41,22 @@ class DbBungalowReservation(db.Model):
 
     __tablename__ = 'bungalow_reservations'
 
-    id = db.Column(db.Uuid, primary_key=True)
-    bungalow_id = db.Column(
-        db.Uuid,
-        db.ForeignKey('bungalows.id'),
-        unique=True,
-        index=True,
-        nullable=False,
+    id: Mapped[ReservationID] = mapped_column(primary_key=True)
+    bungalow_id: Mapped[BungalowID] = mapped_column(
+        db.ForeignKey('bungalows.id'), unique=True, index=True
     )
-    bungalow = db.relationship(
-        DbBungalow, backref=db.backref('reservation', uselist=False)
+    bungalow: Mapped[DbBungalow] = relationship(
+        backref=db.backref('reservation', uselist=False)
     )
-    reserved_by_id = db.Column(
-        db.Uuid, db.ForeignKey('users.id'), nullable=False
-    )
-    order_number = db.Column(
+    reserved_by_id: Mapped[UserID] = mapped_column(db.ForeignKey('users.id'))
+    order_number: Mapped[OrderNumber | None] = mapped_column(
         db.UnicodeText,
         db.ForeignKey('shop_orders.order_number'),
         unique=True,
         index=True,
-        nullable=True,
     )
-    pinned = db.Column(db.Boolean, default=False, nullable=False)
-    internal_remark = db.Column(db.UnicodeText, nullable=True)
+    pinned: Mapped[bool] = mapped_column(default=False)
+    internal_remark: Mapped[str | None] = mapped_column(db.UnicodeText)
 
     def __init__(
         self,
@@ -77,47 +74,38 @@ class DbBungalowOccupancy(db.Model):
 
     __tablename__ = 'bungalow_occupancies'
 
-    id = db.Column(db.Uuid, primary_key=True)
-    bungalow_id = db.Column(
-        db.Uuid,
-        db.ForeignKey('bungalows.id'),
-        unique=True,
-        index=True,
-        nullable=False,
+    id: Mapped[OccupancyID] = mapped_column(primary_key=True)
+    bungalow_id: Mapped[BungalowID] = mapped_column(
+        db.ForeignKey('bungalows.id'), unique=True, index=True
     )
-    bungalow = db.relationship(
-        DbBungalow, backref=db.backref('occupancy', uselist=False)
+    bungalow: Mapped[DbBungalow] = relationship(
+        backref=db.backref('occupancy', uselist=False)
     )
-    occupied_by_id = db.Column(
-        db.Uuid, db.ForeignKey('users.id'), nullable=False
-    )
-    order_number = db.Column(
+    occupied_by_id: Mapped[UserID] = mapped_column(db.ForeignKey('users.id'))
+    order_number: Mapped[OrderNumber | None] = mapped_column(
         db.UnicodeText,
         db.ForeignKey('shop_orders.order_number'),
         unique=True,
         index=True,
-        nullable=True,
     )
-    _state = db.Column('state', db.UnicodeText, nullable=False)
-    ticket_bundle_id = db.Column(
-        db.Uuid,
-        db.ForeignKey('ticket_bundles.id'),
-        unique=True,
-        index=True,
-        nullable=True,
+    _state: Mapped[str] = mapped_column('state', db.UnicodeText)
+    ticket_bundle_id: Mapped[TicketBundleID | None] = mapped_column(
+        db.ForeignKey('ticket_bundles.id'), unique=True, index=True
     )
-    ticket_bundle = db.relationship(
-        DbTicketBundle, backref=db.backref('bungalow_occupancy', uselist=False)
+    ticket_bundle: Mapped[DbTicketBundle] = relationship(
+        backref=db.backref('bungalow_occupancy', uselist=False)
     )
-    pinned = db.Column(db.Boolean, default=False, nullable=False)
-    managed_by_id = db.Column(db.Uuid, db.ForeignKey('users.id'), nullable=True)
-    title = db.Column(db.UnicodeText, nullable=True)
-    description = db.Column(db.UnicodeText, nullable=True)
-    avatar_id = db.Column(
-        db.Uuid, db.ForeignKey('bungalow_occupancy_avatars.id'), nullable=True
+    pinned: Mapped[bool] = mapped_column(default=False)
+    managed_by_id: Mapped[UserID | None] = mapped_column(
+        db.ForeignKey('users.id')
     )
-    avatar = db.relationship(DbBungalowAvatar)
-    internal_remark = db.Column(db.UnicodeText, nullable=True)
+    title: Mapped[str | None] = mapped_column(db.UnicodeText)
+    description: Mapped[str | None] = mapped_column(db.UnicodeText)
+    avatar_id: Mapped[UUID | None] = mapped_column(
+        db.ForeignKey('bungalow_occupancy_avatars.id')
+    )
+    avatar: Mapped[DbBungalowAvatar] = relationship()
+    internal_remark: Mapped[str | None] = mapped_column(db.UnicodeText)
 
     def __init__(
         self,

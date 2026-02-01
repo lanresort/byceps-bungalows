@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from sqlalchemy.orm import Mapped, mapped_column
 
 if TYPE_CHECKING:
     hybrid_property = property
@@ -30,10 +31,10 @@ class DbBungalowAvatar(db.Model):
 
     __tablename__ = 'bungalow_occupancy_avatars'
 
-    id = db.Column(db.Uuid, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    creator_id = db.Column(db.Uuid, db.ForeignKey('users.id'), nullable=False)
-    _image_type = db.Column('image_type', db.UnicodeText, nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    creator_id: Mapped[UserID] = mapped_column(db.ForeignKey('users.id'))
+    _image_type: Mapped[str] = mapped_column('image_type', db.UnicodeText)
 
     def __init__(
         self, avatar_id: UUID, creator_id: UserID, image_type: ImageType

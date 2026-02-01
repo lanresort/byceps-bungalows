@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from sqlalchemy.orm import Mapped, mapped_column
 
 if TYPE_CHECKING:
     hybrid_property = property
@@ -32,15 +33,15 @@ class DbAccommodationRequest(db.Model):
 
     __tablename__ = 'bungalow_accommodation_requests'
 
-    id = db.Column(db.Uuid, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, nullable=True)
-    bungalow_id = db.Column(
-        db.Uuid, db.ForeignKey('bungalows.id'), index=True, nullable=False
+    id: Mapped[AccommodationRequestID] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    updated_at: Mapped[datetime | None]
+    bungalow_id: Mapped[BungalowID] = mapped_column(
+        db.ForeignKey('bungalows.id'), index=True
     )
-    candidate_id = db.Column(db.Uuid, db.ForeignKey('users.id'), nullable=False)
-    _state = db.Column('state', db.UnicodeText, nullable=False)
-    token = db.Column(db.Uuid, nullable=True)
+    candidate_id: Mapped[UserID] = mapped_column(db.ForeignKey('users.id'))
+    _state: Mapped[str] = mapped_column('state', db.UnicodeText)
+    token: Mapped[UUID | None]
 
     def __init__(
         self,

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     hybrid_property = property
@@ -34,22 +35,19 @@ class DbBungalow(db.Model):
     __tablename__ = 'bungalows'
     __table_args__ = (db.UniqueConstraint('party_id', 'number'),)
 
-    id = db.Column(db.Uuid, primary_key=True)
-    party_id = db.Column(
-        db.UnicodeText, db.ForeignKey('parties.id'), index=True, nullable=False
+    id: Mapped[BungalowID] = mapped_column(primary_key=True)
+    party_id: Mapped[PartyID] = mapped_column(
+        db.UnicodeText, db.ForeignKey('parties.id'), index=True
     )
-    number = db.Column(db.SmallInteger, index=True, nullable=False)
-    category_id = db.Column(
-        db.Uuid,
-        db.ForeignKey('bungalow_categories.id'),
-        index=True,
-        nullable=False,
+    number: Mapped[int] = mapped_column(db.SmallInteger, index=True)
+    category_id: Mapped[BungalowCategoryID] = mapped_column(
+        db.ForeignKey('bungalow_categories.id'), index=True
     )
-    category = db.relationship(DbBungalowCategory)
-    _occupation_state = db.Column(
-        'occupation_state', db.UnicodeText, nullable=False
+    category: Mapped[DbBungalowCategory] = relationship()
+    _occupation_state: Mapped[str] = mapped_column(
+        'occupation_state', db.UnicodeText
     )
-    distributes_network = db.Column(db.Boolean, default=False, nullable=False)
+    distributes_network: Mapped[bool] = mapped_column(default=False)
 
     def __init__(
         self,

@@ -8,6 +8,8 @@ byceps.services.bungalow.dbmodels.layout
 
 from __future__ import annotations
 
+from sqlalchemy.orm import Mapped, mapped_column
+
 from byceps.database import db
 from byceps.services.brand.models import BrandID
 from byceps.services.bungalow.models.building import BungalowLayoutID
@@ -20,15 +22,15 @@ class DbBungalowLayout(db.Model):
     __tablename__ = 'bungalow_layouts'
     __table_args__ = (db.UniqueConstraint('brand_id', 'title', 'capacity'),)
 
-    id = db.Column(db.Uuid, primary_key=True)
-    brand_id = db.Column(
-        db.UnicodeText, db.ForeignKey('brands.id'), index=True, nullable=False
+    id: Mapped[BungalowLayoutID] = mapped_column(primary_key=True)
+    brand_id: Mapped[BrandID] = mapped_column(
+        db.UnicodeText, db.ForeignKey('brands.id'), index=True
     )
-    title = db.Column(db.UnicodeText, nullable=False)
-    capacity = db.Column(db.SmallInteger, nullable=False)
-    image_filename = db.Column(db.UnicodeText, nullable=True)
-    image_width = db.Column(db.SmallInteger, nullable=True)
-    image_height = db.Column(db.SmallInteger, nullable=True)
+    title: Mapped[str] = mapped_column(db.UnicodeText)
+    capacity: Mapped[int] = mapped_column(db.SmallInteger)
+    image_filename: Mapped[str | None] = mapped_column(db.UnicodeText)
+    image_width: Mapped[int | None] = mapped_column(db.SmallInteger)
+    image_height: Mapped[int | None] = mapped_column(db.SmallInteger)
 
     def __init__(
         self,

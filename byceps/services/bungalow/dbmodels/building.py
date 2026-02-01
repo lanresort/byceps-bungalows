@@ -6,10 +6,14 @@ byceps.services.bungalow.dbmodels.building
 :License: Revised BSD (see `LICENSE` file for details)
 """
 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from byceps.database import db
+from byceps.services.brand.models import BrandID
 from byceps.services.bungalow.models.building import (
     BungalowBuildingID,
     BungalowLayout,
+    BungalowLayoutID,
 )
 from byceps.util.instances import ReprBuilder
 
@@ -22,18 +26,15 @@ class DbBungalowBuilding(db.Model):
     __tablename__ = 'bungalow_buildings'
     __table_args__ = (db.UniqueConstraint('brand_id', 'number'),)
 
-    id = db.Column(db.Uuid, primary_key=True)
-    brand_id = db.Column(
-        db.UnicodeText, db.ForeignKey('brands.id'), index=True, nullable=False
+    id: Mapped[BungalowBuildingID] = mapped_column(primary_key=True)
+    brand_id: Mapped[BrandID] = mapped_column(
+        db.UnicodeText, db.ForeignKey('brands.id'), index=True
     )
-    layout_id = db.Column(
-        db.Uuid,
-        db.ForeignKey('bungalow_layouts.id'),
-        index=True,
-        nullable=False,
+    layout_id: Mapped[BungalowLayoutID] = mapped_column(
+        db.ForeignKey('bungalow_layouts.id'), index=True
     )
-    layout = db.relationship(DbBungalowLayout)
-    number = db.Column(db.SmallInteger, index=True, nullable=False)
+    layout: Mapped[DbBungalowLayout] = relationship()
+    number: Mapped[int] = mapped_column(db.SmallInteger, index=True)
 
     def __init__(
         self,
