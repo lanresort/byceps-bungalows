@@ -55,7 +55,7 @@ class DbBungalowReservation(db.Model):
         unique=True,
         index=True,
     )
-    pinned: Mapped[bool] = mapped_column(default=False)
+    pinned: Mapped[bool]
     internal_remark: Mapped[str | None] = mapped_column(db.UnicodeText)
 
     def __init__(
@@ -63,10 +63,12 @@ class DbBungalowReservation(db.Model):
         reservation_id: ReservationID,
         bungalow_id: BungalowID,
         reserved_by_id: UserID,
+        pinned: bool,
     ) -> None:
         self.id = reservation_id
         self.bungalow_id = bungalow_id
         self.reserved_by_id = reserved_by_id
+        self.pinned = pinned
 
 
 class DbBungalowOccupancy(db.Model):
@@ -95,7 +97,7 @@ class DbBungalowOccupancy(db.Model):
     ticket_bundle: Mapped[DbTicketBundle] = relationship(
         backref=db.backref('bungalow_occupancy', uselist=False)
     )
-    pinned: Mapped[bool] = mapped_column(default=False)
+    pinned: Mapped[bool]
     managed_by_id: Mapped[UserID | None] = mapped_column(
         db.ForeignKey('users.id')
     )
@@ -113,11 +115,13 @@ class DbBungalowOccupancy(db.Model):
         bungalow_id: BungalowID,
         occupier_id: UserID,
         state: OccupancyState,
+        pinned: bool,
     ) -> None:
         self.id = occupancy_id
         self.bungalow_id = bungalow_id
         self.occupied_by_id = occupier_id
         self._state = state.name
+        self.pinned = pinned
 
     @hybrid_property
     def state(self) -> OccupancyState:

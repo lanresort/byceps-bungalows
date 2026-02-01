@@ -135,14 +135,20 @@ def reserve_bungalow(
     db_bungalow.occupation_state = BungalowOccupationState.reserved
 
     reservation_id = ReservationID(generate_uuid7())
+    pinned = False
     db_reservation = DbBungalowReservation(
-        reservation_id, db_bungalow.id, occupier.id
+        reservation_id, db_bungalow.id, occupier.id, pinned
     )
     db.session.add(db_reservation)
 
     occupancy_id = OccupancyID(generate_uuid7())
+    pinned = False
     db_occupancy = DbBungalowOccupancy(
-        occupancy_id, db_bungalow.id, occupier.id, OccupancyState.reserved
+        occupancy_id,
+        db_bungalow.id,
+        occupier.id,
+        OccupancyState.reserved,
+        pinned,
     )
     db.session.add(db_occupancy)
 
