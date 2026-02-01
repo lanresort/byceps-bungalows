@@ -51,9 +51,14 @@ def _offer_bungalow(
     bungalow_category_id: BungalowCategoryID,
 ) -> DbBungalow:
     bungalow_id = BungalowID(generate_uuid7())
+    distributes_network = False
 
     db_bungalow = DbBungalow(
-        bungalow_id, party_id, building.number, bungalow_category_id
+        bungalow_id,
+        party_id,
+        building.number,
+        bungalow_category_id,
+        distributes_network,
     )
     db.session.add(db_bungalow)
 

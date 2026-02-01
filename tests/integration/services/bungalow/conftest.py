@@ -101,8 +101,14 @@ def make_bungalow(party: Party, bungalow_category: BungalowCategory):
         if bungalow_category_id is None:
             bungalow_category_id = bungalow_category.id
 
+        distributes_network = False
+
         db_bungalow = DbBungalow(
-            bungalow_id, party_id, number, bungalow_category_id
+            bungalow_id,
+            party_id,
+            number,
+            bungalow_category_id,
+            distributes_network,
         )
 
         db.session.add(db_bungalow)

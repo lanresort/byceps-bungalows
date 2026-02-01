@@ -47,7 +47,7 @@ class DbBungalow(db.Model):
     _occupation_state: Mapped[str] = mapped_column(
         'occupation_state', db.UnicodeText
     )
-    distributes_network: Mapped[bool] = mapped_column(default=False)
+    distributes_network: Mapped[bool]
 
     def __init__(
         self,
@@ -55,12 +55,14 @@ class DbBungalow(db.Model):
         party_id: PartyID,
         number: int,
         category_id: BungalowCategoryID,
+        distributes_network: bool,
     ) -> None:
         self.id = bungalow_id
         self.party_id = party_id
         self.number = number
         self.category_id = category_id
         self._occupation_state = BungalowOccupationState.available.name
+        self.distributes_network = distributes_network
 
     @hybrid_property
     def occupation_state(self) -> BungalowOccupationState:
