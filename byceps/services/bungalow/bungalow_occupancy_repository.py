@@ -24,10 +24,10 @@ from byceps.services.user.models import UserID
 from byceps.util.image.image_type import ImageType
 from byceps.util.result import Err, Ok, Result
 
-from . import bungalow_log_service
 from .dbmodels.avatar import DbBungalowAvatar
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
+from .dbmodels.log import DbBungalowLogEntry
 from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation
 from .models.bungalow import BungalowID, BungalowOccupationState
 from .models.occupation import OccupancyID, ReservationID
@@ -227,7 +227,9 @@ def get_bungalows_for_ticket_bundles(
 
 
 def appoint_bungalow_manager(
-    occupancy_id: OccupancyID, new_manager_id: UserID, initiator_id: UserID
+    occupancy_id: OccupancyID,
+    new_manager_id: UserID,
+    db_log_entry: DbBungalowLogEntry,
 ) -> Result[None, str]:
     """Appoint the user as the bungalow's new manager."""
     match get_occupancy(occupancy_id):
@@ -238,15 +240,6 @@ def appoint_bungalow_manager(
 
     db_occupancy.managed_by_id = new_manager_id
 
-    log_entry = bungalow_log_service.build_entry(
-        'manager-appointed',
-        db_occupancy.bungalow_id,
-        data={
-            'initiator_id': str(initiator_id),
-            'new_manager_id': str(new_manager_id),
-        },
-    )
-    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     db.session.add(db_log_entry)
 
     db.session.commit()

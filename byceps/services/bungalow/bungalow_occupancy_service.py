@@ -507,8 +507,17 @@ def appoint_bungalow_manager(
         return Err('Occupancy has no ticket bundle assigned.')
 
     # Set bungalow manager.
+    log_entry = bungalow_log_service.build_entry(
+        'manager-appointed',
+        occupancy.bungalow_id,
+        data={
+            'initiator_id': str(initiator.id),
+            'new_manager_id': str(new_manager.id),
+        },
+    )
+    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     match bungalow_occupancy_repository.appoint_bungalow_manager(
-        occupancy.id, new_manager.id, initiator.id
+        occupancy.id, new_manager.id, db_log_entry
     ):
         case Ok(None):
             pass
