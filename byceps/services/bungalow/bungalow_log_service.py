@@ -20,6 +20,28 @@ from .models.bungalow import BungalowID
 from .models.log import BungalowLogEntry, BungalowLogEntryData
 
 
+def build_entry(
+    event_type: str,
+    bungalow_id: BungalowID,
+    data: BungalowLogEntryData,
+    *,
+    occurred_at: datetime | None = None,
+) -> BungalowLogEntry:
+    """Assemble a bungalow log entry."""
+    entry_id = generate_uuid7()
+
+    if occurred_at is None:
+        occurred_at = datetime.utcnow()
+
+    return BungalowLogEntry(
+        id=entry_id,
+        occurred_at=occurred_at,
+        event_type=event_type,
+        bungalow_id=bungalow_id,
+        data=data,
+    )
+
+
 def create_entry(
     event_type: str,
     bungalow_id: BungalowID,
@@ -28,29 +50,22 @@ def create_entry(
     occurred_at: datetime | None = None,
 ) -> None:
     """Create a bungalow log entry."""
-    db_entry = build_db_entry(
-        event_type, bungalow_id, data, occurred_at=occurred_at
-    )
+    entry = build_entry(event_type, bungalow_id, data, occurred_at=occurred_at)
+
+    db_entry = to_db_entry(entry)
 
     db.session.add(db_entry)
     db.session.commit()
 
 
-def build_db_entry(
-    event_type: str,
-    bungalow_id: BungalowID,
-    data: BungalowLogEntryData,
-    *,
-    occurred_at: datetime | None = None,
-) -> DbBungalowLogEntry:
-    """Assemble, but not persist, a bungalow log entry."""
-    entry_id = generate_uuid7()
-
-    if occurred_at is None:
-        occurred_at = datetime.utcnow()
-
+def to_db_entry(entry: BungalowLogEntry) -> DbBungalowLogEntry:
+    """Convert log entry to database entity."""
     return DbBungalowLogEntry(
-        entry_id, occurred_at, event_type, bungalow_id, data
+        entry.id,
+        entry.occurred_at,
+        entry.event_type,
+        entry.bungalow_id,
+        entry.data,
     )
 
 
