@@ -152,7 +152,7 @@ def reserve_bungalow(
     )
     db.session.add(db_occupancy)
 
-    db_log_entry = bungalow_log_service.build_entry(
+    db_log_entry = bungalow_log_service.build_db_entry(
         'bungalow-reserved',
         db_bungalow.id,
         data={'initiator_id': str(occupier.id)},
@@ -330,7 +330,7 @@ def occupy_bungalow(
     db_occupancy.state = OccupancyState.occupied
     db_occupancy.ticket_bundle_id = ticket_bundle_id
 
-    db_log_entry = bungalow_log_service.build_entry(
+    db_log_entry = bungalow_log_service.build_db_entry(
         'bungalow-occupied',
         db_bungalow.id,
         data={'initiator_id': str(occupier_id)},
@@ -406,7 +406,7 @@ def move_occupancy(
 
     db_occupancy.bungalow = db_target_bungalow
 
-    db_log_entry = bungalow_log_service.build_entry(
+    db_log_entry = bungalow_log_service.build_db_entry(
         'occupancy-moved-away',
         db_source_bungalow.id,
         data={
@@ -417,7 +417,7 @@ def move_occupancy(
     )
     db.session.add(db_log_entry)
 
-    db_log_entry = bungalow_log_service.build_entry(
+    db_log_entry = bungalow_log_service.build_db_entry(
         'occupancy-moved-here',
         db_target_bungalow.id,
         data={
@@ -467,7 +467,7 @@ def release_bungalow(
     db.session.delete(db_bungalow.occupancy)
 
     log_entry_data = {'initiator_id': str(initiator.id)}
-    db_log_entry = bungalow_log_service.build_entry(
+    db_log_entry = bungalow_log_service.build_db_entry(
         'bungalow-released', db_bungalow.id, log_entry_data
     )
     db.session.add(db_log_entry)

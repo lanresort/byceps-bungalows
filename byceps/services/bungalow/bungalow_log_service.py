@@ -28,7 +28,7 @@ def create_entry(
     occurred_at: datetime | None = None,
 ) -> None:
     """Create a bungalow log entry."""
-    db_entry = build_entry(
+    db_entry = build_db_entry(
         event_type, bungalow_id, data, occurred_at=occurred_at
     )
 
@@ -36,7 +36,7 @@ def create_entry(
     db.session.commit()
 
 
-def build_entry(
+def build_db_entry(
     event_type: str,
     bungalow_id: BungalowID,
     data: BungalowLogEntryData,

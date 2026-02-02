@@ -238,7 +238,7 @@ def appoint_bungalow_manager(
 
     db_occupancy.managed_by_id = new_manager_id
 
-    db_log_entry = bungalow_log_service.build_entry(
+    db_log_entry = bungalow_log_service.build_db_entry(
         'manager-appointed',
         db_occupancy.bungalow_id,
         data={
