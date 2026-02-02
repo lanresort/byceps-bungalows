@@ -463,21 +463,13 @@ def release_bungalow(
     except ValueError:
         return Err(f'No bungalow found with ID "{occupancy.bungalow_id}"')
 
-    db_bungalow.occupation_state = BungalowOccupationState.available
-
-    if db_bungalow.reservation:
-        db.session.delete(db_bungalow.reservation)
-
-    db.session.delete(db_bungalow.occupancy)
-
     log_entry_data = {'initiator_id': str(initiator.id)}
     log_entry = bungalow_log_service.build_entry(
-        'bungalow-released', db_bungalow.id, log_entry_data
+        'bungalow-released', occupancy.bungalow_id, log_entry_data
     )
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
-    db.session.add(db_log_entry)
 
-    db.session.commit()
+    bungalow_occupancy_repository.release_bungalow(db_bungalow, db_log_entry)
 
     event = BungalowReleasedEvent(
         occurred_at=datetime.utcnow(),

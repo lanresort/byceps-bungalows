@@ -334,3 +334,23 @@ def remove_avatar_image(occupancy_id: OccupancyID) -> Result[None, str]:
     db.session.commit()
 
     return Ok(None)
+
+
+def release_bungalow(
+    db_bungalow: DbBungalow, db_log_entry: DbBungalowLogEntry
+) -> None:
+    """Release the bungalow occupied by the occupancy so it becomes available
+    again.
+
+    If a reservation exists, delete it.
+    """
+    db_bungalow.occupation_state = BungalowOccupationState.available
+
+    if db_bungalow.reservation:
+        db.session.delete(db_bungalow.reservation)
+
+    db.session.delete(db_bungalow.occupancy)
+
+    db.session.add(db_log_entry)
+
+    db.session.commit()
