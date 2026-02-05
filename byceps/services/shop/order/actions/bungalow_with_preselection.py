@@ -46,6 +46,7 @@ from byceps.services.ticketing.models.ticket import (
     TicketBundle,
     TicketBundleID,
     TicketCategory,
+    TicketCategoryID,
 )
 from byceps.services.user.models import User
 from byceps.util.result import Err, Ok, Result
@@ -68,7 +69,9 @@ def on_payment(
     """Create ticket bundle and occupy reserved bungalow."""
     product = product_service.get_product(line_item.product_id)
 
-    ticket_category_id = product.type_params['ticket_category_id']
+    ticket_category_id = TicketCategoryID(
+        UUID(product.type_params['ticket_category_id'])
+    )
     ticket_quantity = int(product.type_params['ticket_quantity'])
 
     ticket_category = ticket_category_service.get_category(ticket_category_id)
