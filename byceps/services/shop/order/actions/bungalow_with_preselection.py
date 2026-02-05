@@ -66,14 +66,10 @@ def on_payment(
     parameters: ActionParameters,
 ) -> Result[None, OrderActionFailedError]:
     """Create ticket bundle and occupy reserved bungalow."""
-    if parameters:
-        ticket_category_id = parameters['ticket_category_id']
-        ticket_quantity = int(parameters['ticket_quantity'])
-    else:
-        product = product_service.get_product(line_item.product_id)
+    product = product_service.get_product(line_item.product_id)
 
-        ticket_category_id = product.type_params['ticket_category_id']
-        ticket_quantity = int(product.type_params['ticket_quantity'])
+    ticket_category_id = product.type_params['ticket_category_id']
+    ticket_quantity = int(product.type_params['ticket_quantity'])
 
     ticket_category = ticket_category_service.get_category(ticket_category_id)
 
