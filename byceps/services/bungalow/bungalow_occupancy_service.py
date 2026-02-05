@@ -104,6 +104,26 @@ def get_occupancy(occupancy_id: OccupancyID) -> Result[BungalowOccupancy, str]:
     return Ok(occupancy)
 
 
+def find_occupancy_for_ticket_bundle(
+    ticket_bundle_id: TicketBundleID,
+) -> BungalowOccupancy | None:
+    """Return the occupancy for the ticket bundle with that ID.
+
+    Return `None` if either no ticket bundle with that ID or no occupation
+    for the ticket bundle with that ID was found.
+    """
+    db_occupancy = (
+        bungalow_occupancy_repository.find_occupancy_for_ticket_bundle(
+            ticket_bundle_id
+        )
+    )
+
+    if db_occupancy is None:
+        return None
+
+    return _db_entity_to_occupancy(db_occupancy)
+
+
 def find_occupancy_for_bungalow(
     bungalow_id: BungalowID,
 ) -> BungalowOccupancy | None:

@@ -8,6 +8,10 @@ byceps.services.shop.order.actions.bungalow_without_preselection
 
 from uuid import UUID
 
+from byceps.services.bungalow import (
+    bungalow_occupancy_service,
+    signals as bungalow_signals,
+)
 from byceps.services.seating.errors import SeatingError
 from byceps.services.shop.order import (
     order_command_service,
@@ -79,10 +83,16 @@ def on_cancellation_after_payment(
     initiator: User,
     parameters: ActionParameters,
 ) -> Result[None, OrderActionFailedError]:
-    """Revoke ticket bundle."""
+    """Revoke ticket bundle and release the bungalow that have been created for
+    that order.
+    """
     match _revoke_ticket_bundle(order, line_item, initiator):
         case Err(seating_error):
             return Err(OrderActionFailedError(seating_error))
+
+    match _release_bungalow(line_item, initiator):
+        case Err(e):
+            return Err(e)
 
     return Ok(None)
 
@@ -155,3 +165,34 @@ def _create_revocation_order_log_entry(
     )
 
     order_log_service.persist_entry(log_entry)
+
+
+def _release_bungalow(
+    line_item: LineItem, initiator: User
+) -> Result[None, OrderActionFailedError]:
+    ticket_bundle_id_str = line_item.processing_result['ticket_bundle_id']
+    ticket_bundle_id = TicketBundleID(UUID(ticket_bundle_id_str))
+
+    occupancy = bungalow_occupancy_service.find_occupancy_for_ticket_bundle(
+        ticket_bundle_id
+    )
+    if not occupancy:
+        return Err(
+            OrderActionFailedError(
+                f'Could not find bungalow occupancy for ticket bundle "{ticket_bundle_id}".'
+            )
+        )
+
+    match bungalow_occupancy_service.release_bungalow(occupancy.id, initiator):
+        case Ok(bungalow_released_event):
+            bungalow_signals.bungalow_released.send(
+                None, event=bungalow_released_event
+            )
+        case Err(e):
+            return Err(
+                OrderActionFailedError(
+                    f'Fehler bei der Freigabe von Bungalow-Belegung {occupancy.id}: {e}'
+                )
+            )
+
+    return Ok(None)
