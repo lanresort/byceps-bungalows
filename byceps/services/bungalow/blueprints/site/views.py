@@ -875,7 +875,7 @@ def _get_bungalow_for_number_or_404(number: int):
 def _get_occupancy_or_404(occupancy_id: OccupancyID) -> BungalowOccupancy:
     occupancy = bungalow_occupancy_service.find_occupancy(occupancy_id)
 
-    if occupancy is None:
+    if (occupancy is None) or (occupancy.party_id != g.party.id):
         abort(404)
 
     return occupancy
