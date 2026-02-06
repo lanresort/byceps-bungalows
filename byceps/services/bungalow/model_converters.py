@@ -52,6 +52,7 @@ def _db_entity_to_bungalow_category(
     product = Product(
         id=db_product.id,
         item_number=db_product.item_number,
+        type_=db_product.type_,
         name=db_product.name,
         price=db_product.price,
         available_from=db_product.available_from,

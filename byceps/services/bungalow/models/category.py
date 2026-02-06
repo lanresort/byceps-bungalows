@@ -16,7 +16,11 @@ from uuid import UUID
 from moneyed import Money
 
 from byceps.services.party.models import PartyID
-from byceps.services.shop.product.models import ProductID, ProductNumber
+from byceps.services.shop.product.models import (
+    ProductID,
+    ProductNumber,
+    ProductType,
+)
 from byceps.services.ticketing.models.ticket import TicketCategoryID
 
 
@@ -27,6 +31,7 @@ BungalowCategoryID = NewType('BungalowCategoryID', UUID)
 class Product:
     id: ProductID
     item_number: ProductNumber
+    type_: ProductType
     name: str
     price: Money
     available_from: datetime | None
