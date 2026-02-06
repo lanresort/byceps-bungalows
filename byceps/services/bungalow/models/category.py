@@ -21,6 +21,7 @@ from byceps.services.shop.product.models import (
     ProductNumber,
     ProductType,
 )
+from byceps.services.shop.shop.models import ShopID
 from byceps.services.ticketing.models.ticket import TicketCategoryID
 
 
@@ -30,6 +31,7 @@ BungalowCategoryID = NewType('BungalowCategoryID', UUID)
 @dataclass(frozen=True, kw_only=True)
 class Product:
     id: ProductID
+    shop_id: ShopID
     item_number: ProductNumber
     type_: ProductType
     name: str
