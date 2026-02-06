@@ -35,7 +35,7 @@
         <td class="nowrap number">{{ total_amount|moneyformat }}</td>
             {%- endwith %}
         <td class="nowrap number">
-            {%- if product and product.quantity > 0 and is_product_available_now(product) -%}
+            {%- if product.quantity > 0 and is_product_available_now(product) -%}
           <a class="button color-primary" href="{{ url_for('.order_with_preselection', bungalow_id=bungalow.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
             {%- else -%}
             <span class="dimmed">derzeit nicht buchbar</span>
