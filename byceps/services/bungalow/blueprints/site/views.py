@@ -300,17 +300,17 @@ def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
     )
     collections = [collection]
 
-    user = user_service.find_user_with_details(g.user.id)
+    user_detail = user_service.get_detail(g.user.id)
 
     if bungalow_occupancy_service.has_user_occupied_any_bungalow(
-        g.party.id, user.id
+        g.party.id, g.user.id
     ):
         flash_error(
             'Du hast bereits einen Bungalow für diese Party reserviert.'
         )
         return {'bungalow': None}
 
-    form = erroneous_form if erroneous_form else OrderForm(obj=user.detail)
+    form = erroneous_form if erroneous_form else OrderForm(obj=user_detail)
 
     country_names = country_service.get_country_names()
 
