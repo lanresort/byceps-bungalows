@@ -419,14 +419,6 @@ def order_with_preselection(bungalow_id):
     return redirect_to('shop_orders.view', order_id=order.id)
 
 
-def _get_storefront_or_404():
-    storefront_id = g.site.storefront_id
-    if storefront_id is None:
-        abort(404)
-
-    return storefront_service.get_storefront(storefront_id)
-
-
 # -------------------------------------------------------------------- #
 # occupants
 
@@ -879,6 +871,14 @@ def _get_occupancy_or_404(occupancy_id: OccupancyID) -> BungalowOccupancy:
         abort(404)
 
     return occupancy
+
+
+def _get_storefront_or_404():
+    storefront_id = g.site.storefront_id
+    if storefront_id is None:
+        abort(404)
+
+    return storefront_service.get_storefront(storefront_id)
 
 
 def _is_ticket_management_enabled():
