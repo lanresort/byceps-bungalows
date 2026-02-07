@@ -119,9 +119,11 @@ def enabled_ticket_management_required(func):
 @subnavigation_for_view('bungalows')
 def index():
     """List all bungalows."""
-    bungalows = bungalow_service.get_bungalows_extended_for_party(g.party.id)
+    db_bungalows = bungalow_service.get_bungalows_extended_for_party(g.party.id)
 
-    bungalows_by_number = {b.number: b for b in bungalows}
+    bungalows_by_number = {
+        db_bungalow.number: db_bungalow for db_bungalow in db_bungalows
+    }
 
     bungalow_categories = bungalow_category_service.get_categories_for_party(
         g.party.id
@@ -143,7 +145,9 @@ def index():
     }
 
     occupancy_ids = {
-        bungalow.occupancy.id for bungalow in bungalows if bungalow.occupancy
+        db_bungalow.occupancy.id
+        for db_bungalow in db_bungalows
+        if db_bungalow.occupancy
     }
     occupant_slots_by_occupancy_id = (
         bungalow_occupancy_service.get_occupant_slots_for_occupancies(
@@ -152,9 +156,9 @@ def index():
     )
 
     occupancy_user_ids = {
-        bungalow.occupancy.occupied_by_id
-        for bungalow in bungalows
-        if bungalow.occupancy
+        db_bungalow.occupancy.occupied_by_id
+        for db_bungalow in db_bungalows
+        if db_bungalow.occupancy
     }
     user_ids = occupancy_user_ids
     users_by_id = user_service.get_users_indexed_by_id(
@@ -178,7 +182,7 @@ def index():
     )
 
     return {
-        'bungalows': bungalows,
+        'bungalows': db_bungalows,
         'bungalows_by_number': bungalows_by_number,
         'bungalow_categories_by_id': bungalow_categories_by_id,
         'total_amounts_by_product_id': total_amounts_by_product_id,
@@ -197,30 +201,30 @@ def index():
 @subnavigation_for_view('bungalows')
 def view(number: int):
     """Show the bungalow."""
-    bungalow = _get_bungalow_for_number_or_404(number)
+    db_bungalow = _get_bungalow_for_number_or_404(number)
 
     ticket_management_enabled = _is_ticket_management_enabled()
     bungalow_customization_enabled = _get_bungalow_customization_enabled()
 
-    if bungalow.reserved:
+    if db_bungalow.reserved:
         reserved_by = user_service.find_user(
-            bungalow.occupancy.occupied_by_id, include_avatar=True
+            db_bungalow.occupancy.occupied_by_id, include_avatar=True
         )
     else:
         reserved_by = None
 
-    if bungalow.occupied:
-        manager_id = bungalow.occupancy.manager_id
+    if db_bungalow.occupied:
+        manager_id = db_bungalow.occupancy.manager_id
         manager = user_service.get_user(manager_id)
 
         current_user_is_main_occupant = (
-            bungalow.occupancy.occupied_by_id == g.user.id
+            db_bungalow.occupancy.occupied_by_id == g.user.id
         )
         current_user_is_manager = manager.id == g.user.id
 
         occupant_slots = (
             bungalow_occupancy_service.get_occupant_slots_for_occupancy(
-                bungalow.occupancy.id
+                db_bungalow.occupancy.id
             )
         )
     else:
@@ -230,7 +234,7 @@ def view(number: int):
         occupant_slots = None
 
     return {
-        'bungalow': bungalow,
+        'bungalow': db_bungalow,
         'reserved_by': reserved_by,
         'current_user_is_main_occupant': current_user_is_main_occupant,
         'current_user_is_manager': current_user_is_manager,
@@ -249,10 +253,12 @@ def view_mine():
     me_id = g.user.id
     party_id = g.party.id
 
-    bungalow = bungalow_service.find_bungalow_inhabited_by_user(me_id, party_id)
+    db_bungalow = bungalow_service.find_bungalow_inhabited_by_user(
+        me_id, party_id
+    )
 
-    if bungalow:
-        return redirect_to('.view', number=bungalow.number)
+    if db_bungalow:
+        return redirect_to('.view', number=db_bungalow.number)
     else:
         return render_template('site/bungalow/no_bungalow_inhabited.html')
 
@@ -268,9 +274,9 @@ def view_mine():
 @subnavigation_for_view('bungalows')
 def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
     """Show a form to order a bungalow."""
-    bungalow = _get_bungalow_for_id_or_404(bungalow_id)
+    db_bungalow = _get_bungalow_for_id_or_404(bungalow_id)
 
-    product = bungalow.category.product
+    product = db_bungalow.category.product
     if product.type_ != ProductType.bungalow_with_preselection:
         abort(404)
 
@@ -282,8 +288,8 @@ def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
         flash_notice(gettext('The shop is closed.'))
         return {'bungalow': None}
 
-    if bungalow.reserved_or_occupied:
-        flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')
+    if db_bungalow.reserved_or_occupied:
+        flash_error(f'Bungalow {db_bungalow.number} ist bereits reserviert.')
         return {'bungalow': None}
 
     if (
@@ -292,7 +298,7 @@ def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
         or not product_domain_service.is_product_available_now(product)
     ):
         flash_error(
-            f'Bungalow {bungalow.number} kann derzeit nicht reserviert werden.'
+            f'Bungalow {db_bungalow.number} kann derzeit nicht reserviert werden.'
         )
         return {'bungalow': None}
 
@@ -329,7 +335,7 @@ def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
             return {'bungalow': None}
 
     return {
-        'bungalow': bungalow,
+        'bungalow': db_bungalow,
         'form': form,
         'country_names': country_names,
         'collections': collections,
@@ -343,9 +349,9 @@ def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
 @login_required
 def order_with_preselection(bungalow_id):
     """Order a bungalow."""
-    bungalow = _get_bungalow_for_id_or_404(bungalow_id)
+    db_bungalow = _get_bungalow_for_id_or_404(bungalow_id)
 
-    product = bungalow.category.product
+    product = db_bungalow.category.product
     if product.type_ != ProductType.bungalow_with_preselection:
         abort(404)
 
@@ -357,8 +363,8 @@ def order_with_preselection(bungalow_id):
         flash_notice(gettext('The shop is closed.'))
         return order_with_preselection_form(bungalow_id)
 
-    if bungalow.reserved_or_occupied:
-        flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')
+    if db_bungalow.reserved_or_occupied:
+        flash_error(f'Bungalow {db_bungalow.number} ist bereits reserviert.')
         return order_with_preselection_form(bungalow_id)
 
     if (
@@ -367,7 +373,7 @@ def order_with_preselection(bungalow_id):
         or not product_domain_service.is_product_available_now(product)
     ):
         flash_error(
-            f'Bungalow {bungalow.number} kann derzeit nicht reserviert werden.'
+            f'Bungalow {db_bungalow.number} kann derzeit nicht reserviert werden.'
         )
         return order_with_preselection_form(bungalow_id)
 
@@ -387,16 +393,18 @@ def order_with_preselection(bungalow_id):
 
     orderer = form.get_orderer(user)
 
-    match bungalow_occupancy_service.reserve_bungalow(bungalow.id, user):
+    match bungalow_occupancy_service.reserve_bungalow(db_bungalow.id, user):
         case Ok((reservation, occupancy, bungalow_reserved_event)):
             pass
         case Err(_):
-            flash_error(f'Bungalow {bungalow.number} ist bereits reserviert.')
+            flash_error(
+                f'Bungalow {db_bungalow.number} ist bereits reserviert.'
+            )
             return order_with_preselection_form(bungalow_id)
 
     bungalow_signals.bungalow_reserved.send(None, event=bungalow_reserved_event)
     flash_success(
-        f'Bungalow {bungalow.number} wurde als von dir reserviert markiert.'
+        f'Bungalow {db_bungalow.number} wurde als von dir reserviert markiert.'
     )
 
     match bungalow_occupancy_service.place_bungalow_with_preselection_order(
@@ -626,16 +634,16 @@ def occupant_index_all(page):
 @subnavigation_for_view('bungalows')
 def occupant_index(number: int):
     """Show occupants management view."""
-    bungalow = _get_bungalow_for_number_or_404(number)
+    db_bungalow = _get_bungalow_for_number_or_404(number)
 
     user = g.user
     if (
         not user.authenticated
-        or bungalow.occupation_state != BungalowOccupationState.occupied
+        or db_bungalow.occupation_state != BungalowOccupationState.occupied
         or (
-            bungalow.occupancy.manager_id != user.id
+            db_bungalow.occupancy.manager_id != user.id
             and not bungalow_service.is_user_allowed_to_manage_any_occupant_slots(
-                user, bungalow.occupancy
+                user, db_bungalow.occupancy
             )
         )
     ):
@@ -643,7 +651,7 @@ def occupant_index(number: int):
 
     occupant_slots = (
         bungalow_occupancy_service.get_occupant_slots_for_occupancy(
-            bungalow.occupancy.id
+            db_bungalow.occupancy.id
         )
     )
 
@@ -666,7 +674,7 @@ def occupant_index(number: int):
     ]
 
     return {
-        'bungalow': bungalow,
+        'bungalow': db_bungalow,
         'occupant_slots_and_tickets': occupant_slots_and_tickets,
         'orga_ids': orga_ids,
     }
@@ -686,12 +694,12 @@ def occupant_add_form(ticket_id, erroneous_form=None):
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
 
-    bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
+    db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
     occupant_id = ticket.used_by_id
     if occupant_id:
         flash_error('Diesem Platz ist bereits ein Bewohner zugeordnet.')
-        return redirect_to('.occupant_index', number=bungalow.number)
+        return redirect_to('.occupant_index', number=db_bungalow.number)
 
     occupant_slot = OccupantSlot(ticket_id=ticket.id, occupant=None)
 
@@ -700,7 +708,7 @@ def occupant_add_form(ticket_id, erroneous_form=None):
     return {
         'occupant_slot': occupant_slot,
         'form': form,
-        'bungalow': bungalow,
+        'bungalow': db_bungalow,
     }
 
 
@@ -716,11 +724,11 @@ def occupant_add(ticket_id):
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
 
-    bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
+    db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
     if ticket.used_by_id:
         flash_error('Diesem Platz ist bereits ein Bewohner zugeordnet.')
-        return redirect_to('.occupant_index', number=bungalow.number)
+        return redirect_to('.occupant_index', number=db_bungalow.number)
 
     form = OccupantAddForm(request.form)
     if not form.validate():
@@ -734,19 +742,19 @@ def occupant_add(ticket_id):
 
     flash_success(
         f'"{occupant.screen_name}" wurde als Mitbewohner '
-        f'in Bungalow {bungalow.number} aufgenommen.'
+        f'in Bungalow {db_bungalow.number} aufgenommen.'
     )
 
     event = BungalowOccupantAddedEvent(
         occurred_at=datetime.utcnow(),
         initiator=manager,
-        bungalow_id=bungalow.id,
-        bungalow_number=bungalow.number,
+        bungalow_id=db_bungalow.id,
+        bungalow_number=db_bungalow.number,
         occupant=occupant,
     )
     bungalow_signals.occupant_added.send(None, event=event)
 
-    return redirect_to('.occupant_index', number=bungalow.number)
+    return redirect_to('.occupant_index', number=db_bungalow.number)
 
 
 @blueprint.get('/tickets/<ticket_id>/user/remove')
@@ -763,19 +771,19 @@ def occupant_remove_form(ticket_id):
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
 
-    bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
+    db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
     occupant_id = ticket.used_by_id
     if not occupant_id:
         flash_error('Diesem Platz ist kein Bewohner zugeordnet.')
-        return redirect_to('.occupant_index', number=bungalow.number)
+        return redirect_to('.occupant_index', number=db_bungalow.number)
 
     occupant = user_service.get_user(occupant_id)
     occupant_slot = OccupantSlot(ticket_id=ticket.id, occupant=occupant)
 
     return {
         'occupant_slot': occupant_slot,
-        'bungalow': bungalow,
+        'bungalow': db_bungalow,
     }
 
 
@@ -791,12 +799,12 @@ def occupant_remove(ticket_id):
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
 
-    bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
+    db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
     occupant_id = ticket.used_by_id
     if not occupant_id:
         flash_error('Diesem Platz ist kein Bewohner zugeordnet.')
-        return redirect_to('.occupant_index', number=bungalow.number)
+        return redirect_to('.occupant_index', number=db_bungalow.number)
 
     occupant = user_service.get_user(occupant_id)
 
@@ -804,19 +812,19 @@ def occupant_remove(ticket_id):
 
     flash_success(
         f'"{occupant.screen_name}" wurde als Mitbewohner '
-        f'aus Bungalow {bungalow.number} entfernt.'
+        f'aus Bungalow {db_bungalow.number} entfernt.'
     )
 
     event = BungalowOccupantRemovedEvent(
         occurred_at=datetime.utcnow(),
         initiator=manager,
-        bungalow_id=bungalow.id,
-        bungalow_number=bungalow.number,
+        bungalow_id=db_bungalow.id,
+        bungalow_number=db_bungalow.number,
         occupant=occupant,
     )
     bungalow_signals.occupant_removed.send(None, event=event)
 
-    return redirect_to('.occupant_index', number=bungalow.number)
+    return redirect_to('.occupant_index', number=db_bungalow.number)
 
 
 # -------------------------------------------------------------------- #
@@ -833,7 +841,7 @@ def description_update_form(occupancy_id, *, erroneous_form=None):
     """Show a form to update the bungalow occupancy's description."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
-    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
 
     if occupancy.manager_id != g.user.id:
         abort(403)
@@ -845,7 +853,7 @@ def description_update_form(occupancy_id, *, erroneous_form=None):
     )
 
     return {
-        'bungalow': bungalow,
+        'bungalow': db_bungalow,
         'form': form,
     }
 
@@ -858,7 +866,7 @@ def description_update(occupancy_id):
     """Update the bungalow occupancy's description."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
-    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
 
     if occupancy.manager_id != g.user.id:
         abort(403)
@@ -881,7 +889,7 @@ def description_update(occupancy_id):
         case Err(_):
             flash_error(gettext('An unexpected error occurred.'))
 
-    return redirect_to('.view', number=bungalow.number)
+    return redirect_to('.view', number=db_bungalow.number)
 
 
 # -------------------------------------------------------------------- #
@@ -898,7 +906,7 @@ def avatar_update_form(occupancy_id, *, erroneous_form=None):
     """Show a form to update the bungalow occupancy's avatar image."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
-    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
 
     if occupancy.manager_id != g.user.id:
         abort(403)
@@ -911,7 +919,7 @@ def avatar_update_form(occupancy_id, *, erroneous_form=None):
     image_type_names = get_image_type_names(allowed_image_types)
 
     return {
-        'bungalow': bungalow,
+        'bungalow': db_bungalow,
         'form': form,
         'allowed_types': image_type_names,
         'maximum_dimensions': bungalow_occupancy_avatar_service.MAXIMUM_DIMENSIONS,
@@ -926,7 +934,7 @@ def avatar_update(occupancy_id):
     """Update the bungalow occupancy's avatar image."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
-    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
 
     if occupancy.manager_id != g.user.id:
         abort(403)
@@ -957,19 +965,19 @@ def avatar_update(occupancy_id):
         abort(409, 'File already exists, not overwriting.')
 
     flash_success(
-        f'Das Avatarbild für Bungalow {bungalow.number:d} wurde aktualisiert.',
+        f'Das Avatarbild für Bungalow {db_bungalow.number:d} wurde aktualisiert.',
         icon='upload',
     )
 
     event = BungalowOccupancyAvatarUpdatedEvent(
         occurred_at=datetime.utcnow(),
         initiator=manager,
-        bungalow_id=bungalow.id,
-        bungalow_number=bungalow.number,
+        bungalow_id=db_bungalow.id,
+        bungalow_number=db_bungalow.number,
     )
     bungalow_signals.avatar_updated.send(None, event=event)
 
-    return redirect_to('.view', number=bungalow.number)
+    return redirect_to('.view', number=db_bungalow.number)
 
 
 @blueprint.delete('/occupancies/<occupancy_id>/avatar')
@@ -981,7 +989,7 @@ def avatar_remove(occupancy_id):
     """Remove the bungalow occupancy's avatar image."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
-    bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
 
     if occupancy.manager_id != g.user.id:
         abort(403)
@@ -989,7 +997,7 @@ def avatar_remove(occupancy_id):
     bungalow_occupancy_avatar_service.remove_avatar_image(occupancy.id)
 
     flash_success(
-        f'Das Avatarbild für Bungalow {bungalow.number:d} wurde entfernt.'
+        f'Das Avatarbild für Bungalow {db_bungalow.number:d} wurde entfernt.'
     )
 
 
@@ -997,21 +1005,23 @@ def avatar_remove(occupancy_id):
 
 
 def _get_bungalow_for_id_or_404(bungalow_id):
-    bungalow = bungalow_service.find_db_bungalow(bungalow_id)
+    db_bungalow = bungalow_service.find_db_bungalow(bungalow_id)
 
-    if (bungalow is None) or (bungalow.party_id != g.party.id):
+    if (db_bungalow is None) or (db_bungalow.party_id != g.party.id):
         abort(404)
 
-    return bungalow
+    return db_bungalow
 
 
 def _get_bungalow_for_number_or_404(number: int):
-    bungalow = bungalow_service.find_db_bungalow_by_number(g.party.id, number)
+    db_bungalow = bungalow_service.find_db_bungalow_by_number(
+        g.party.id, number
+    )
 
-    if bungalow is None:
+    if db_bungalow is None:
         abort(404)
 
-    return bungalow
+    return db_bungalow
 
 
 def _get_category_or_404(category_id) -> BungalowCategory:
