@@ -46,6 +46,7 @@ from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.product import product_domain_service, product_service
 from byceps.services.shop.product.models import ProductType
 from byceps.services.shop.storefront import storefront_service
+from byceps.services.shop.storefront.models import Storefront
 from byceps.services.site.blueprints.site.navigation import (
     subnavigation_for_view,
 )
@@ -53,6 +54,7 @@ from byceps.services.ticketing import (
     ticket_service,
     ticket_user_management_service,
 )
+from byceps.services.ticketing.dbmodels.ticket import DbTicket
 from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
 from byceps.util.framework.blueprint import create_blueprint
@@ -1004,7 +1006,7 @@ def avatar_remove(occupancy_id):
 # -------------------------------------------------------------------- #
 
 
-def _get_bungalow_for_id_or_404(bungalow_id):
+def _get_bungalow_for_id_or_404(bungalow_id) -> DbBungalow:
     db_bungalow = bungalow_service.find_db_bungalow(bungalow_id)
 
     if (db_bungalow is None) or (db_bungalow.party_id != g.party.id):
@@ -1013,7 +1015,7 @@ def _get_bungalow_for_id_or_404(bungalow_id):
     return db_bungalow
 
 
-def _get_bungalow_for_number_or_404(number: int):
+def _get_bungalow_for_number_or_404(number: int) -> DbBungalow:
     db_bungalow = bungalow_service.find_db_bungalow_by_number(
         g.party.id, number
     )
@@ -1042,7 +1044,7 @@ def _get_occupancy_or_404(occupancy_id: OccupancyID) -> BungalowOccupancy:
     return occupancy
 
 
-def _get_storefront_or_404():
+def _get_storefront_or_404() -> Storefront:
     storefront_id = g.site.storefront_id
     if storefront_id is None:
         abort(404)
@@ -1050,7 +1052,7 @@ def _get_storefront_or_404():
     return storefront_service.get_storefront(storefront_id)
 
 
-def _is_ticket_management_enabled():
+def _is_ticket_management_enabled() -> bool:
     if not g.party:
         return False
 
@@ -1062,7 +1064,7 @@ def _get_bungalow_customization_enabled() -> bool:
     return not g.party.is_over
 
 
-def _get_ticket_or_404(ticket_id):
+def _get_ticket_or_404(ticket_id) -> DbTicket:
     ticket = ticket_service.find_ticket(ticket_id)
 
     if (ticket is None) or (ticket.category.party_id != g.party.id):
