@@ -703,6 +703,9 @@ def occupant_add_form(
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
 
+    if not ticket.bundle_id:
+        abort(404)
+
     db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
     occupant_id = ticket.used_by_id
@@ -732,6 +735,9 @@ def occupant_add(ticket_id: TicketID):
 
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
+
+    if not ticket.bundle_id:
+        abort(404)
 
     db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
@@ -780,6 +786,9 @@ def occupant_remove_form(ticket_id: TicketID):
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
 
+    if not ticket.bundle_id:
+        abort(404)
+
     db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
     occupant_id = ticket.used_by_id
@@ -807,6 +816,9 @@ def occupant_remove(ticket_id: TicketID):
 
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
+
+    if not ticket.bundle_id:
+        abort(404)
 
     db_bungalow = _get_bungalow_for_ticket_bundle(ticket.bundle_id)
 
