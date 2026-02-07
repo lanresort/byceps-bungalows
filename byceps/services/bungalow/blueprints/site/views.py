@@ -22,6 +22,12 @@ from byceps.services.bungalow import (
     signals as bungalow_signals,
 )
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
+from byceps.services.bungalow.errors import (
+    ProductBelongsToDifferentShopError,
+    ProductTypeUnexpectedError,
+    ProductUnavailableError,
+    StorefrontClosedError,
+)
 from byceps.services.bungalow.events import (
     BungalowOccupancyAvatarUpdatedEvent,
     BungalowOccupantAddedEvent,
@@ -451,26 +457,25 @@ def order_without_preselection_form(
     category = _get_category_or_404(category_id)
 
     product = product_service.get_product(category.product.id)
-
-    if product.type_ != ProductType.bungalow_without_preselection:
-        abort(404)
-
     storefront = _get_storefront_or_404()
-    if product.shop_id != storefront.shop_id:
-        abort(404)
 
-    if storefront.closed:
-        flash_notice(gettext('The shop is closed.'))
-        return {'category': None}
-
-    if (
-        product.quantity < 1
-        or not product_domain_service.is_product_available_now(product)
+    match bungalow_order_service.check_order_without_preselection_preconditions(
+        storefront, product
     ):
-        flash_error(
-            f'Die Bungalow-Kategorie {category.title} kann derzeit nicht gebucht werden.'
-        )
-        return {'category': None}
+        case Err(err):
+            match err:
+                case ProductTypeUnexpectedError():
+                    abort(404)
+                case ProductBelongsToDifferentShopError():
+                    abort(404)
+                case StorefrontClosedError():
+                    flash_notice(gettext('The shop is closed.'))
+                    return {'category': None}
+                case ProductUnavailableError():
+                    flash_error(
+                        f'Die Bungalow-Kategorie {category.title} kann derzeit nicht gebucht werden.'
+                    )
+                    return {'category': None}
 
     compilation = product_service.get_product_compilation_for_single_product(
         product.id
@@ -522,26 +527,25 @@ def order_without_preselection(category_id: BungalowCategoryID):
     category = _get_category_or_404(category_id)
 
     product = product_service.get_product(category.product.id)
-
-    if product.type_ != ProductType.bungalow_without_preselection:
-        abort(404)
-
     storefront = _get_storefront_or_404()
-    if product.shop_id != storefront.shop_id:
-        abort(404)
 
-    if storefront.closed:
-        flash_notice(gettext('The shop is closed.'))
-        return order_without_preselection_form(category.id)
-
-    if (
-        product.quantity < 1
-        or not product_domain_service.is_product_available_now(product)
+    match bungalow_order_service.check_order_without_preselection_preconditions(
+        storefront, product
     ):
-        flash_error(
-            f'Die Bungalow-Kategorie {category.title} kann derzeit nicht gebucht werden.'
-        )
-        return order_without_preselection_form(category.id)
+        case Err(err):
+            match err:
+                case ProductTypeUnexpectedError():
+                    abort(404)
+                case ProductBelongsToDifferentShopError():
+                    abort(404)
+                case StorefrontClosedError():
+                    flash_notice(gettext('The shop is closed.'))
+                    return order_without_preselection_form(category.id)
+                case ProductUnavailableError():
+                    flash_error(
+                        f'Die Bungalow-Kategorie {category.title} kann derzeit nicht gebucht werden.'
+                    )
+                    return order_without_preselection_form(category.id)
 
     user = g.user
 

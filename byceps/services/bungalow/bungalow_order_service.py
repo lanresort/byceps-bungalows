@@ -13,11 +13,41 @@ from byceps.services.shop.cart.models import Cart
 from byceps.services.shop.order import order_checkout_service
 from byceps.services.shop.order.events import ShopOrderPlacedEvent
 from byceps.services.shop.order.models.order import Order, Orderer
-from byceps.services.shop.product import product_service
-from byceps.services.shop.product.models import Product
+from byceps.services.shop.product import product_domain_service, product_service
+from byceps.services.shop.product.models import Product, ProductType
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.user.models import UserID
 from byceps.util.result import Err, Ok, Result
+
+from .errors import (
+    BungalowOrderingError,
+    ProductBelongsToDifferentShopError,
+    ProductTypeUnexpectedError,
+    ProductUnavailableError,
+    StorefrontClosedError,
+)
+
+
+def check_order_without_preselection_preconditions(
+    storefront: Storefront, product: Product
+) -> Result[None, BungalowOrderingError]:
+    """Check preconditions for ordering a bungalow category."""
+    if product.type_ != ProductType.bungalow_without_preselection:
+        return Err(ProductTypeUnexpectedError())
+
+    if product.shop_id != storefront.shop_id:
+        return Err(ProductBelongsToDifferentShopError())
+
+    if storefront.closed:
+        return Err(StorefrontClosedError())
+
+    if (
+        product.quantity < 1
+        or not product_domain_service.is_product_available_now(product)
+    ):
+        return Err(ProductUnavailableError())
+
+    return Ok(None)
 
 
 def has_user_ordered_any_bungalow_category(
