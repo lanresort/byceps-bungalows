@@ -27,7 +27,10 @@ from byceps.services.bungalow.events import (
     BungalowOccupantAddedEvent,
     BungalowOccupantRemovedEvent,
 )
-from byceps.services.bungalow.models.bungalow import BungalowOccupationState
+from byceps.services.bungalow.models.bungalow import (
+    BungalowID,
+    BungalowOccupationState,
+)
 from byceps.services.bungalow.models.category import (
     BungalowCategory,
     BungalowCategoryID,
@@ -55,7 +58,7 @@ from byceps.services.ticketing import (
     ticket_user_management_service,
 )
 from byceps.services.ticketing.dbmodels.ticket import DbTicket
-from byceps.services.ticketing.models.ticket import TicketBundleID
+from byceps.services.ticketing.models.ticket import TicketBundleID, TicketID
 from byceps.services.user import user_service
 from byceps.util.framework.blueprint import create_blueprint
 from byceps.util.framework.flash import flash_error, flash_notice, flash_success
@@ -274,7 +277,9 @@ def view_mine():
 @bungalow_support_required
 @templated
 @subnavigation_for_view('bungalows')
-def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
+def order_with_preselection_form(
+    bungalow_id: BungalowID, *, erroneous_form: OrderForm | None = None
+):
     """Show a form to order a bungalow."""
     db_bungalow = _get_bungalow_for_id_or_404(bungalow_id)
 
@@ -349,7 +354,7 @@ def order_with_preselection_form(bungalow_id, *, erroneous_form=None):
 @blueprint.post('/order_with_preselection/<uuid:bungalow_id>')
 @bungalow_support_required
 @login_required
-def order_with_preselection(bungalow_id):
+def order_with_preselection(bungalow_id: BungalowID):
     """Order a bungalow."""
     db_bungalow = _get_bungalow_for_id_or_404(bungalow_id)
 
@@ -588,7 +593,7 @@ def order_without_preselection(category_id: BungalowCategoryID):
 @bungalow_support_required
 @templated
 @subnavigation_for_view('occupants')
-def occupant_index_all(page):
+def occupant_index_all(page: int):
     """List occupants of all bungalows."""
     per_page = request.args.get('per_page', type=int, default=20)
     search_term = request.args.get('search_term', default='').strip()
@@ -682,13 +687,15 @@ def occupant_index(number: int):
     }
 
 
-@blueprint.get('/tickets/<ticket_id>/user/add')
+@blueprint.get('/tickets/<uuid:ticket_id>/user/add')
 @bungalow_support_required
 @enabled_ticket_management_required
 @login_required
 @templated
 @subnavigation_for_view('bungalows')
-def occupant_add_form(ticket_id, erroneous_form=None):
+def occupant_add_form(
+    ticket_id: TicketID, *, erroneous_form: OccupantAddForm | None = None
+):
     """Show a form to add a user as an occupant to the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
     manager = g.user
@@ -714,11 +721,11 @@ def occupant_add_form(ticket_id, erroneous_form=None):
     }
 
 
-@blueprint.post('/tickets/<ticket_id>/user/add')
+@blueprint.post('/tickets/<uuid:ticket_id>/user/add')
 @bungalow_support_required
 @enabled_ticket_management_required
 @login_required
-def occupant_add(ticket_id):
+def occupant_add(ticket_id: TicketID):
     """Add a user as occupant to the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
     manager = g.user
@@ -734,7 +741,7 @@ def occupant_add(ticket_id):
 
     form = OccupantAddForm(request.form)
     if not form.validate():
-        return occupant_add_form(ticket_id, form)
+        return occupant_add_form(ticket_id, erroneous_form=form)
 
     occupant = form.occupant.data
 
@@ -759,13 +766,13 @@ def occupant_add(ticket_id):
     return redirect_to('.occupant_index', number=db_bungalow.number)
 
 
-@blueprint.get('/tickets/<ticket_id>/user/remove')
+@blueprint.get('/tickets/<uuid:ticket_id>/user/remove')
 @bungalow_support_required
 @enabled_ticket_management_required
 @login_required
 @templated
 @subnavigation_for_view('bungalows')
-def occupant_remove_form(ticket_id):
+def occupant_remove_form(ticket_id: TicketID):
     """Show a form to remove an occupant from the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
     manager = g.user
@@ -789,11 +796,11 @@ def occupant_remove_form(ticket_id):
     }
 
 
-@blueprint.post('/tickets/<ticket_id>/user/remove')
+@blueprint.post('/tickets/<uuid:ticket_id>/user/remove')
 @bungalow_support_required
 @enabled_ticket_management_required
 @login_required
-def occupant_remove(ticket_id):
+def occupant_remove(ticket_id: TicketID):
     """Remove an occupant from the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
     manager = g.user
@@ -833,13 +840,17 @@ def occupant_remove(ticket_id):
 # occupancy title and description
 
 
-@blueprint.get('/occupancies/<occupancy_id>/description/update')
+@blueprint.get('/occupancies/<uuid:occupancy_id>/description/update')
 @bungalow_support_required
 @enabled_bungalow_customization_required
 @login_required
 @templated
 @subnavigation_for_view('bungalows')
-def description_update_form(occupancy_id, *, erroneous_form=None):
+def description_update_form(
+    occupancy_id: OccupancyID,
+    *,
+    erroneous_form: DescriptionUpdateForm | None = None,
+):
     """Show a form to update the bungalow occupancy's description."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
@@ -860,11 +871,11 @@ def description_update_form(occupancy_id, *, erroneous_form=None):
     }
 
 
-@blueprint.post('/occupancies/<occupancy_id>/description')
+@blueprint.post('/occupancies/<uuid:occupancy_id>/description')
 @bungalow_support_required
 @enabled_bungalow_customization_required
 @login_required
-def description_update(occupancy_id):
+def description_update(occupancy_id: OccupancyID):
     """Update the bungalow occupancy's description."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
@@ -898,13 +909,15 @@ def description_update(occupancy_id):
 # occupancy avatar
 
 
-@blueprint.get('/occupancies/<occupancy_id>/avatar/update')
+@blueprint.get('/occupancies/<uuid:occupancy_id>/avatar/update')
 @bungalow_support_required
 @enabled_bungalow_customization_required
 @login_required
 @templated
 @subnavigation_for_view('bungalows')
-def avatar_update_form(occupancy_id, *, erroneous_form=None):
+def avatar_update_form(
+    occupancy_id: OccupancyID, *, erroneous_form: AvatarUpdateForm | None = None
+):
     """Show a form to update the bungalow occupancy's avatar image."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
@@ -928,11 +941,11 @@ def avatar_update_form(occupancy_id, *, erroneous_form=None):
     }
 
 
-@blueprint.post('/occupancies/<occupancy_id>/avatar')
+@blueprint.post('/occupancies/<uuid:occupancy_id>/avatar')
 @bungalow_support_required
 @enabled_bungalow_customization_required
 @login_required
-def avatar_update(occupancy_id):
+def avatar_update(occupancy_id: OccupancyID):
     """Update the bungalow occupancy's avatar image."""
     occupancy = _get_occupancy_or_404(occupancy_id)
 
