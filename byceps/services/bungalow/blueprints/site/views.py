@@ -283,12 +283,12 @@ def order_with_preselection_form(
     """Show a form to order a bungalow."""
     db_bungalow = _get_bungalow_for_id_or_404(bungalow_id)
 
-    product = db_bungalow.category.product
-    if product.type_ != ProductType.bungalow_with_preselection:
+    db_product = db_bungalow.category.product
+    if db_product.type_ != ProductType.bungalow_with_preselection:
         abort(404)
 
     storefront = _get_storefront_or_404()
-    if product.shop_id != storefront.shop_id:
+    if db_product.shop_id != storefront.shop_id:
         abort(404)
 
     if storefront.closed:
@@ -300,9 +300,9 @@ def order_with_preselection_form(
         return {'bungalow': None}
 
     if (
-        not product
-        or product.quantity < 1
-        or not product_domain_service.is_product_available_now(product)
+        not db_product
+        or db_product.quantity < 1
+        or not product_domain_service.is_product_available_now(db_product)
     ):
         flash_error(
             f'Bungalow {db_bungalow.number} kann derzeit nicht reserviert werden.'
@@ -310,7 +310,7 @@ def order_with_preselection_form(
         return {'bungalow': None}
 
     compilation = product_service.get_product_compilation_for_single_product(
-        product.id
+        db_product.id
     )
 
     collection = product_service.get_product_collection_for_product_compilation(
@@ -358,12 +358,12 @@ def order_with_preselection(bungalow_id: BungalowID):
     """Order a bungalow."""
     db_bungalow = _get_bungalow_for_id_or_404(bungalow_id)
 
-    product = db_bungalow.category.product
-    if product.type_ != ProductType.bungalow_with_preselection:
+    db_product = db_bungalow.category.product
+    if db_product.type_ != ProductType.bungalow_with_preselection:
         abort(404)
 
     storefront = _get_storefront_or_404()
-    if product.shop_id != storefront.shop_id:
+    if db_product.shop_id != storefront.shop_id:
         abort(404)
 
     if storefront.closed:
@@ -375,9 +375,9 @@ def order_with_preselection(bungalow_id: BungalowID):
         return order_with_preselection_form(bungalow_id)
 
     if (
-        not product
-        or product.quantity < 1
-        or not product_domain_service.is_product_available_now(product)
+        not db_product
+        or db_product.quantity < 1
+        or not product_domain_service.is_product_available_now(db_product)
     ):
         flash_error(
             f'Bungalow {db_bungalow.number} kann derzeit nicht reserviert werden.'
