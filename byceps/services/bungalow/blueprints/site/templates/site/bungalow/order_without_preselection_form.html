@@ -1,0 +1,21 @@
+{% extends 'layout/base.html' %}
+{% from 'macros/forms.html' import form_buttons %}
+{% set simple_layout = true %}
+{% set current_page = 'shop_order' %}
+{% set page_title = pgettext('verb', 'Order') %}
+
+{% block body %}
+
+  <h1 class="title">{{ page_title }}</h1>
+
+{%- if category %}
+  <form action="{{ url_for('.order_without_preselection', category_id=category.id) }}" method="post">
+
+{%- include 'site/shop/order/_order_form_orderer.html' %}
+{%- include 'site/shop/order/_order_form_products.html' %}
+
+    {{ form_buttons(_('Place binding order now')) }}
+  </form>
+{%- endif %}
+
+{%- endblock %}

@@ -8,6 +8,7 @@ byceps.services.bungalow.bungalow_order_service
 
 from __future__ import annotations
 
+from byceps.services.party.models import PartyID
 from byceps.services.shop.cart.models import Cart
 from byceps.services.shop.order import order_checkout_service
 from byceps.services.shop.order.events import ShopOrderPlacedEvent
@@ -15,7 +16,17 @@ from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service
 from byceps.services.shop.product.models import Product
 from byceps.services.shop.storefront.models import Storefront
+from byceps.services.user.models import UserID
 from byceps.util.result import Err, Ok, Result
+
+
+def has_user_ordered_any_bungalow_category(
+    party_id: PartyID, user_id: UserID
+) -> bool:
+    """Return `True` if the user has already ordered any bungalow
+    category for the party.
+    """
+    return False  # TODO
 
 
 def place_bungalow_order(

@@ -16,6 +16,7 @@ from byceps.services.bungalow import (
     bungalow_category_service,
     bungalow_occupancy_avatar_service,
     bungalow_occupancy_service,
+    bungalow_order_service,
     bungalow_service,
     bungalow_stats_service,
     signals as bungalow_signals,
@@ -27,6 +28,10 @@ from byceps.services.bungalow.events import (
     BungalowOccupantRemovedEvent,
 )
 from byceps.services.bungalow.models.bungalow import BungalowOccupationState
+from byceps.services.bungalow.models.category import (
+    BungalowCategory,
+    BungalowCategoryID,
+)
 from byceps.services.bungalow.models.occupation import (
     BungalowOccupancy,
     OccupancyID,
@@ -402,6 +407,151 @@ def order_with_preselection(bungalow_id):
         case Err(_):
             flash_error(gettext('Placing the order has failed.'))
             return order_with_preselection_form(bungalow_id)
+
+    shop_order_signals.order_placed.send(None, event=order_placed_event)
+
+    flash_success(
+        gettext(
+            'Your order <strong>%(order_number)s</strong> has been placed. '
+            'Thank you!',
+            order_number=order.order_number,
+        ),
+        text_is_safe=True,
+    )
+
+    order_email_service.send_email_for_incoming_order_to_orderer(order)
+
+    return redirect_to('shop_orders.view', order_id=order.id)
+
+
+@blueprint.get('/order_without_preselection/<uuid:category_id>')
+@login_required
+@bungalow_support_required
+@templated
+@subnavigation_for_view('bungalows')
+def order_without_preselection_form(
+    category_id: BungalowCategoryID, *, erroneous_form: OrderForm | None = None
+):
+    """Show a form to order a bungalow category."""
+    category = _get_category_or_404(category_id)
+
+    product = product_service.get_product(category.product.id)
+
+    if product.type_ != ProductType.bungalow_without_preselection:
+        abort(404)
+
+    storefront = _get_storefront_or_404()
+    if product.shop_id != storefront.shop_id:
+        abort(404)
+
+    if storefront.closed:
+        flash_notice(gettext('The shop is closed.'))
+        return {'category': None}
+
+    if (
+        product.quantity < 1
+        or not product_domain_service.is_product_available_now(product)
+    ):
+        flash_error(
+            f'Die Bungalow-Kategorie {category.title} kann derzeit nicht gebucht werden.'
+        )
+        return {'category': None}
+
+    compilation = product_service.get_product_compilation_for_single_product(
+        product.id
+    )
+
+    collection = product_service.get_product_collection_for_product_compilation(
+        '', compilation
+    )
+    collections = [collection]
+
+    user_detail = user_service.get_detail(g.user.id)
+
+    if bungalow_order_service.has_user_ordered_any_bungalow_category(
+        g.party.id, g.user.id
+    ):
+        flash_error(
+            'Du hast bereits eine Bungalow-Bestellung für diese Party aufgegeben.'
+        )
+        return {'category': None}
+
+    form = erroneous_form if erroneous_form else OrderForm(obj=user_detail)
+
+    country_names = country_service.get_country_names()
+
+    match product_domain_service.calculate_product_compilation_total_amount(
+        compilation
+    ):
+        case Ok(total_amount):
+            pass
+        case Err(_):
+            flash_error('Für einige Artikel ist keine Stückzahl vorgegeben.')
+            return {'category': None}
+
+    return {
+        'category': category,
+        'form': form,
+        'country_names': country_names,
+        'collections': collections,
+        'images_by_product_id': {},
+        'total_amount': total_amount,
+    }
+
+
+@blueprint.post('/order_without_preselection/<uuid:category_id>')
+@bungalow_support_required
+@login_required
+def order_without_preselection(category_id: BungalowCategoryID):
+    """Order a bungalow category."""
+    category = _get_category_or_404(category_id)
+
+    product = product_service.get_product(category.product.id)
+
+    if product.type_ != ProductType.bungalow_without_preselection:
+        abort(404)
+
+    storefront = _get_storefront_or_404()
+    if product.shop_id != storefront.shop_id:
+        abort(404)
+
+    if storefront.closed:
+        flash_notice(gettext('The shop is closed.'))
+        return order_without_preselection_form(category.id)
+
+    if (
+        product.quantity < 1
+        or not product_domain_service.is_product_available_now(product)
+    ):
+        flash_error(
+            f'Die Bungalow-Kategorie {category.title} kann derzeit nicht gebucht werden.'
+        )
+        return order_without_preselection_form(category.id)
+
+    user = g.user
+
+    if bungalow_order_service.has_user_ordered_any_bungalow_category(
+        g.party.id, user.id
+    ):
+        flash_error(
+            'Du hast bereits eine Bungalow-Bestellung für diese Party aufgegeben.'
+        )
+        return order_without_preselection_form(category.id)
+
+    form = OrderForm(request.form)
+    if not form.validate():
+        return order_without_preselection_form(category.id, erroneous_form=form)
+
+    orderer = form.get_orderer(user)
+
+    match bungalow_order_service.place_bungalow_order(
+        storefront, product, orderer
+    ):
+        case Ok((order, order_placed_event)):
+            pass
+        case Err(_):
+            flash_error(gettext('Placing the order has failed.'))
+            return order_without_preselection_form(category.id)
 
     shop_order_signals.order_placed.send(None, event=order_placed_event)
 
@@ -862,6 +1012,15 @@ def _get_bungalow_for_number_or_404(number: int):
         abort(404)
 
     return bungalow
+
+
+def _get_category_or_404(category_id) -> BungalowCategory:
+    category = bungalow_category_service.find_category(category_id)
+
+    if (category is None) or (category.party_id != g.party.id):
+        abort(404)
+
+    return category
 
 
 def _get_occupancy_or_404(occupancy_id: OccupancyID) -> BungalowOccupancy:
