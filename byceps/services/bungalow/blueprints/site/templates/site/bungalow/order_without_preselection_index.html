@@ -1,0 +1,60 @@
+{% extends 'layout/base.html' %}
+{% from 'macros/icons.html' import render_icon %}
+{% from 'macros/misc.html' import render_distribution_bar %}
+{% set current_page = 'bungalow_categories' %}
+{% set page_title = 'Bungalow-Kategorien' %}
+
+{% block subnav %}
+{% include 'site/bungalow/_subnav_attendance.html' ignore missing %}
+{%- endblock %}
+
+{% block body %}
+
+  <h1 class="title">{{ page_title }}</h1>
+
+  {%- with party_is_over = g.party.is_over %}
+  <table class="itemlist is-vcentered is-wide">
+    <thead>
+      <tr>
+        <th>{{ _('Category') }}</th>
+        <th class="centered">{{ _('Capacity') }}</th>
+        <th>{{ _('Utilization') }}</th>
+        <th class="number">{{ _('available') }}</th>
+        {%- if not party_is_over %}
+        <th class="number">Preis</th>
+        <th></th>
+        {%- endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {%- for summary in category_summaries|sort(attribute='title') %}
+      <tr>
+        <td>{{ summary.title }}</td>
+        <td class="centered">{{ summary.capacity }}</td>
+        <td style="max-width: 8rem;">
+{{ render_distribution_bar(
+  [
+    (summary.quantity_available, 'bungalow-total-bar-available'),
+    (summary.quantity_occupied, 'bungalow-total-bar-occupied'),
+  ],
+  summary.quantity_total,
+) }}
+        </td>
+        <td class="number nowrap"><strong>{{ summary.quantity_available }}</strong> {{ _('of') }} {{ summary.quantity_total }}</td>
+        {%- if not party_is_over %}
+        <td class="nowrap number">{{ summary.total_price|moneyformat }}</td>
+        <td class="nowrap number">
+          {%- if summary.available -%}
+          <a class="button color-primary" href="{{ url_for('.order_without_preselection', category_id=summary.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
+          {%- else -%}
+          <span class="dimmed">derzeit nicht buchbar</span>
+          {%- endif -%}
+        </td>
+        {%- endif %}
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  {%- endwith %}
+
+{%- endblock %}

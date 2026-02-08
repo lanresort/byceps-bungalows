@@ -73,6 +73,7 @@ from byceps.util.image.image_type import get_image_type_names
 from byceps.util.result import Err, Ok
 from byceps.util.views import login_required, redirect_to, respond_no_content
 
+from . import service
 from .forms import AvatarUpdateForm, DescriptionUpdateForm, OccupantAddForm
 
 
@@ -443,6 +444,19 @@ def order_with_preselection(bungalow_id: BungalowID):
     order_email_service.send_email_for_incoming_order_to_orderer(order)
 
     return redirect_to('shop_orders.view', order_id=order.id)
+
+
+@blueprint.get('/order_without_preselection')
+@bungalow_support_required
+@templated
+@subnavigation_for_view('bungalows')
+def order_without_preselection_index():
+    """Show bungalow categories."""
+    category_summaries = service.get_bungalow_category_summaries(g.party.id)
+
+    return {
+        'category_summaries': category_summaries,
+    }
 
 
 @blueprint.get('/order_without_preselection/<uuid:category_id>')
