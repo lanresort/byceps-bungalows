@@ -12,6 +12,7 @@ from byceps.services.bungalow import (
     bungalow_occupancy_service,
     signals as bungalow_signals,
 )
+from byceps.services.bungalow.models.occupation import BungalowOccupancy
 from byceps.services.seating.errors import SeatingError
 from byceps.services.shop.order import (
     order_command_service,
@@ -92,9 +93,13 @@ def on_cancellation_after_payment(
         case Err(seating_error):
             return Err(OrderActionFailedError(seating_error))
 
-    match _release_bungalow(ticket_bundle_id, initiator):
-        case Err(e):
-            return Err(e)
+    occupancy = bungalow_occupancy_service.find_occupancy_for_ticket_bundle(
+        ticket_bundle_id
+    )
+    if occupancy:
+        match _release_bungalow(occupancy, initiator):
+            case Err(e):
+                return Err(e)
 
     return Ok(None)
 
@@ -172,15 +177,8 @@ def _create_revocation_order_log_entry(
 
 
 def _release_bungalow(
-    ticket_bundle_id: TicketBundleID, initiator: User
+    occupancy: BungalowOccupancy, initiator: User
 ) -> Result[None, OrderActionFailedError]:
-    occupancy = bungalow_occupancy_service.find_occupancy_for_ticket_bundle(
-        ticket_bundle_id
-    )
-    if not occupancy:
-        # No bungalow is occupied by the bundle.
-        return Ok(None)
-
     match bungalow_occupancy_service.release_bungalow(occupancy.id, initiator):
         case Ok(bungalow_released_event):
             bungalow_signals.bungalow_released.send(
