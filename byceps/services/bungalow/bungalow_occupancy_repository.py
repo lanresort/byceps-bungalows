@@ -150,7 +150,7 @@ def get_occupied_bungalows_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
 
 def get_occupied_bungalow_numbers_and_titles(
     party_id: PartyID,
-) -> Sequence[tuple[int, str]]:
+) -> Sequence[tuple[int, str | None]]:
     """Return the numbers and titles of all occupied bungalows for the
     party, ordered by number.
     """

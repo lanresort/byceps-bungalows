@@ -804,7 +804,7 @@ def export_bungalow_numbers_and_titles(party_id):
 
     def generate() -> Iterator[str]:
         for number, title in numbers_and_titles:
-            yield f'{number:d} {title}\n'
+            yield f'{number:d} {title or "unbenannt"}\n'
 
     return generate()
 
