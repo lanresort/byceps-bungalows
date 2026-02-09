@@ -51,7 +51,7 @@ def check_order_without_preselection_preconditions(
 
 
 def has_user_ordered_any_bungalow_category(
-    party_id: PartyID, user_id: UserID
+    user_id: UserID, party_id: PartyID
 ) -> bool:
     """Return `True` if the user has already ordered any bungalow
     category for the party.

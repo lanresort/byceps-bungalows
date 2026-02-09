@@ -503,7 +503,7 @@ def order_without_preselection_form(
     user_detail = user_service.get_detail(g.user.id)
 
     if bungalow_order_service.has_user_ordered_any_bungalow_category(
-        g.party.id, g.user.id
+        user.id, g.party.id
     ):
         flash_error(
             'Du hast bereits eine Bungalow-Bestellung für diese Party aufgegeben.'
@@ -564,7 +564,7 @@ def order_without_preselection(category_id: BungalowCategoryID):
     user = g.user
 
     if bungalow_order_service.has_user_ordered_any_bungalow_category(
-        g.party.id, user.id
+        user.id, g.party.id
     ):
         flash_error(
             'Du hast bereits eine Bungalow-Bestellung für diese Party aufgegeben.'
