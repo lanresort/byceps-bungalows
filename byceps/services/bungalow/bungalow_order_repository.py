@@ -27,7 +27,7 @@ def has_user_ordered_any_bungalow_category(
         db.session.scalar(
             select(
                 select(DbLineItem)
-                .join(DbProduct)
+                .join(DbProduct, DbProduct.id == DbLineItem.product_id)
                 .join(DbBungalowCategory)
                 .filter(DbBungalowCategory.party_id == party_id)
                 .filter(DbOrder.placed_by_id == user_id)
