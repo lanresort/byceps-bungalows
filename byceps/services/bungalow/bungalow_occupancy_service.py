@@ -9,7 +9,6 @@ byceps.services.bungalow.bungalow_occupancy_service
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Sequence
 from datetime import datetime
 
 from byceps.database import db
@@ -598,26 +597,30 @@ def find_occupancy_managed_by_user(
     )
 
 
-def get_occupied_bungalows_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
+def get_occupied_bungalows_for_party(party_id: PartyID) -> list[DbBungalow]:
     """Return all occupied (but not reserved) bungalows for the party,
     ordered by number.
     """
-    return bungalow_occupancy_repository.get_occupied_bungalows_for_party(
-        party_id
+    db_bungalows = (
+        bungalow_occupancy_repository.get_occupied_bungalows_for_party(party_id)
     )
+
+    return list(db_bungalows)
 
 
 def get_occupied_bungalow_numbers_and_titles(
     party_id: PartyID,
-) -> Sequence[tuple[int, str | None]]:
+) -> list[tuple[int, str | None]]:
     """Return the numbers and titles of all occupied bungalows for the
     party, ordered by number.
     """
-    return (
+    numbers_and_titles = (
         bungalow_occupancy_repository.get_occupied_bungalow_numbers_and_titles(
             party_id
         )
     )
+
+    return list(numbers_and_titles)
 
 
 def has_user_occupied_any_bungalow(party_id: PartyID, user_id: UserID) -> bool:
