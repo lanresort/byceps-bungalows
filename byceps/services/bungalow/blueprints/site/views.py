@@ -929,8 +929,8 @@ def description_update(occupancy_id: OccupancyID):
         case Ok(event):
             flash_success('Die Beschreibung wurde aktualisiert.')
             bungalow_signals.description_updated.send(None, event=event)
-        case Err(_):
-            flash_error(gettext('An unexpected error occurred.'))
+        case Err(e):
+            flash_error(gettext('An unexpected error occurred.') + f'\n{e}')
 
     return redirect_to('.view', number=db_bungalow.number)
 
