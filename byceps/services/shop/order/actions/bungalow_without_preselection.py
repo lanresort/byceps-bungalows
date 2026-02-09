@@ -86,11 +86,13 @@ def on_cancellation_after_payment(
     """Revoke ticket bundle and release the bungalow that have been created for
     that order.
     """
-    match _revoke_ticket_bundle(order, line_item, initiator):
+    ticket_bundle_id = _get_ticket_bundle_id(line_item)
+
+    match _revoke_ticket_bundle(ticket_bundle_id, order, initiator):
         case Err(seating_error):
             return Err(OrderActionFailedError(seating_error))
 
-    match _release_bungalow(line_item, initiator):
+    match _release_bungalow(ticket_bundle_id, initiator):
         case Err(e):
             return Err(e)
 
@@ -141,13 +143,15 @@ def _create_creation_order_log_entry(
     order_log_service.persist_entry(log_entry)
 
 
+def _get_ticket_bundle_id(line_item: LineItem) -> TicketBundleID:
+    str_value = line_item.processing_result['ticket_bundle_id']
+    return TicketBundleID(UUID(str_value))
+
+
 def _revoke_ticket_bundle(
-    order: Order, line_item: LineItem, initiator: User
+    bundle_id: TicketBundleID, order: Order, initiator: User
 ) -> Result[None, SeatingError]:
     """Revoke ticket bundle related to the line item."""
-    bundle_id_str = line_item.processing_result['ticket_bundle_id']
-    bundle_id = TicketBundleID(UUID(bundle_id_str))
-
     match ticket_bundle_service.revoke_bundle(bundle_id, initiator):
         case Err(e):
             return Err(e)
@@ -168,11 +172,8 @@ def _create_revocation_order_log_entry(
 
 
 def _release_bungalow(
-    line_item: LineItem, initiator: User
+    ticket_bundle_id: TicketBundleID, initiator: User
 ) -> Result[None, OrderActionFailedError]:
-    ticket_bundle_id_str = line_item.processing_result['ticket_bundle_id']
-    ticket_bundle_id = TicketBundleID(UUID(ticket_bundle_id_str))
-
     occupancy = bungalow_occupancy_service.find_occupancy_for_ticket_bundle(
         ticket_bundle_id
     )
