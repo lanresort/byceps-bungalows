@@ -177,11 +177,8 @@ def _release_bungalow(
         ticket_bundle_id
     )
     if not occupancy:
-        return Err(
-            OrderActionFailedError(
-                f'Could not find bungalow occupancy for ticket bundle "{ticket_bundle_id}".'
-            )
-        )
+        # No bungalow is occupied by the bundle.
+        return Ok(None)
 
     match bungalow_occupancy_service.release_bungalow(occupancy.id, initiator):
         case Ok(bungalow_released_event):
