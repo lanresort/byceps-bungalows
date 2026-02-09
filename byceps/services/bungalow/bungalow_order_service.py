@@ -19,6 +19,7 @@ from byceps.services.shop.storefront.models import Storefront
 from byceps.services.user.models import UserID
 from byceps.util.result import Err, Ok, Result
 
+from . import bungalow_order_repository
 from .errors import (
     BungalowOrderingError,
     ProductBelongsToDifferentShopError,
@@ -56,7 +57,9 @@ def has_user_ordered_any_bungalow_category(
     """Return `True` if the user has already ordered any bungalow
     category for the party.
     """
-    return False  # TODO
+    return bungalow_order_repository.has_user_ordered_any_bungalow_category(
+        user_id, party_id
+    )
 
 
 def place_bungalow_order(
