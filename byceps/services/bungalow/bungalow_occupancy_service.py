@@ -16,6 +16,7 @@ from byceps.services.party.models import PartyID
 from byceps.services.shop.order import order_command_service, order_service
 from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.order.events import ShopOrderPlacedEvent
+from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service
 from byceps.services.shop.product.models import Product, ProductType
@@ -363,6 +364,58 @@ def occupy_reserved_bungalow(
     occupancy = _db_entity_to_occupancy(db_occupancy)
 
     occupier = user_service.get_user(occupier_id)
+
+    event = BungalowOccupiedEvent(
+        occurred_at=datetime.utcnow(),
+        initiator=occupier,
+        bungalow_id=db_bungalow.id,
+        bungalow_number=db_bungalow.number,
+        occupier=occupier,
+    )
+
+    return Ok((occupancy, event))
+
+
+def occupy_bungalow_without_reservation(
+    bungalow_id: BungalowID,
+    order_number: OrderNumber,
+    ticket_bundle_id: TicketBundleID,
+) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
+    """Occupy the bungalow without previous reservation."""
+    db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
+    if not db_bungalow.available:
+        return Err('Bungalow is not available')
+
+    ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
+
+    occupier = ticket_bundle.owned_by
+
+    db_bungalow.occupation_state = BungalowOccupationState.occupied
+
+    occupancy_id = OccupancyID(generate_uuid7())
+    pinned = False
+    db_occupancy = DbBungalowOccupancy(
+        occupancy_id,
+        db_bungalow.id,
+        occupier.id,
+        OccupancyState.occupied,
+        pinned,
+    )
+    db_occupancy.order_number = order_number
+    db_occupancy.ticket_bundle_id = ticket_bundle_id
+    db.session.add(db_occupancy)
+
+    log_entry = bungalow_log_service.build_entry(
+        'bungalow-occupied',
+        db_bungalow.id,
+        data={'initiator_id': str(occupier.id)},
+    )
+    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
+    db.session.add(db_log_entry)
+
+    db.session.commit()
+
+    occupancy = _db_entity_to_occupancy(db_occupancy)
 
     event = BungalowOccupiedEvent(
         occurred_at=datetime.utcnow(),
