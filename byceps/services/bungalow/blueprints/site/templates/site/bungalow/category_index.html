@@ -18,8 +18,7 @@
       <tr>
         <th>{{ _('Category') }}</th>
         <th class="centered">{{ _('Capacity') }}</th>
-        <th>{{ _('Utilization') }}</th>
-        <th class="number">{{ _('available') }}</th>
+        <th>{{ _('Availability') }}</th>
         {%- if not party_is_over %}
         <th class="number">Preis</th>
         <th></th>
@@ -31,7 +30,8 @@
       <tr>
         <td>{{ summary.title }}</td>
         <td class="centered">{{ summary.capacity }}</td>
-        <td style="max-width: 8rem;">
+        <td>
+          <div style="max-width: 8rem;">
 {{ render_distribution_bar(
   [
     (summary.quantity_available, 'bungalow-total-bar-available'),
@@ -39,8 +39,12 @@
   ],
   summary.quantity_total,
 ) }}
+            <div class="row row--space-between" style="font-size: 0.6875rem;">
+              <div><strong>{{ summary.quantity_available }}</strong></div>
+              <div>{{ _('of') }} {{ summary.quantity_total }}</div>
+            </div>
+          </div>
         </td>
-        <td class="number nowrap"><strong>{{ summary.quantity_available }}</strong> {{ _('of') }} {{ summary.quantity_total }}</td>
         {%- if not party_is_over %}
         <td class="nowrap number">{{ summary.total_price|moneyformat }}</td>
         <td class="nowrap number">
