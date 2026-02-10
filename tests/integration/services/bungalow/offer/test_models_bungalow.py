@@ -8,7 +8,7 @@ import pytest
 from byceps.services.user.models import User
 
 from tests.integration.services.bungalow.helpers import (
-    occupy_bungalow,
+    occupy_reserved_bungalow,
     reserve_bungalow,
 )
 
@@ -43,7 +43,7 @@ def test_is_reserved_or_occupied_when_occupied(
     ticket_bundle = make_ticket_bundle()
 
     reservation_id, occupancy_id = reserve_bungalow(bungalow.id, user)
-    occupy_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
+    occupy_reserved_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
 
     assert not bungalow.available
     assert bungalow.reserved_or_occupied

@@ -9,12 +9,12 @@ from byceps.services.bungalow.models.occupation import OccupancyState
 from byceps.services.shop.order.models.order import Orderer
 
 from tests.integration.services.bungalow.helpers import (
-    occupy_bungalow,
+    occupy_reserved_bungalow,
     reserve_bungalow,
 )
 
 
-def test_occupy_bungalow(
+def test_occupy_reserved_bungalow(
     site_app, make_bungalow, orderer: Orderer, make_ticket_bundle
 ):
     occupier = orderer.user
@@ -37,7 +37,7 @@ def test_occupy_bungalow(
     assert occupancy.ticket_bundle_id is None
     assert occupancy.manager_id == occupier.id
 
-    occupy_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
+    occupy_reserved_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
 
     reservation = bungalow_occupancy_service.find_reservation(reservation_id)
     occupancy = bungalow_occupancy_service.get_occupancy(occupancy_id).unwrap()

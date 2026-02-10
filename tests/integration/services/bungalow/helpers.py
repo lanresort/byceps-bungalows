@@ -24,12 +24,12 @@ def reserve_bungalow(
     return reservation.id, occupancy.id
 
 
-def occupy_bungalow(
+def occupy_reserved_bungalow(
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
     ticket_bundle_id: TicketBundleID,
 ) -> BungalowOccupancy:
-    occupancy, _ = bungalow_occupancy_service.occupy_bungalow(
+    occupancy, _ = bungalow_occupancy_service.occupy_reserved_bungalow(
         reservation_id, occupancy_id, ticket_bundle_id
     ).unwrap()
 

@@ -10,7 +10,7 @@ from byceps.services.shop.order.models.order import Orderer
 from byceps.services.user.models import User
 
 from tests.integration.services.bungalow.helpers import (
-    occupy_bungalow,
+    occupy_reserved_bungalow,
     reserve_bungalow,
 )
 
@@ -23,7 +23,7 @@ def test_release_bungalow(
     bungalow = make_bungalow()
 
     reservation_id, occupancy_id = reserve_bungalow(bungalow.id, orderer.user)
-    occupy_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
+    occupy_reserved_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
 
     reservation = bungalow_occupancy_service.find_reservation(reservation_id)
     occupancy = bungalow_occupancy_service.find_occupancy(occupancy_id)

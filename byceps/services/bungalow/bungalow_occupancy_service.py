@@ -316,12 +316,12 @@ def _build_recipient_orderer(recipient: User) -> Orderer:
     )
 
 
-def occupy_bungalow(
+def occupy_reserved_bungalow(
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
     ticket_bundle_id: TicketBundleID,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
-    """Mark the bungalow as occupied."""
+    """Mark a reserved bungalow as occupied."""
     match bungalow_occupancy_repository.get_reservation(reservation_id):
         case Ok(db_reservation):
             pass
