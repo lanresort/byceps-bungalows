@@ -50,7 +50,7 @@
           {%- if summary.available -%}
           <a class="button color-primary" href="{{ url_for('.category_order_form', category_id=summary.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
           {%- else -%}
-          <span class="dimmed">derzeit nicht buchbar</span>
+          <div class="button is-disabled">Nicht verfügbar</div>
           {%- endif -%}
         </td>
         {%- endif %}
