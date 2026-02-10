@@ -473,7 +473,7 @@ def order_without_preselection_form(
     product = product_service.get_product(category.product.id)
     storefront = _get_storefront_or_404()
 
-    match bungalow_order_service.check_order_without_preselection_preconditions(
+    match bungalow_order_service.check_category_order_preconditions(
         storefront, product
     ):
         case Err(err):
@@ -543,7 +543,7 @@ def order_without_preselection(category_id: BungalowCategoryID):
     product = product_service.get_product(category.product.id)
     storefront = _get_storefront_or_404()
 
-    match bungalow_order_service.check_order_without_preselection_preconditions(
+    match bungalow_order_service.check_category_order_preconditions(
         storefront, product
     ):
         case Err(err):

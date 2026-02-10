@@ -29,7 +29,7 @@ from .errors import (
 )
 
 
-def check_order_without_preselection_preconditions(
+def check_category_order_preconditions(
     storefront: Storefront, product: Product
 ) -> Result[None, BungalowOrderingError]:
     """Check preconditions for ordering a bungalow category."""
