@@ -12,6 +12,8 @@
 
   <h1 class="title">{{ page_title }}</h1>
 
+{{ render_snippet('bungalow_categories_intro', ignore_if_unknown=True)|safe }}
+
   {%- with party_is_over = g.party.is_over %}
   <table class="itemlist is-vcentered" style="--cell-padding-horizontal: 3rem; margin-inline: auto;">
     <thead>
