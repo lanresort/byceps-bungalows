@@ -276,7 +276,7 @@ def view_mine():
 
 
 # -------------------------------------------------------------------- #
-# ordering
+# ordering (with bungalow preselection)
 
 
 @blueprint.get('/order_with_preselection/<uuid:bungalow_id>')
@@ -446,11 +446,15 @@ def order_with_preselection(bungalow_id: BungalowID):
     return redirect_to('shop_orders.view', order_id=order.id)
 
 
-@blueprint.get('/order_without_preselection')
+# -------------------------------------------------------------------- #
+# categories
+
+
+@blueprint.get('/categories')
 @bungalow_support_required
 @templated
 @subnavigation_for_view('bungalows')
-def order_without_preselection_index():
+def category_index():
     """Show bungalow categories."""
     category_summaries = service.get_bungalow_category_summaries(g.party.id)
 
@@ -459,12 +463,12 @@ def order_without_preselection_index():
     }
 
 
-@blueprint.get('/order_without_preselection/<uuid:category_id>')
+@blueprint.get('/categories/<uuid:category_id>/order')
 @login_required
 @bungalow_support_required
 @templated
 @subnavigation_for_view('bungalows')
-def order_without_preselection_form(
+def category_order_form(
     category_id: BungalowCategoryID, *, erroneous_form: OrderForm | None = None
 ):
     """Show a form to order a bungalow category."""
@@ -533,10 +537,10 @@ def order_without_preselection_form(
     }
 
 
-@blueprint.post('/order_without_preselection/<uuid:category_id>')
+@blueprint.post('/categories/<uuid:category_id>/order')
 @bungalow_support_required
 @login_required
-def order_without_preselection(category_id: BungalowCategoryID):
+def category_order(category_id: BungalowCategoryID):
     """Order a bungalow category."""
     category = _get_category_or_404(category_id)
 
@@ -554,12 +558,12 @@ def order_without_preselection(category_id: BungalowCategoryID):
                     abort(404)
                 case StorefrontClosedError():
                     flash_notice(gettext('The shop is closed.'))
-                    return order_without_preselection_form(category.id)
+                    return category_order_form(category.id)
                 case ProductUnavailableError():
                     flash_error(
                         f'Die Bungalow-Kategorie {category.title} kann derzeit nicht gebucht werden.'
                     )
-                    return order_without_preselection_form(category.id)
+                    return category_order_form(category.id)
 
     user = g.user
 
@@ -569,11 +573,11 @@ def order_without_preselection(category_id: BungalowCategoryID):
         flash_error(
             'Du hast bereits eine Bungalow-Bestellung für diese Party aufgegeben.'
         )
-        return order_without_preselection_form(category.id)
+        return category_order_form(category.id)
 
     form = OrderForm(request.form)
     if not form.validate():
-        return order_without_preselection_form(category.id, erroneous_form=form)
+        return category_order_form(category.id, erroneous_form=form)
 
     orderer = form.get_orderer(user)
 
@@ -584,7 +588,7 @@ def order_without_preselection(category_id: BungalowCategoryID):
             pass
         case Err(_):
             flash_error(gettext('Placing the order has failed.'))
-            return order_without_preselection_form(category.id)
+            return category_order_form(category.id)
 
     shop_order_signals.order_placed.send(None, event=order_placed_event)
 
