@@ -48,6 +48,7 @@ from .events import (
 )
 from .model_converters import _db_entity_to_occupancy, _db_entity_to_reservation
 from .models.bungalow import BungalowID, BungalowOccupationState
+from .models.log import BungalowLogEntry
 from .models.occupation import (
     BungalowOccupancy,
     BungalowReservation,
@@ -172,11 +173,7 @@ def reserve_bungalow(
     )
     db.session.add(db_occupancy)
 
-    log_entry = bungalow_log_service.build_entry(
-        'bungalow-reserved',
-        db_bungalow.id,
-        data={'initiator_id': str(occupier.id)},
-    )
+    log_entry = _build_bungalow_reserved_log_entry(db_bungalow.id, occupier)
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     db.session.add(db_log_entry)
 
@@ -190,6 +187,16 @@ def reserve_bungalow(
     occupancy = _db_entity_to_occupancy(db_occupancy)
 
     return Ok((reservation, occupancy, bungalow_reserved_event))
+
+
+def _build_bungalow_reserved_log_entry(
+    bungalow_id: BungalowID, initiator: User
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'bungalow-reserved',
+        bungalow_id,
+        data={'initiator_id': str(initiator.id)},
+    )
 
 
 def _build_bungalow_reserved_event(
@@ -351,6 +358,7 @@ def occupy_reserved_bungalow(
         )
 
     occupier_id = db_occupancy.occupied_by_id
+    occupier = user_service.get_user(occupier_id)
 
     db_bungalow.occupation_state = BungalowOccupationState.occupied
 
@@ -359,19 +367,13 @@ def occupy_reserved_bungalow(
     db_occupancy.state = OccupancyState.occupied
     db_occupancy.ticket_bundle_id = ticket_bundle_id
 
-    log_entry = bungalow_log_service.build_entry(
-        'bungalow-occupied',
-        db_bungalow.id,
-        data={'initiator_id': str(occupier_id)},
-    )
+    log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     db.session.add(db_log_entry)
 
     db.session.commit()
 
     occupancy = _db_entity_to_occupancy(db_occupancy)
-
-    occupier = user_service.get_user(occupier_id)
 
     event = _build_bungalow_occupied_event(
         occupier, db_bungalow.id, db_bungalow.number
@@ -409,11 +411,7 @@ def occupy_bungalow_without_reservation(
     db_occupancy.ticket_bundle_id = ticket_bundle_id
     db.session.add(db_occupancy)
 
-    log_entry = bungalow_log_service.build_entry(
-        'bungalow-occupied',
-        db_bungalow.id,
-        data={'initiator_id': str(occupier.id)},
-    )
+    log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     db.session.add(db_log_entry)
 
@@ -426,6 +424,16 @@ def occupy_bungalow_without_reservation(
     )
 
     return Ok((occupancy, event))
+
+
+def _build_bungalow_occupied_log_entry(
+    bungalow_id: BungalowID, initiator: User
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'bungalow-occupied',
+        bungalow_id,
+        data={'initiator_id': str(initiator.id)},
+    )
 
 
 def _build_bungalow_occupied_event(
@@ -492,26 +500,20 @@ def move_occupancy(
 
     db_occupancy.bungalow = db_target_bungalow
 
-    log_entry = bungalow_log_service.build_entry(
-        'occupancy-moved-away',
+    log_entry = _build_bungalow_occupany_moved_away_log_entry(
         db_source_bungalow.id,
-        data={
-            'initiator_id': str(initiator.id),
-            'target_bungalow_id': str(db_target_bungalow.id),
-            'target_bungalow_number': db_target_bungalow.number,
-        },
+        db_target_bungalow.id,
+        db_target_bungalow.number,
+        initiator,
     )
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     db.session.add(db_log_entry)
 
-    log_entry = bungalow_log_service.build_entry(
-        'occupancy-moved-here',
+    log_entry = _build_bungalow_occupany_moved_here_log_entry(
         db_target_bungalow.id,
-        data={
-            'initiator_id': str(initiator.id),
-            'source_bungalow_id': str(db_source_bungalow.id),
-            'source_bungalow_number': db_source_bungalow.number,
-        },
+        db_source_bungalow.id,
+        db_source_bungalow.number,
+        initiator,
     )
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     db.session.add(db_log_entry)
@@ -527,6 +529,40 @@ def move_occupancy(
     )
 
     return Ok(event)
+
+
+def _build_bungalow_occupany_moved_away_log_entry(
+    source_bungalow_id: BungalowID,
+    target_bungalow_id: BungalowID,
+    target_bungalow_number: int,
+    initiator: User,
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'occupancy-moved-away',
+        source_bungalow_id,
+        data={
+            'target_bungalow_id': str(target_bungalow_id),
+            'target_bungalow_number': target_bungalow_number,
+            'initiator_id': str(initiator.id),
+        },
+    )
+
+
+def _build_bungalow_occupany_moved_here_log_entry(
+    target_bungalow_id: BungalowID,
+    source_bungalow_id: BungalowID,
+    source_bungalow_number: int,
+    initiator: User,
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'occupancy-moved-here',
+        target_bungalow_id,
+        data={
+            'source_bungalow_id': str(source_bungalow_id),
+            'source_bungalow_number': source_bungalow_number,
+            'initiator_id': str(initiator.id),
+        },
+    )
 
 
 def _build_bungalow_occupancy_moved_event(
@@ -563,9 +599,8 @@ def release_bungalow(
     except ValueError:
         return Err(f'No bungalow found with ID "{occupancy.bungalow_id}"')
 
-    log_entry_data = {'initiator_id': str(initiator.id)}
-    log_entry = bungalow_log_service.build_entry(
-        'bungalow-released', occupancy.bungalow_id, log_entry_data
+    log_entry = _build_bungalow_released_log_entry(
+        occupancy.bungalow_id, initiator
     )
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
 
@@ -576,6 +611,16 @@ def release_bungalow(
     )
 
     return Ok(event)
+
+
+def _build_bungalow_released_log_entry(
+    bungalow_id: BungalowID, initiator: User
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'bungalow-released',
+        bungalow_id,
+        data={'initiator_id': str(initiator.id)},
+    )
 
 
 def _build_bungalow_released_event(
@@ -607,13 +652,8 @@ def appoint_bungalow_manager(
         return Err('Occupancy has no ticket bundle assigned.')
 
     # Set bungalow manager.
-    log_entry = bungalow_log_service.build_entry(
-        'manager-appointed',
-        occupancy.bungalow_id,
-        data={
-            'initiator_id': str(initiator.id),
-            'new_manager_id': str(new_manager.id),
-        },
+    log_entry = _build_manager_appointed_log_entry(
+        occupancy.bungalow_id, new_manager, initiator
     )
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
     match bungalow_occupancy_repository.appoint_bungalow_manager(
@@ -632,6 +672,19 @@ def appoint_bungalow_manager(
         )
 
     return Ok(None)
+
+
+def _build_manager_appointed_log_entry(
+    bungalow_id: BungalowID, new_manager: User, initiator: User
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'manager-appointed',
+        bungalow_id,
+        data={
+            'new_manager_id': str(new_manager.id),
+            'initiator_id': str(initiator.id),
+        },
+    )
 
 
 def set_internal_remark(
