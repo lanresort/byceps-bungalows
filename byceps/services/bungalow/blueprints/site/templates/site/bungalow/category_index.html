@@ -43,10 +43,10 @@
     <tbody>
       {%- for summary in category_summaries|sort(attribute='title') %}
       <tr>
-        <td>{{ summary.title }}</td>
-        <td><strong>{{ summary.capacity }}</strong> Personen</td>
+        <td><strong>{{ summary.title }}</strong></td>
+        <td>{{ summary.capacity }} Personen</td>
         {%- if not party_is_over %}
-        <td class="nowrap number"><strong>{{ summary.total_price|moneyformat }}</strong></td>
+        <td class="nowrap number">{{ summary.total_price|moneyformat }}</td>
         {%- endif %}
         <td>
           <div class="category-availability">
