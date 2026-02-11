@@ -31,9 +31,11 @@
     <thead>
       <tr>
         <th colspan="2">{{ _('Category') }}</th>
-        <th>{{ _('Availability') }}</th>
         {%- if not party_is_over %}
         <th>Preis</th>
+        {%- endif %}
+        <th>{{ _('Availability') }}</th>
+        {%- if not party_is_over %}
         <th>Buchung</th>
         {%- endif %}
       </tr>
@@ -43,6 +45,9 @@
       <tr>
         <td>{{ summary.title }}</td>
         <td><strong>{{ summary.capacity }}</strong> Personen</td>
+        {%- if not party_is_over %}
+        <td class="nowrap number"><strong>{{ summary.total_price|moneyformat }}</strong></td>
+        {%- endif %}
         <td>
           <div class="category-availability">
 {{ render_distribution_bar(
@@ -59,7 +64,6 @@
           </div>
         </td>
         {%- if not party_is_over %}
-        <td class="nowrap number"><strong>{{ summary.total_price|moneyformat }}</strong></td>
         <td class="nowrap number">
           {%- if summary.available -%}
           <a class="button color-primary" href="{{ url_for('.category_order_form', category_id=summary.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
