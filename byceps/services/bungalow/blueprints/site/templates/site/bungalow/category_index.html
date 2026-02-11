@@ -4,6 +4,18 @@
 {% set current_page = 'bungalow_categories' %}
 {% set page_title = 'Bungalow-Kategorien' %}
 
+{% block head %}
+<style>
+.category-availability {
+  font-size: 0.75rem;
+}
+
+.category-availability .progress {
+  height: 0.3rem;
+}
+</style>
+{%- endblock %}
+
 {% block subnav %}
 {% include 'site/bungalow/_subnav_attendance.html' ignore missing %}
 {%- endblock %}
@@ -32,7 +44,7 @@
         <td>{{ summary.title }}</td>
         <td><strong>{{ summary.capacity }}</strong> Personen</td>
         <td>
-          <div style="max-width: 8rem;">
+          <div class="category-availability">
 {{ render_distribution_bar(
   [
     (summary.quantity_available, 'bungalow-total-bar-available'),
@@ -40,7 +52,7 @@
   ],
   summary.quantity_total,
 ) }}
-            <div class="row row--space-between" style="font-size: 0.6875rem;">
+            <div class="row row--space-between">
               <div><strong>{{ summary.quantity_available }}</strong></div>
               <div>{{ _('of') }} {{ summary.quantity_total }}</div>
             </div>
