@@ -375,12 +375,12 @@ def occupy_reserved_bungalow(
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Mark a reserved bungalow as occupied."""
     match get_occupancy(occupancy_id):
-        case Ok(occupancy):
+        case Ok(current_occupancy):
             pass
         case Err(occupancy_lookup_error):
             return Err(occupancy_lookup_error)
 
-    if occupancy.state != OccupancyState.reserved:
+    if current_occupancy.state != OccupancyState.reserved:
         return Err(
             "Not in state 'reserved', cannot change to state 'occupied'."
         )
@@ -391,19 +391,21 @@ def occupy_reserved_bungalow(
         case Err(reservation_lookup_error):
             return Err(reservation_lookup_error)
 
-    match bungalow_occupancy_repository.get_occupancy(occupancy.id):
+    match bungalow_occupancy_repository.get_occupancy(current_occupancy.id):
         case Ok(db_occupancy):
             pass
         case Err(occupancy_lookup_error):
             return Err(occupancy_lookup_error)
 
-    db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
+    db_bungalow = bungalow_service.get_db_bungalow(
+        current_occupancy.bungalow_id
+    )
 
-    occupier_id = occupancy.occupied_by_id
+    occupier_id = current_occupancy.occupied_by_id
     occupier = user_service.get_user(occupier_id)
 
     updated_occupancy = dataclasses.replace(
-        occupancy,
+        current_occupancy,
         state=OccupancyState.occupied,
         ticket_bundle_id=ticket_bundle_id,
     )
