@@ -1,0 +1,251 @@
+"""
+byceps.services.bungalow.bungalow_occupancy_domain_service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:Copyright: 2014-2026 Jochen Kupperschmidt
+:License: Revised BSD (see `LICENSE` file for details)
+"""
+
+import dataclasses
+from datetime import datetime
+
+from byceps.services.shop.order.models.number import OrderNumber
+from byceps.services.ticketing.models.ticket import TicketBundleID
+from byceps.services.user.models import User
+from byceps.util.result import Err, Ok, Result
+from byceps.util.uuid import generate_uuid7
+
+from . import bungalow_log_service
+from .events import (
+    BungalowOccupiedEvent,
+    BungalowReleasedEvent,
+    BungalowReservedEvent,
+)
+from .models.bungalow import BungalowID
+from .models.log import BungalowLogEntry
+from .models.occupation import (
+    BungalowOccupancy,
+    BungalowReservation,
+    OccupancyID,
+    OccupancyState,
+    ReservationID,
+)
+
+
+def reserve_bungalow(
+    bungalow_id: BungalowID, bungalow_number: int, occupier: User
+) -> Result[
+    tuple[
+        BungalowReservation,
+        BungalowOccupancy,
+        BungalowReservedEvent,
+        BungalowLogEntry,
+    ],
+    str,
+]:
+    """Create a reservation for this bungalow."""
+    reservation = _build_reservation(bungalow_id, occupier)
+
+    occupancy = _build_reservation_occupancy(reservation)
+
+    event = _build_bungalow_reserved_event(
+        occupier, bungalow_id, bungalow_number
+    )
+
+    log_entry = _build_bungalow_reserved_log_entry(bungalow_id, occupier)
+
+    return Ok((reservation, occupancy, event, log_entry))
+
+
+def _build_reservation(
+    bungalow_id: BungalowID, occupier: User
+) -> BungalowReservation:
+    reservation_id = ReservationID(generate_uuid7())
+
+    return BungalowReservation(
+        id=reservation_id,
+        bungalow_id=bungalow_id,
+        reserved_by_id=occupier.id,
+        order_number=None,
+        pinned=False,
+        internal_remark=None,
+    )
+
+
+def _build_reservation_occupancy(
+    reservation: BungalowReservation,
+) -> BungalowOccupancy:
+    occupancy_id = OccupancyID(generate_uuid7())
+    occupier_id = reservation.reserved_by_id
+
+    return BungalowOccupancy(
+        id=occupancy_id,
+        bungalow_id=reservation.bungalow_id,
+        occupied_by_id=occupier_id,
+        order_number=None,
+        state=OccupancyState.reserved,
+        ticket_bundle_id=None,
+        pinned=False,
+        manager_id=occupier_id,
+        title=None,
+        description=None,
+        avatar_id=None,
+        internal_remark=None,
+    )
+
+
+def _build_bungalow_reserved_event(
+    occupier: User, bungalow_id: BungalowID, bungalow_number: int
+) -> BungalowReservedEvent:
+    return BungalowReservedEvent(
+        occurred_at=datetime.utcnow(),
+        initiator=occupier,
+        bungalow_id=bungalow_id,
+        bungalow_number=bungalow_number,
+        occupier=occupier,
+    )
+
+
+def _build_bungalow_reserved_log_entry(
+    bungalow_id: BungalowID, initiator: User
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'bungalow-reserved',
+        bungalow_id,
+        data={'initiator_id': str(initiator.id)},
+    )
+
+
+def occupy_reserved_bungalow(
+    bungalow_id: BungalowID,
+    bungalow_number: int,
+    current_occupancy: BungalowOccupancy,
+    occupier: User,
+    ticket_bundle_id: TicketBundleID,
+) -> Result[
+    tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
+]:
+    """Mark a reserved bungalow as occupied."""
+    if current_occupancy.state != OccupancyState.reserved:
+        return Err(
+            "Not in state 'reserved', cannot change to state 'occupied'."
+        )
+
+    updated_occupancy = dataclasses.replace(
+        current_occupancy,
+        state=OccupancyState.occupied,
+        ticket_bundle_id=ticket_bundle_id,
+    )
+
+    event = _build_bungalow_occupied_event(
+        occupier, bungalow_id, bungalow_number
+    )
+
+    log_entry = _build_bungalow_occupied_log_entry(bungalow_id, occupier)
+
+    return Ok((updated_occupancy, event, log_entry))
+
+
+def occupy_bungalow_without_reservation(
+    bungalow_id: BungalowID,
+    bungalow_number: int,
+    occupier: User,
+    order_number: OrderNumber,
+    ticket_bundle_id: TicketBundleID,
+) -> Result[
+    tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
+]:
+    """Occupy the bungalow without previous reservation."""
+    occupancy = _build_occupancy_without_reservation(
+        bungalow_id, occupier, order_number, ticket_bundle_id
+    )
+
+    event = _build_bungalow_occupied_event(
+        occupier, bungalow_id, bungalow_number
+    )
+
+    log_entry = _build_bungalow_occupied_log_entry(bungalow_id, occupier)
+
+    return Ok((occupancy, event, log_entry))
+
+
+def _build_occupancy_without_reservation(
+    bungalow_id: BungalowID,
+    occupier: User,
+    order_number: OrderNumber,
+    ticket_bundle_id: TicketBundleID,
+) -> BungalowOccupancy:
+    occupancy_id = OccupancyID(generate_uuid7())
+
+    return BungalowOccupancy(
+        id=occupancy_id,
+        bungalow_id=bungalow_id,
+        occupied_by_id=occupier.id,
+        order_number=order_number,
+        state=OccupancyState.occupied,
+        ticket_bundle_id=ticket_bundle_id,
+        pinned=False,
+        manager_id=occupier.id,
+        title=None,
+        description=None,
+        avatar_id=None,
+        internal_remark=None,
+    )
+
+
+def _build_bungalow_occupied_event(
+    occupier: User, bungalow_id: BungalowID, bungalow_number: int
+) -> BungalowOccupiedEvent:
+    return BungalowOccupiedEvent(
+        occurred_at=datetime.utcnow(),
+        initiator=occupier,
+        bungalow_id=bungalow_id,
+        bungalow_number=bungalow_number,
+        occupier=occupier,
+    )
+
+
+def _build_bungalow_occupied_log_entry(
+    bungalow_id: BungalowID, initiator: User
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'bungalow-occupied',
+        bungalow_id,
+        data={'initiator_id': str(initiator.id)},
+    )
+
+
+def release_bungalow(
+    bungalow_id: BungalowID, bungalow_number: int, initiator: User
+) -> Result[tuple[BungalowReleasedEvent, BungalowLogEntry], str]:
+    """Release the bungalow occupied by the occupancy so it becomes available
+    again.
+    """
+    event = _build_bungalow_released_event(
+        initiator, bungalow_id, bungalow_number
+    )
+
+    log_entry = _build_bungalow_released_log_entry(bungalow_id, initiator)
+
+    return Ok((event, log_entry))
+
+
+def _build_bungalow_released_event(
+    initiator: User, bungalow_id: BungalowID, bungalow_number: int
+) -> BungalowReleasedEvent:
+    return BungalowReleasedEvent(
+        occurred_at=datetime.utcnow(),
+        initiator=initiator,
+        bungalow_id=bungalow_id,
+        bungalow_number=bungalow_number,
+    )
+
+
+def _build_bungalow_released_log_entry(
+    bungalow_id: BungalowID, initiator: User
+) -> BungalowLogEntry:
+    return bungalow_log_service.build_entry(
+        'bungalow-released',
+        bungalow_id,
+        data={'initiator_id': str(initiator.id)},
+    )

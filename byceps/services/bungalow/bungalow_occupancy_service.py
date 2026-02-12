@@ -9,7 +9,6 @@ byceps.services.bungalow.bungalow_occupancy_service
 from __future__ import annotations
 
 from collections import defaultdict
-import dataclasses
 from datetime import datetime
 
 from byceps.database import db
@@ -17,7 +16,6 @@ from byceps.services.party.models import PartyID
 from byceps.services.shop.order import order_command_service, order_service
 from byceps.services.shop.order.email import order_email_service
 from byceps.services.shop.order.events import ShopOrderPlacedEvent
-from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.shop.order.models.order import Order, Orderer
 from byceps.services.shop.product import product_service
 from byceps.services.shop.product.models import Product, ProductType
@@ -30,10 +28,10 @@ from byceps.services.ticketing.models.ticket import TicketBundleID
 from byceps.services.user import user_service
 from byceps.services.user.models import User, UserForAdmin, UserID
 from byceps.util.result import Err, Ok, Result
-from byceps.util.uuid import generate_uuid7
 
 from . import (
     bungalow_log_service,
+    bungalow_occupancy_domain_service,
     bungalow_occupancy_repository,
     bungalow_order_service,
     bungalow_service,
@@ -154,78 +152,19 @@ def reserve_bungalow(
     if not db_bungalow.available:
         return Err('Bungalow is not available')
 
-    reservation = _build_reservation(db_bungalow.id, occupier)
-    occupancy = _build_reservation_occupancy(reservation)
-    log_entry = _build_bungalow_reserved_log_entry(db_bungalow.id, occupier)
+    match bungalow_occupancy_domain_service.reserve_bungalow(
+        db_bungalow.id, db_bungalow.number, occupier
+    ):
+        case Ok((reservation, occupancy, event, log_entry)):
+            pass
+        case Err(e):
+            return Err(e)
 
     bungalow_occupancy_repository.reserve_bungalow(
         db_bungalow, reservation, occupancy, log_entry
     )
 
-    bungalow_reserved_event = _build_bungalow_reserved_event(
-        occupier, db_bungalow.id, db_bungalow.number
-    )
-
-    return Ok((reservation, occupancy, bungalow_reserved_event))
-
-
-def _build_reservation(
-    bungalow_id: BungalowID, occupier: User
-) -> BungalowReservation:
-    reservation_id = ReservationID(generate_uuid7())
-
-    return BungalowReservation(
-        id=reservation_id,
-        bungalow_id=bungalow_id,
-        reserved_by_id=occupier.id,
-        order_number=None,
-        pinned=False,
-        internal_remark=None,
-    )
-
-
-def _build_reservation_occupancy(
-    reservation: BungalowReservation,
-) -> BungalowOccupancy:
-    occupancy_id = OccupancyID(generate_uuid7())
-    occupier_id = reservation.reserved_by_id
-
-    return BungalowOccupancy(
-        id=occupancy_id,
-        bungalow_id=reservation.bungalow_id,
-        occupied_by_id=occupier_id,
-        order_number=None,
-        state=OccupancyState.reserved,
-        ticket_bundle_id=None,
-        pinned=False,
-        manager_id=occupier_id,
-        title=None,
-        description=None,
-        avatar_id=None,
-        internal_remark=None,
-    )
-
-
-def _build_bungalow_reserved_log_entry(
-    bungalow_id: BungalowID, initiator: User
-) -> BungalowLogEntry:
-    return bungalow_log_service.build_entry(
-        'bungalow-reserved',
-        bungalow_id,
-        data={'initiator_id': str(initiator.id)},
-    )
-
-
-def _build_bungalow_reserved_event(
-    occupier: User, bungalow_id: BungalowID, bungalow_number: int
-) -> BungalowReservedEvent:
-    return BungalowReservedEvent(
-        occurred_at=datetime.utcnow(),
-        initiator=occupier,
-        bungalow_id=bungalow_id,
-        bungalow_number=bungalow_number,
-        occupier=occupier,
-    )
+    return Ok((reservation, occupancy, event))
 
 
 def place_bungalow_with_preselection_order(
@@ -373,20 +312,20 @@ def occupy_reserved_bungalow(
     occupier_id = current_occupancy.occupied_by_id
     occupier = user_service.get_user(occupier_id)
 
-    updated_occupancy = dataclasses.replace(
+    match bungalow_occupancy_domain_service.occupy_reserved_bungalow(
+        db_bungalow.id,
+        db_bungalow.number,
         current_occupancy,
-        state=OccupancyState.occupied,
-        ticket_bundle_id=ticket_bundle_id,
-    )
-
-    log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
+        occupier,
+        ticket_bundle_id,
+    ):
+        case Ok((updated_occupancy, event, log_entry)):
+            pass
+        case Err(e):
+            return Err(e)
 
     bungalow_occupancy_repository.occupy_reserved_bungalow(
         db_bungalow, reservation_id, updated_occupancy, log_entry
-    )
-
-    event = _build_bungalow_occupied_event(
-        occupier, db_bungalow.id, db_bungalow.number
     )
 
     return Ok((updated_occupancy, event))
@@ -405,66 +344,23 @@ def occupy_bungalow_without_reservation(
     occupier = db_ticket_bundle.owned_by
     order_number = db_ticket_bundle.tickets[0].order_number
 
-    occupancy = _build_occupancy_without_reservation(
-        db_bungalow.id, occupier, order_number, ticket_bundle_id
-    )
-    log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
+    match bungalow_occupancy_domain_service.occupy_bungalow_without_reservation(
+        db_bungalow.id,
+        db_bungalow.number,
+        occupier,
+        order_number,
+        ticket_bundle_id,
+    ):
+        case Ok((occupancy, event, log_entry)):
+            pass
+        case Err(e):
+            return Err(e)
 
     bungalow_occupancy_repository.occupy_bungalow_without_reservation(
         db_bungalow, occupancy, log_entry
     )
 
-    event = _build_bungalow_occupied_event(
-        occupier, db_bungalow.id, db_bungalow.number
-    )
-
     return Ok((occupancy, event))
-
-
-def _build_occupancy_without_reservation(
-    bungalow_id: BungalowID,
-    occupier: User,
-    order_number: OrderNumber,
-    ticket_bundle_id: TicketBundleID,
-) -> BungalowOccupancy:
-    occupancy_id = OccupancyID(generate_uuid7())
-
-    return BungalowOccupancy(
-        id=occupancy_id,
-        bungalow_id=bungalow_id,
-        occupied_by_id=occupier.id,
-        order_number=order_number,
-        state=OccupancyState.occupied,
-        ticket_bundle_id=ticket_bundle_id,
-        pinned=False,
-        manager_id=occupier.id,
-        title=None,
-        description=None,
-        avatar_id=None,
-        internal_remark=None,
-    )
-
-
-def _build_bungalow_occupied_log_entry(
-    bungalow_id: BungalowID, initiator: User
-) -> BungalowLogEntry:
-    return bungalow_log_service.build_entry(
-        'bungalow-occupied',
-        bungalow_id,
-        data={'initiator_id': str(initiator.id)},
-    )
-
-
-def _build_bungalow_occupied_event(
-    occupier: User, bungalow_id: BungalowID, bungalow_number: int
-) -> BungalowOccupiedEvent:
-    return BungalowOccupiedEvent(
-        occurred_at=datetime.utcnow(),
-        initiator=occupier,
-        bungalow_id=bungalow_id,
-        bungalow_number=bungalow_number,
-        occupier=occupier,
-    )
 
 
 def move_occupancy(
@@ -618,39 +514,19 @@ def release_bungalow(
     except ValueError:
         return Err(f'No bungalow found with ID "{occupancy.bungalow_id}"')
 
-    log_entry = _build_bungalow_released_log_entry(
-        occupancy.bungalow_id, initiator
-    )
+    match bungalow_occupancy_domain_service.release_bungalow(
+        db_bungalow.id, db_bungalow.number, initiator
+    ):
+        case Ok((event, log_entry)):
+            pass
+        case Err(e):
+            return Err(e)
+
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
 
     bungalow_occupancy_repository.release_bungalow(db_bungalow, db_log_entry)
 
-    event = _build_bungalow_released_event(
-        initiator, db_bungalow.id, db_bungalow.number
-    )
-
     return Ok(event)
-
-
-def _build_bungalow_released_log_entry(
-    bungalow_id: BungalowID, initiator: User
-) -> BungalowLogEntry:
-    return bungalow_log_service.build_entry(
-        'bungalow-released',
-        bungalow_id,
-        data={'initiator_id': str(initiator.id)},
-    )
-
-
-def _build_bungalow_released_event(
-    initiator: User, bungalow_id: BungalowID, bungalow_number: int
-) -> BungalowReleasedEvent:
-    return BungalowReleasedEvent(
-        occurred_at=datetime.utcnow(),
-        initiator=initiator,
-        bungalow_id=bungalow_id,
-        bungalow_number=bungalow_number,
-    )
 
 
 def appoint_bungalow_manager(
