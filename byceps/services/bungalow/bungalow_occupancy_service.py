@@ -9,6 +9,7 @@ byceps.services.bungalow.bungalow_occupancy_service
 from __future__ import annotations
 
 from collections import defaultdict
+import dataclasses
 from datetime import datetime
 
 from byceps.database import db
@@ -155,21 +156,22 @@ def reserve_bungalow(
 
     db_bungalow.occupation_state = BungalowOccupationState.reserved
 
-    reservation_id = ReservationID(generate_uuid7())
-    pinned = False
+    reservation = _build_reservation(db_bungalow.id, occupier)
     db_reservation = DbBungalowReservation(
-        reservation_id, db_bungalow.id, occupier.id, pinned
+        reservation.id,
+        reservation.bungalow_id,
+        reservation.reserved_by_id,
+        reservation.pinned,
     )
     db.session.add(db_reservation)
 
-    occupancy_id = OccupancyID(generate_uuid7())
-    pinned = False
+    occupancy = _build_reservation_occupancy(reservation)
     db_occupancy = DbBungalowOccupancy(
-        occupancy_id,
-        db_bungalow.id,
-        occupier.id,
-        OccupancyState.reserved,
-        pinned,
+        occupancy.id,
+        occupancy.bungalow_id,
+        occupancy.occupied_by_id,
+        occupancy.state,
+        occupancy.pinned,
     )
     db.session.add(db_occupancy)
 
@@ -183,10 +185,44 @@ def reserve_bungalow(
         occupier, db_bungalow.id, db_bungalow.number
     )
 
-    reservation = _db_entity_to_reservation(db_reservation)
-    occupancy = _db_entity_to_occupancy(db_occupancy)
-
     return Ok((reservation, occupancy, bungalow_reserved_event))
+
+
+def _build_reservation(
+    bungalow_id: BungalowID, occupier: User
+) -> BungalowReservation:
+    reservation_id = ReservationID(generate_uuid7())
+
+    return BungalowReservation(
+        id=reservation_id,
+        bungalow_id=bungalow_id,
+        reserved_by_id=occupier.id,
+        order_number=None,
+        pinned=False,
+        internal_remark=None,
+    )
+
+
+def _build_reservation_occupancy(
+    reservation: BungalowReservation,
+) -> BungalowOccupancy:
+    occupancy_id = OccupancyID(generate_uuid7())
+    occupier_id = reservation.reserved_by_id
+
+    return BungalowOccupancy(
+        id=occupancy_id,
+        bungalow_id=reservation.bungalow_id,
+        occupied_by_id=occupier_id,
+        order_number=None,
+        state=OccupancyState.reserved,
+        ticket_bundle_id=None,
+        pinned=False,
+        manager_id=occupier_id,
+        title=None,
+        description=None,
+        avatar_id=None,
+        internal_remark=None,
+    )
 
 
 def _build_bungalow_reserved_log_entry(
@@ -338,34 +374,46 @@ def occupy_reserved_bungalow(
     ticket_bundle_id: TicketBundleID,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Mark a reserved bungalow as occupied."""
+    match get_occupancy(occupancy_id):
+        case Ok(occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
+
+    if occupancy.state != OccupancyState.reserved:
+        return Err(
+            "Not in state 'reserved', cannot change to state 'occupied'."
+        )
+
     match bungalow_occupancy_repository.get_reservation(reservation_id):
         case Ok(db_reservation):
             pass
         case Err(reservation_lookup_error):
             return Err(reservation_lookup_error)
 
-    match bungalow_occupancy_repository.get_occupancy(occupancy_id):
+    match bungalow_occupancy_repository.get_occupancy(occupancy.id):
         case Ok(db_occupancy):
             pass
         case Err(occupancy_lookup_error):
             return Err(occupancy_lookup_error)
 
-    db_bungalow = bungalow_service.get_db_bungalow(db_occupancy.bungalow_id)
+    db_bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
 
-    if db_occupancy.state != OccupancyState.reserved:
-        return Err(
-            "Not in state 'reserved', cannot change to state 'occupied'."
-        )
-
-    occupier_id = db_occupancy.occupied_by_id
+    occupier_id = occupancy.occupied_by_id
     occupier = user_service.get_user(occupier_id)
+
+    updated_occupancy = dataclasses.replace(
+        occupancy,
+        state=OccupancyState.occupied,
+        ticket_bundle_id=ticket_bundle_id,
+    )
 
     db_bungalow.occupation_state = BungalowOccupationState.occupied
 
     db.session.delete(db_reservation)
 
-    db_occupancy.state = OccupancyState.occupied
-    db_occupancy.ticket_bundle_id = ticket_bundle_id
+    db_occupancy.state = updated_occupancy.state
+    db_occupancy.ticket_bundle_id = updated_occupancy.ticket_bundle_id
 
     log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
     db_log_entry = bungalow_log_service.to_db_entry(log_entry)
@@ -373,13 +421,11 @@ def occupy_reserved_bungalow(
 
     db.session.commit()
 
-    occupancy = _db_entity_to_occupancy(db_occupancy)
-
     event = _build_bungalow_occupied_event(
         occupier, db_bungalow.id, db_bungalow.number
     )
 
-    return Ok((occupancy, event))
+    return Ok((updated_occupancy, event))
 
 
 def occupy_bungalow_without_reservation(
@@ -398,16 +444,17 @@ def occupy_bungalow_without_reservation(
 
     db_bungalow.occupation_state = BungalowOccupationState.occupied
 
-    occupancy_id = OccupancyID(generate_uuid7())
-    pinned = False
+    occupancy = _build_occupancy_without_reservation(
+        db_bungalow.id, occupier, order_number, ticket_bundle_id
+    )
     db_occupancy = DbBungalowOccupancy(
-        occupancy_id,
-        db_bungalow.id,
-        occupier.id,
-        OccupancyState.occupied,
-        pinned,
-        order_number=order_number,
-        ticket_bundle_id=ticket_bundle_id,
+        occupancy.id,
+        occupancy.bungalow_id,
+        occupancy.occupied_by_id,
+        occupancy.state,
+        occupancy.pinned,
+        order_number=occupancy.order_number,
+        ticket_bundle_id=occupancy.ticket_bundle_id,
     )
     db.session.add(db_occupancy)
 
@@ -417,13 +464,35 @@ def occupy_bungalow_without_reservation(
 
     db.session.commit()
 
-    occupancy = _db_entity_to_occupancy(db_occupancy)
-
     event = _build_bungalow_occupied_event(
         occupier, db_bungalow.id, db_bungalow.number
     )
 
     return Ok((occupancy, event))
+
+
+def _build_occupancy_without_reservation(
+    bungalow_id: BungalowID,
+    occupier: User,
+    order_number: OrderNumber,
+    ticket_bundle_id: TicketBundleID,
+) -> BungalowOccupancy:
+    occupancy_id = OccupancyID(generate_uuid7())
+
+    return BungalowOccupancy(
+        id=occupancy_id,
+        bungalow_id=bungalow_id,
+        occupied_by_id=occupier.id,
+        order_number=order_number,
+        state=OccupancyState.occupied,
+        ticket_bundle_id=ticket_bundle_id,
+        pinned=False,
+        manager_id=occupier.id,
+        title=None,
+        description=None,
+        avatar_id=None,
+        internal_remark=None,
+    )
 
 
 def _build_bungalow_occupied_log_entry(
