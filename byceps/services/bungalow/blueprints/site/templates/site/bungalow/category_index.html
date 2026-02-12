@@ -64,7 +64,7 @@
           </div>
         </td>
         {%- if not party_is_over %}
-        <td class="nowrap number">
+        <td class="centered">
           {%- if summary.available -%}
           <a class="button color-primary" href="{{ url_for('.category_order_form', category_id=summary.id) }}">{{ render_icon('shopping-cart') }} <span>Buchen</span></a>
           {%- else -%}
