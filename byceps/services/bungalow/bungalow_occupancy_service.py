@@ -394,7 +394,6 @@ def occupy_reserved_bungalow(
 
 def occupy_bungalow_without_reservation(
     bungalow_id: BungalowID,
-    order_number: OrderNumber,
     ticket_bundle_id: TicketBundleID,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Occupy the bungalow without previous reservation."""
@@ -402,8 +401,9 @@ def occupy_bungalow_without_reservation(
     if not db_bungalow.available:
         return Err('Bungalow is not available')
 
-    ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
-    occupier = ticket_bundle.owned_by
+    db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
+    occupier = db_ticket_bundle.owned_by
+    order_number = db_ticket_bundle.tickets[0].order_number
 
     occupancy = _build_occupancy_without_reservation(
         db_bungalow.id, occupier, order_number, ticket_bundle_id
