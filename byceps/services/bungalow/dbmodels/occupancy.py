@@ -116,11 +116,16 @@ class DbBungalowOccupancy(db.Model):
         occupier_id: UserID,
         state: OccupancyState,
         pinned: bool,
+        *,
+        order_number: OrderNumber | None = None,
+        ticket_bundle_id: TicketBundleID | None = None,
     ) -> None:
         self.id = occupancy_id
         self.bungalow_id = bungalow_id
         self.occupied_by_id = occupier_id
+        self.order_number = order_number
         self._state = state.name
+        self.ticket_bundle_id = ticket_bundle_id
         self.pinned = pinned
 
     @hybrid_property

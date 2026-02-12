@@ -406,9 +406,9 @@ def occupy_bungalow_without_reservation(
         occupier.id,
         OccupancyState.occupied,
         pinned,
+        order_number=order_number,
+        ticket_bundle_id=ticket_bundle_id,
     )
-    db_occupancy.order_number = order_number
-    db_occupancy.ticket_bundle_id = ticket_bundle_id
     db.session.add(db_occupancy)
 
     log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
