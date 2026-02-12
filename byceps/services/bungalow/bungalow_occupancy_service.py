@@ -39,7 +39,7 @@ from . import (
     bungalow_service,
 )
 from .dbmodels.bungalow import DbBungalow
-from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation
+from .dbmodels.occupancy import DbBungalowOccupancy
 from .events import (
     BungalowOccupancyDescriptionUpdatedEvent,
     BungalowOccupancyMovedEvent,
@@ -154,32 +154,13 @@ def reserve_bungalow(
     if not db_bungalow.available:
         return Err('Bungalow is not available')
 
-    db_bungalow.occupation_state = BungalowOccupationState.reserved
-
     reservation = _build_reservation(db_bungalow.id, occupier)
-    db_reservation = DbBungalowReservation(
-        reservation.id,
-        reservation.bungalow_id,
-        reservation.reserved_by_id,
-        reservation.pinned,
-    )
-    db.session.add(db_reservation)
-
     occupancy = _build_reservation_occupancy(reservation)
-    db_occupancy = DbBungalowOccupancy(
-        occupancy.id,
-        occupancy.bungalow_id,
-        occupancy.occupied_by_id,
-        occupancy.state,
-        occupancy.pinned,
-    )
-    db.session.add(db_occupancy)
-
     log_entry = _build_bungalow_reserved_log_entry(db_bungalow.id, occupier)
-    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
-    db.session.add(db_log_entry)
 
-    db.session.commit()
+    bungalow_occupancy_repository.reserve_bungalow(
+        db_bungalow, reservation, occupancy, log_entry
+    )
 
     bungalow_reserved_event = _build_bungalow_reserved_event(
         occupier, db_bungalow.id, db_bungalow.number
@@ -333,9 +314,9 @@ def transfer_reservation(
             return Err(update_error)
 
     # Set new bungalow occupier.
-    db_bungalow.occupancy.occupied_by_id = recipient.id
-    db_bungalow.reservation.reserved_by = recipient.id
-    db.session.commit()
+    bungalow_occupancy_repository.transfer_reservation(
+        db_bungalow, recipient.id
+    )
 
     # Notify new orderer of order transferred to them.
     order_email_service.send_email_for_incoming_order_to_orderer(updated_order)
@@ -385,18 +366,6 @@ def occupy_reserved_bungalow(
             "Not in state 'reserved', cannot change to state 'occupied'."
         )
 
-    match bungalow_occupancy_repository.get_reservation(reservation_id):
-        case Ok(db_reservation):
-            pass
-        case Err(reservation_lookup_error):
-            return Err(reservation_lookup_error)
-
-    match bungalow_occupancy_repository.get_occupancy(current_occupancy.id):
-        case Ok(db_occupancy):
-            pass
-        case Err(occupancy_lookup_error):
-            return Err(occupancy_lookup_error)
-
     db_bungalow = bungalow_service.get_db_bungalow(
         current_occupancy.bungalow_id
     )
@@ -410,18 +379,11 @@ def occupy_reserved_bungalow(
         ticket_bundle_id=ticket_bundle_id,
     )
 
-    db_bungalow.occupation_state = BungalowOccupationState.occupied
-
-    db.session.delete(db_reservation)
-
-    db_occupancy.state = updated_occupancy.state
-    db_occupancy.ticket_bundle_id = updated_occupancy.ticket_bundle_id
-
     log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
-    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
-    db.session.add(db_log_entry)
 
-    db.session.commit()
+    bungalow_occupancy_repository.occupy_reserved_bungalow(
+        db_bungalow, reservation_id, updated_occupancy, log_entry
+    )
 
     event = _build_bungalow_occupied_event(
         occupier, db_bungalow.id, db_bungalow.number
@@ -441,30 +403,16 @@ def occupy_bungalow_without_reservation(
         return Err('Bungalow is not available')
 
     ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
-
     occupier = ticket_bundle.owned_by
-
-    db_bungalow.occupation_state = BungalowOccupationState.occupied
 
     occupancy = _build_occupancy_without_reservation(
         db_bungalow.id, occupier, order_number, ticket_bundle_id
     )
-    db_occupancy = DbBungalowOccupancy(
-        occupancy.id,
-        occupancy.bungalow_id,
-        occupancy.occupied_by_id,
-        occupancy.state,
-        occupancy.pinned,
-        order_number=occupancy.order_number,
-        ticket_bundle_id=occupancy.ticket_bundle_id,
-    )
-    db.session.add(db_occupancy)
-
     log_entry = _build_bungalow_occupied_log_entry(db_bungalow.id, occupier)
-    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
-    db.session.add(db_log_entry)
 
-    db.session.commit()
+    bungalow_occupancy_repository.occupy_bungalow_without_reservation(
+        db_bungalow, occupancy, log_entry
+    )
 
     event = _build_bungalow_occupied_event(
         occupier, db_bungalow.id, db_bungalow.number

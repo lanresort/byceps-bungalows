@@ -24,13 +24,20 @@ from byceps.services.user.models import UserID
 from byceps.util.image.image_type import ImageType
 from byceps.util.result import Err, Ok, Result
 
+from . import bungalow_log_service
 from .dbmodels.avatar import DbBungalowAvatar
 from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
 from .dbmodels.log import DbBungalowLogEntry
 from .dbmodels.occupancy import DbBungalowOccupancy, DbBungalowReservation
 from .models.bungalow import BungalowID, BungalowOccupationState
-from .models.occupation import OccupancyID, ReservationID
+from .models.log import BungalowLogEntry
+from .models.occupation import (
+    BungalowOccupancy,
+    BungalowReservation,
+    OccupancyID,
+    ReservationID,
+)
 
 
 def find_reservation(
@@ -238,6 +245,104 @@ def get_bungalows_for_ticket_bundles(
         .tuples()
         .all()
     )
+
+
+def reserve_bungalow(
+    db_bungalow: DbBungalow,
+    reservation: BungalowReservation,
+    occupancy: BungalowOccupancy,
+    log_entry: BungalowLogEntry,
+) -> None:
+    """Create a reservation for this bungalow."""
+    db_bungalow.occupation_state = BungalowOccupationState.reserved
+
+    db_reservation = DbBungalowReservation(
+        reservation.id,
+        reservation.bungalow_id,
+        reservation.reserved_by_id,
+        reservation.pinned,
+    )
+    db.session.add(db_reservation)
+
+    db_occupancy = DbBungalowOccupancy(
+        occupancy.id,
+        occupancy.bungalow_id,
+        occupancy.occupied_by_id,
+        occupancy.state,
+        occupancy.pinned,
+    )
+    db.session.add(db_occupancy)
+
+    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
+    db.session.add(db_log_entry)
+
+    db.session.commit()
+
+
+def transfer_reservation(db_bungalow: DbBungalow, occupier_id: UserID) -> None:
+    """Transfer bungalow reservation to another user."""
+    db_bungalow.occupancy.occupied_by_id = occupier_id
+    db_bungalow.reservation.reserved_by = occupier_id
+    db.session.commit()
+
+
+def occupy_reserved_bungalow(
+    db_bungalow: DbBungalow,
+    reservation_id: ReservationID,
+    updated_occupancy: BungalowOccupancy,
+    log_entry: BungalowLogEntry,
+) -> Result[None, str]:
+    """Mark a reserved bungalow as occupied."""
+    match get_reservation(reservation_id):
+        case Ok(db_reservation):
+            pass
+        case Err(reservation_lookup_error):
+            return Err(reservation_lookup_error)
+
+    match get_occupancy(updated_occupancy.id):
+        case Ok(db_occupancy):
+            pass
+        case Err(occupancy_lookup_error):
+            return Err(occupancy_lookup_error)
+
+    db_bungalow.occupation_state = BungalowOccupationState.occupied
+
+    db.session.delete(db_reservation)
+
+    db_occupancy.state = updated_occupancy.state
+    db_occupancy.ticket_bundle_id = updated_occupancy.ticket_bundle_id
+
+    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
+    db.session.add(db_log_entry)
+
+    db.session.commit()
+
+    return Ok(None)
+
+
+def occupy_bungalow_without_reservation(
+    db_bungalow: DbBungalow,
+    occupancy: BungalowOccupancy,
+    log_entry: BungalowLogEntry,
+) -> None:
+    """Occupy the bungalow without previous reservation."""
+    db_bungalow.occupation_state = BungalowOccupationState.occupied
+
+    db_occupancy = DbBungalowOccupancy(
+        occupancy.id,
+        occupancy.bungalow_id,
+        occupancy.occupied_by_id,
+        occupancy.state,
+        occupancy.pinned,
+        order_number=occupancy.order_number,
+        ticket_bundle_id=occupancy.ticket_bundle_id,
+    )
+    db.session.add(db_occupancy)
+
+    db_log_entry = bungalow_log_service.to_db_entry(log_entry)
+    db.session.add(db_log_entry)
+
+    db.session.commit()
 
 
 def appoint_bungalow_manager(
