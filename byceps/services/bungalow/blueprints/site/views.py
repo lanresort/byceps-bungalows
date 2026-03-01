@@ -643,7 +643,7 @@ def occupant_index_all(page: int):
 
     tickets_and_bungalows = tickets
     tickets_and_bungalows.items = [
-        (ticket, bungalows_by_ticket_bundle_id[ticket.bundle_id])
+        (ticket, bungalows_by_ticket_bundle_id.get(ticket.bundle_id))
         for ticket in tickets.items
     ]
 

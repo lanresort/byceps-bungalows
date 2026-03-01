@@ -51,7 +51,11 @@
       {%- for ticket, bungalow in tickets_and_bungalows.items %}
       <tr>
         <td>{{ render_user_avatar_and_link(ticket.used_by, size=32, orga=ticket.used_by_id in orga_ids) }}</td>
+        {%- if bungalow %}
         <td class="bignumber">{{ render_bungalow_link(bungalow, label=bungalow.number) }}</td>
+        {%- else %}
+        <td>{{ 'Noch nicht zugewiesen'|dim }}</td>
+        {%- endif %}
       </tr>
       {%- endfor %}
     </tbody>
