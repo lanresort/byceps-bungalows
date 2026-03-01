@@ -154,10 +154,7 @@ def occupy_reserved_bungalow(
 
 
 def occupy_bungalow_without_reservation(
-    bungalow: Bungalow,
-    order_number: OrderNumber | None,
-    ticket_bundle: TicketBundle,
-    initiator: User,
+    bungalow: Bungalow, ticket_bundle: TicketBundle, initiator: User
 ) -> Result[
     tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
 ]:
@@ -171,7 +168,7 @@ def occupy_bungalow_without_reservation(
     occupier = ticket_bundle.owned_by
 
     occupancy = _build_occupancy_without_reservation(
-        bungalow.id, occupier, order_number, ticket_bundle.id
+        bungalow.id, occupier, ticket_bundle.order_number, ticket_bundle.id
     )
 
     event = _build_bungalow_occupied_event(
