@@ -22,6 +22,7 @@ from byceps.services.shop.product.models import Product, ProductType
 from byceps.services.shop.storefront.models import Storefront
 from byceps.services.ticketing import (
     ticket_bundle_service,
+    ticket_service,
     ticket_user_management_service,
 )
 from byceps.services.ticketing.models.ticket import TicketBundleID
@@ -344,7 +345,8 @@ def occupy_bungalow_without_reservation(
     ticket_bundle = ticket_bundle_service.db_entity_to_ticket_bundle(
         db_ticket_bundle
     )
-    order_number = db_ticket_bundle.tickets[0].order_number
+    ticket_id = list(ticket_bundle.ticket_ids)[0]
+    order_number = ticket_service.get_ticket(ticket_id).order_number
 
     match bungalow_occupancy_domain_service.occupy_bungalow_without_reservation(
         bungalow,
