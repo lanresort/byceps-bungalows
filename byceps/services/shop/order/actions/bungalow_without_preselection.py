@@ -87,7 +87,8 @@ def on_cancellation_after_payment(
     """Revoke ticket bundle and release the bungalow that have been created for
     that order.
     """
-    ticket_bundle_id = _get_ticket_bundle_id(line_item)
+    ticket_bundle_id_str = line_item.processing_result['ticket_bundle_id']
+    ticket_bundle_id = TicketBundleID(UUID(ticket_bundle_id_str))
 
     match _revoke_ticket_bundle(ticket_bundle_id, order, initiator):
         case Err(seating_error):
@@ -146,11 +147,6 @@ def _create_creation_order_log_entry(
     )
 
     order_log_service.persist_entry(log_entry)
-
-
-def _get_ticket_bundle_id(line_item: LineItem) -> TicketBundleID:
-    str_value = line_item.processing_result['ticket_bundle_id']
-    return TicketBundleID(UUID(str_value))
 
 
 def _revoke_ticket_bundle(
