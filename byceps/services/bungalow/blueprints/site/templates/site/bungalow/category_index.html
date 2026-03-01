@@ -2,7 +2,7 @@
 {% from 'macros/icons.html' import render_icon %}
 {% from 'macros/misc.html' import render_distribution_bar %}
 {% set current_page = 'booking' %}
-{% set page_title = 'Bungalow-Kategorien' %}
+{% set page_title = 'Buchung' %}
 
 {% block head %}
 <style>
@@ -25,6 +25,8 @@
   <h1 class="title">{{ page_title }}</h1>
 
 {{ render_snippet('bungalow_categories_intro', ignore_if_unknown=True)|safe }}
+
+  <h2 class="title">Bungalow-Kategorien</h2>
 
   {%- with party_is_over = g.party.is_over %}
   <table class="itemlist is-vcentered" style="--cell-padding-horizontal: 3rem; margin-inline: auto;">
