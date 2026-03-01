@@ -633,7 +633,6 @@ def appoint_manager(occupancy_id):
     occupancy = _get_occupancy_or_404(occupancy_id)
 
     bungalow = bungalow_service.get_db_bungalow(occupancy.bungalow_id)
-    party = party_service.find_party(bungalow.party_id)
 
     form = AppointManagerForm(request.form)
 
@@ -651,7 +650,7 @@ def appoint_manager(occupancy_id):
         case Err(_):
             flash_error('Die Verwaltung konnte nicht übertragen werden.')
 
-    return redirect_to('.offer_index', party_id=party.id)
+    return redirect_to('.offer_view', bungalow_id=bungalow.id)
 
 
 @blueprint.get('/occupancies/<occupancy_id>/move')
