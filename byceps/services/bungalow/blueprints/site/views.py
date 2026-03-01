@@ -773,9 +773,7 @@ def occupant_add(ticket_id: TicketID):
 
     occupant = form.occupant.data
 
-    ticket_user_management_service.appoint_user(
-        ticket.id, occupant, manager
-    )
+    ticket_user_management_service.appoint_user(ticket.id, occupant, manager)
 
     flash_success(
         f'"{occupant.screen_name}" wurde als Mitbewohner '

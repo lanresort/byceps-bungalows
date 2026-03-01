@@ -41,6 +41,7 @@ from byceps.services.shop.product import product_service
 from byceps.services.ticketing import (
     ticket_bundle_service,
     ticket_category_service,
+    ticket_service,
 )
 from byceps.services.ticketing import ticket_user_management_service
 from byceps.services.ticketing.models.ticket import (
@@ -148,9 +149,12 @@ def _create_ticket_bundle(
     )
     order_event_service.send_tickets_sold_event(tickets_sold_event)
 
-    ticket_user_management_service.appoint_user(
-        bundle.ticket_ids[0], owner, initiator
-    )
+    if not ticket_service.uses_any_ticket_for_party(
+        owner.id, ticket_category.party_id
+    ):
+        ticket_user_management_service.appoint_user(
+            bundle.ticket_ids[0], owner, initiator
+        )
 
     return bundle
 
