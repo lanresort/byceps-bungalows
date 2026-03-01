@@ -111,7 +111,7 @@
                     <li>
                       {%- with occupant = occupant_slot.occupant -%}
                         {%- if occupant -%}
-                        {{ render_user_avatar(occupant, size=24) }}
+                        {{ render_user_avatar(occupant, size=32) }}
                         {{ render_user_link(occupant) }}
                         {%- else -%}
                         <span class="occupant-slot--available" title="frei"></span> <span>{{ 'frei'|dim }}</span>
