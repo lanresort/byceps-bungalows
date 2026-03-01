@@ -76,11 +76,11 @@ def on_payment(
 
     ticket_category = ticket_category_service.get_category(ticket_category_id)
 
-    ticket_bundle_id = _create_ticket_bundle(
+    ticket_bundle = _create_ticket_bundle(
         order, line_item, ticket_category, ticket_quantity, initiator
     )
 
-    _occupy_bungalow(line_item, ticket_bundle_id)
+    _occupy_bungalow(line_item, ticket_bundle)
 
     return Ok(None)
 
@@ -125,7 +125,7 @@ def _create_ticket_bundle(
     ticket_category: TicketCategory,
     ticket_quantity: int,
     initiator: User,
-) -> TicketBundleID:
+) -> TicketBundle:
     """Create ticket bundle."""
     owner = order.placed_by
     order_number = order.order_number
@@ -148,7 +148,7 @@ def _create_ticket_bundle(
     )
     order_event_service.send_tickets_sold_event(tickets_sold_event)
 
-    return bundle.id
+    return bundle
 
 
 def _create_creation_order_log_entry(
@@ -166,7 +166,7 @@ def _create_creation_order_log_entry(
 
 
 def _occupy_bungalow(
-    line_item: LineItem, ticket_bundle_id: TicketBundleID
+    line_item: LineItem, ticket_bundle: TicketBundle
 ) -> Result[None, OrderActionFailedError]:
     """Occupy reserved bungalow."""
     reservation_id_str = line_item.processing_result['bungalow_reservation_id']
@@ -179,7 +179,7 @@ def _occupy_bungalow(
         occupation_result = bungalow_occupancy_service.occupy_reserved_bungalow(
             reservation_id,
             occupancy_id,
-            ticket_bundle_id,
+            ticket_bundle.id,
         )
         if occupation_result.is_err():
             return Err(
