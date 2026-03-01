@@ -3,5 +3,8 @@
 
 {%- call render_subnav() %}
       {{ render_subnav_item(url_for('bungalow.index'), 'Belegungsplan', 'bungalows', current_page) }}
+      {%- if not g.does_party_use_bungalow_preselection %}
+      {{ render_subnav_item(url_for('bungalow.category_index'), 'Buchung', 'booking', current_page) }}
+      {%- endif %}
       {{ render_subnav_item(url_for('bungalow.occupant_index_all'), 'Bewohner', 'occupants', current_page) }}
 {%- endcall %}
