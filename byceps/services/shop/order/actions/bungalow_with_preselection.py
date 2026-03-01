@@ -180,6 +180,7 @@ def _occupy_bungalow(
             reservation_id,
             occupancy_id,
             ticket_bundle,
+            ticket_bundle.owned_by,
         )
         if occupation_result.is_err():
             return Err(

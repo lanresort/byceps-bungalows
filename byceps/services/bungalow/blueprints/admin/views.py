@@ -569,9 +569,11 @@ def ticket_bundle_occupy_bungalow(bundle_id: TicketBundleID):
     bungalow_id = form.bungalow_id.data
     bungalow = bungalow_service.get_bungalow(bungalow_id)
 
+    initiator = g.user
+
     try:
         match bungalow_occupancy_service.occupy_bungalow_without_reservation(
-            bungalow.id, bundle
+            bungalow.id, bundle, initiator
         ):
             case Ok((occupancy, event)):
                 pass

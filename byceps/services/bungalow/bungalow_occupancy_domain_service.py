@@ -123,6 +123,7 @@ def occupy_reserved_bungalow(
     bungalow: Bungalow,
     current_occupancy: BungalowOccupancy,
     ticket_bundle: TicketBundle,
+    initiator: User,
 ) -> Result[
     tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
 ]:
@@ -144,10 +145,10 @@ def occupy_reserved_bungalow(
     )
 
     event = _build_bungalow_occupied_event(
-        occupier, bungalow.id, bungalow.number
+        bungalow.id, bungalow.number, occupier, initiator
     )
 
-    log_entry = _build_bungalow_occupied_log_entry(bungalow.id, occupier)
+    log_entry = _build_bungalow_occupied_log_entry(bungalow.id, initiator)
 
     return Ok((updated_occupancy, event, log_entry))
 
@@ -156,6 +157,7 @@ def occupy_bungalow_without_reservation(
     bungalow: Bungalow,
     order_number: OrderNumber | None,
     ticket_bundle: TicketBundle,
+    initiator: User,
 ) -> Result[
     tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
 ]:
@@ -173,10 +175,10 @@ def occupy_bungalow_without_reservation(
     )
 
     event = _build_bungalow_occupied_event(
-        occupier, bungalow.id, bungalow.number
+        bungalow.id, bungalow.number, occupier, initiator
     )
 
-    log_entry = _build_bungalow_occupied_log_entry(bungalow.id, occupier)
+    log_entry = _build_bungalow_occupied_log_entry(bungalow.id, initiator)
 
     return Ok((occupancy, event, log_entry))
 
@@ -206,11 +208,14 @@ def _build_occupancy_without_reservation(
 
 
 def _build_bungalow_occupied_event(
-    occupier: User, bungalow_id: BungalowID, bungalow_number: int
+    bungalow_id: BungalowID,
+    bungalow_number: int,
+    occupier: User,
+    initiator: User,
 ) -> BungalowOccupiedEvent:
     return BungalowOccupiedEvent(
         occurred_at=datetime.utcnow(),
-        initiator=occupier,
+        initiator=initiator,
         bungalow_id=bungalow_id,
         bungalow_number=bungalow_number,
         occupier=occupier,

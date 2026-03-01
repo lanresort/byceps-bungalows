@@ -296,6 +296,7 @@ def occupy_reserved_bungalow(
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
     ticket_bundle: TicketBundle,
+    initiator: User,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Mark a reserved bungalow as occupied."""
     match get_occupancy(occupancy_id):
@@ -311,9 +312,7 @@ def occupy_reserved_bungalow(
     bungalow = _db_entity_to_bungalow(db_bungalow)
 
     match bungalow_occupancy_domain_service.occupy_reserved_bungalow(
-        bungalow,
-        current_occupancy,
-        ticket_bundle,
+        bungalow, current_occupancy, ticket_bundle, initiator
     ):
         case Ok((updated_occupancy, event, log_entry)):
             pass
@@ -330,6 +329,7 @@ def occupy_reserved_bungalow(
 def occupy_bungalow_without_reservation(
     bungalow_id: BungalowID,
     ticket_bundle: TicketBundle,
+    initiator: User,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Occupy the bungalow without previous reservation."""
     db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
@@ -340,9 +340,7 @@ def occupy_bungalow_without_reservation(
     order_number = ticket_service.get_ticket(ticket_id).order_number
 
     match bungalow_occupancy_domain_service.occupy_bungalow_without_reservation(
-        bungalow,
-        order_number,
-        ticket_bundle,
+        bungalow, order_number, ticket_bundle, initiator
     ):
         case Ok((occupancy, event, log_entry)):
             pass
