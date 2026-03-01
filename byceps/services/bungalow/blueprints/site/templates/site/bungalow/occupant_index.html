@@ -76,26 +76,29 @@
     {%- for occupant_slot, ticket in occupant_slots_and_tickets %}
     <li>
       <div class="occupant-card">
+      {%- if occupant_slot.occupant -%}
         <div class="user">
-        {%- if occupant_slot.occupant -%}
           {%- with occupant = occupant_slot.occupant %}
           {{ render_user_avatar(occupant, size=96, orga=occupant.id in orga_ids) }}
           <div class="user-name"><strong>{{ render_user_link(occupant) }}</strong></div>
           {%- endwith %}
-        {%- else -%}
+        </div>
+        {%- if ticket.is_user_managed_by(g.user.id) %}
+        <div class="button-row is-compact">
+          <a class="button" href="{{ url_for('.occupant_remove_form', ticket_id=ticket.id) }}">{{ render_icon('delete') }} <span>Rauswerfen</span></a>
+        </div>
+        {%- endif %}
+      {%- else -%}
+        <div class="user">
           <div class="user-avatar-available"></div>
           <div class="user-name">{{ 'frei'|dim }}</div>
-        {%- endif -%}
         </div>
+        {%- if ticket.is_user_managed_by(g.user.id) %}
         <div class="button-row is-compact">
-        {%- if ticket and ticket.is_user_managed_by(g.user.id) %}
-          {%- if not ticket.used_by %}
           <a class="button" href="{{ url_for('.occupant_add_form', ticket_id=ticket.id) }}">{{ render_icon('add') }} <span>Hinzufügen</span></a>
-          {%- else %}
-          <a class="button" href="{{ url_for('.occupant_remove_form', ticket_id=ticket.id) }}">{{ render_icon('delete') }} <span>Rauswerfen</span></a>
-          {%- endif %}
-        {%- endif %}
         </div>
+        {%- endif %}
+      {%- endif -%}
       </div>
     </li>
     {%- endfor %}
