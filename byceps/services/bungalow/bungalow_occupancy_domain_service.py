@@ -133,6 +133,9 @@ def occupy_reserved_bungalow(
             "Not in state 'reserved', cannot change to state 'occupied'."
         )
 
+    if bungalow.category.ticket_category_id != ticket_bundle.ticket_category.id:
+        return Err('Ticket categories do not match.')
+
     updated_occupancy = dataclasses.replace(
         current_occupancy,
         state=OccupancyState.occupied,
@@ -159,6 +162,9 @@ def occupy_bungalow_without_reservation(
     """Occupy the bungalow without previous reservation."""
     if not bungalow.available:
         return Err('Bungalow is not available.')
+
+    if bungalow.category.ticket_category_id != ticket_bundle.ticket_category.id:
+        return Err('Ticket categories do not match.')
 
     occupancy = _build_occupancy_without_reservation(
         bungalow.id, occupier, order_number, ticket_bundle.id
