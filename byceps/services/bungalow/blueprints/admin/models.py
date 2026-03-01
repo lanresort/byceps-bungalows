@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from byceps.services.bungalow.models.bungalow import BungalowID
+from byceps.services.shop.order.models.number import OrderNumber
 from byceps.services.ticketing.models.ticket import (
     TicketBundleID,
     TicketCategory,
@@ -24,5 +25,6 @@ class BungalowTicketBundle:
     ticket_category: TicketCategory
     ticket_quantity: int
     ticket_bundle_owner: User
+    order_number: OrderNumber | None
     bungalow_id: BungalowID | None
     bungalow_number: int | None

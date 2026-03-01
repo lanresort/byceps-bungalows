@@ -17,6 +17,7 @@
         <th>{{ _('Created') }}</th>
         <th>{{ _('Category') }}</th>
         <th>{{ _('Owner') }}</th>
+        <th>{{ _('Order') }}</th>
         <th class="centered">Bungalow</th>
       </tr>
     </thead>
@@ -27,6 +28,7 @@
         <td>{{ btb.created_at|datetimeformat }}</td>
         <td>{{ btb.ticket_category.title }}</td>
         <td>{{ render_user_avatar_and_admin_link(btb.ticket_bundle_owner, size=20) }}</td>
+        <td>{{ btb.order_number|fallback }}</td>
         {%- if btb.bungalow_id -%}
         <td class="bignumber centered"><a href="{{ url_for('.offer_view', bungalow_id=btb.bungalow_id) }}">{{ btb.bungalow_number }}</a></td>
         {%- else -%}

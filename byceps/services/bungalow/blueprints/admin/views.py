@@ -495,6 +495,7 @@ def ticket_bundle_index(party_id: PartyID):
             ticket_category=bundle.ticket_category,
             ticket_quantity=bundle.ticket_quantity,
             ticket_bundle_owner=bundle.owned_by,
+            order_number=bundle.order_number,
             bungalow_id=db_bungalow.id if db_bungalow else None,
             bungalow_number=db_bungalow.number if db_bungalow else None,
         )
