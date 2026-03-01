@@ -50,7 +50,7 @@
         </td>
         {%- elif bungalow.occupied %}
         <td colspan="2" class="nowrap">
-          <div class="row">
+          <div class="row is-vcentered">
             <div>{{ render_bungalow_avatar(bungalow, 36) }}</div>
             <div>
               {{ bungalow.occupancy.title|fallback('namenlos') }}<br>
