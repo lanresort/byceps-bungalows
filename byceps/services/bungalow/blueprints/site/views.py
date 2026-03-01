@@ -774,7 +774,7 @@ def occupant_add(ticket_id: TicketID):
     occupant = form.occupant.data
 
     ticket_user_management_service.appoint_user(
-        ticket.id, occupant.id, manager.id
+        ticket.id, occupant, manager
     )
 
     flash_success(
@@ -851,7 +851,7 @@ def occupant_remove(ticket_id: TicketID):
 
     occupant = user_service.get_user(occupant_id)
 
-    ticket_user_management_service.withdraw_user(ticket.id, manager.id)
+    ticket_user_management_service.withdraw_user(ticket.id, manager)
 
     flash_success(
         f'"{occupant.screen_name}" wurde als Mitbewohner '
