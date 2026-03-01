@@ -109,12 +109,14 @@
                   <ol class="occupant-slots-vertical">
                     {%- for occupant_slot in occupant_slots %}
                     <li>
-                      {%- if occupant_slot.occupant -%}
-                        {{ render_user_avatar(occupant_slot.occupant, size=24) }}
-                        {{ render_user_link(occupant_slot.occupant) }}
-                      {%- else -%}
+                      {%- with occupant = occupant_slot.occupant -%}
+                        {%- if occupant -%}
+                        {{ render_user_avatar(occupant, size=24) }}
+                        {{ render_user_link(occupant) }}
+                        {%- else -%}
                         <span class="occupant-slot--available" title="frei"></span> <span>{{ 'frei'|dim }}</span>
-                      {%- endif -%}
+                        {%- endif -%}
+                      {%- endwith -%}
                     </li>
                     {%- endfor %}
                   </ol>
