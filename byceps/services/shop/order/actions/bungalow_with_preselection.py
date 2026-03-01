@@ -42,6 +42,7 @@ from byceps.services.ticketing import (
     ticket_bundle_service,
     ticket_category_service,
 )
+from byceps.services.ticketing import ticket_user_management_service
 from byceps.services.ticketing.models.ticket import (
     TicketBundle,
     TicketBundleID,
@@ -135,7 +136,6 @@ def _create_ticket_bundle(
         ticket_quantity,
         owner,
         order_number=order_number,
-        user=None,  # Do not assign owner as user.
     )
     _create_creation_order_log_entry(order.id, bundle)
 
@@ -147,6 +147,10 @@ def _create_ticket_bundle(
         order, initiator, ticket_category, owner, ticket_quantity
     )
     order_event_service.send_tickets_sold_event(tickets_sold_event)
+
+    ticket_user_management_service.appoint_user(
+        bundle.ticket_ids[0], owner, initiator
+    )
 
     return bundle
 
