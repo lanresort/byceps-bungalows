@@ -85,7 +85,7 @@
         </div>
         {%- if ticket.is_user_managed_by(g.user.id) %}
         <div class="button-row is-compact">
-          <a class="button" href="{{ url_for('.occupant_remove_form', ticket_id=ticket.id) }}">{{ render_icon('delete') }} <span>Rauswerfen</span></a>
+          <a class="button" href="{{ url_for('.occupant_remove_form', ticket_id=ticket.id) }}" title="{{ _('Remove') }}">{{ render_icon('delete') }}</a>
         </div>
         {%- endif %}
       {%- else -%}
@@ -95,7 +95,7 @@
         </div>
         {%- if ticket.is_user_managed_by(g.user.id) %}
         <div class="button-row is-compact">
-          <a class="button" href="{{ url_for('.occupant_add_form', ticket_id=ticket.id) }}">{{ render_icon('add') }} <span>Hinzufügen</span></a>
+          <a class="button" href="{{ url_for('.occupant_add_form', ticket_id=ticket.id) }}" title="{{ _('Add') }}">{{ render_icon('add') }}</a>
         </div>
         {%- endif %}
       {%- endif -%}
