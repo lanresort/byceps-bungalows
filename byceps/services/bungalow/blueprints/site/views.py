@@ -665,14 +665,13 @@ def occupant_index(number: int):
     """Show occupants management view."""
     db_bungalow = _get_bungalow_for_number_or_404(number)
 
-    user = g.user.as_user()
     if (
-        not user.authenticated
+        not g.user.authenticated
         or db_bungalow.occupation_state != BungalowOccupationState.occupied
         or (
-            db_bungalow.occupancy.manager_id != user.id
+            db_bungalow.occupancy.manager_id != g.user.id
             and not bungalow_service.is_user_allowed_to_manage_any_occupant_slots(
-                user, db_bungalow.occupancy
+                g.user.as_user(), db_bungalow.occupancy
             )
         )
     ):
