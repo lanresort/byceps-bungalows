@@ -15,7 +15,7 @@ from sqlalchemy import select
 from byceps.database import db, paginate, Pagination
 from byceps.services.brand import brand_setting_service
 from byceps.services.brand.models import BrandID
-from byceps.services.party import party_service
+from byceps.services.party import party_service, party_setting_service
 from byceps.services.party.models import Party, PartyID
 from byceps.services.shop.product.dbmodels.product import DbProduct
 from byceps.services.ticketing import ticket_bundle_service, ticket_service
@@ -42,7 +42,7 @@ def get_active_bungalow_parties() -> list[Party]:
 
 
 # -------------------------------------------------------------------- #
-# bungalow
+# settings
 
 
 def has_brand_bungalows(brand_id: BrandID) -> bool:
@@ -52,6 +52,21 @@ def has_brand_bungalows(brand_id: BrandID) -> bool:
     )
 
     return has_bungalows == 'true'
+
+
+def does_party_use_bungalow_preselection(party_id: PartyID) -> bool:
+    """Return `True` if the party uses preselection of a specific
+    bungalow on ordering.
+    """
+    uses_bungalow_preselection = party_setting_service.find_setting_value(
+        party_id, 'uses_bungalow_preselection'
+    )
+
+    return uses_bungalow_preselection == 'true'
+
+
+# -------------------------------------------------------------------- #
+# bungalow
 
 
 def find_bungalow(bungalow_id: BungalowID) -> Bungalow | None:
