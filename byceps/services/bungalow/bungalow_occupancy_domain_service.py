@@ -10,7 +10,7 @@ import dataclasses
 from datetime import datetime
 
 from byceps.services.shop.order.models.number import OrderNumber
-from byceps.services.ticketing.models.ticket import TicketBundleID
+from byceps.services.ticketing.models.ticket import TicketBundle, TicketBundleID
 from byceps.services.user.models import User
 from byceps.util.result import Err, Ok, Result
 from byceps.util.uuid import generate_uuid7
@@ -123,7 +123,7 @@ def occupy_reserved_bungalow(
     bungalow: Bungalow,
     current_occupancy: BungalowOccupancy,
     occupier: User,
-    ticket_bundle_id: TicketBundleID,
+    ticket_bundle: TicketBundle,
 ) -> Result[
     tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
 ]:
@@ -136,7 +136,7 @@ def occupy_reserved_bungalow(
     updated_occupancy = dataclasses.replace(
         current_occupancy,
         state=OccupancyState.occupied,
-        ticket_bundle_id=ticket_bundle_id,
+        ticket_bundle_id=ticket_bundle.id,
     )
 
     event = _build_bungalow_occupied_event(
@@ -152,7 +152,7 @@ def occupy_bungalow_without_reservation(
     bungalow: Bungalow,
     occupier: User,
     order_number: OrderNumber,
-    ticket_bundle_id: TicketBundleID,
+    ticket_bundle: TicketBundle,
 ) -> Result[
     tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
 ]:
@@ -161,7 +161,7 @@ def occupy_bungalow_without_reservation(
         return Err('Bungalow is not available.')
 
     occupancy = _build_occupancy_without_reservation(
-        bungalow.id, occupier, order_number, ticket_bundle_id
+        bungalow.id, occupier, order_number, ticket_bundle.id
     )
 
     event = _build_bungalow_occupied_event(

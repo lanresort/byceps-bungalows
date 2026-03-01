@@ -309,6 +309,11 @@ def occupy_reserved_bungalow(
 
     bungalow = _db_entity_to_bungalow(db_bungalow)
 
+    db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
+    ticket_bundle = ticket_bundle_service.db_entity_to_ticket_bundle(
+        db_ticket_bundle
+    )
+
     occupier_id = current_occupancy.occupied_by_id
     occupier = user_service.get_user(occupier_id)
 
@@ -316,7 +321,7 @@ def occupy_reserved_bungalow(
         bungalow,
         current_occupancy,
         occupier,
-        ticket_bundle_id,
+        ticket_bundle,
     ):
         case Ok((updated_occupancy, event, log_entry)):
             pass
@@ -340,14 +345,17 @@ def occupy_bungalow_without_reservation(
     bungalow = _db_entity_to_bungalow(db_bungalow)
 
     db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
-    occupier = db_ticket_bundle.owned_by
+    ticket_bundle = ticket_bundle_service.db_entity_to_ticket_bundle(
+        db_ticket_bundle
+    )
+    occupier = ticket_bundle.owned_by
     order_number = db_ticket_bundle.tickets[0].order_number
 
     match bungalow_occupancy_domain_service.occupy_bungalow_without_reservation(
         bungalow,
         occupier,
         order_number,
-        ticket_bundle_id,
+        ticket_bundle,
     ):
         case Ok((occupancy, event, log_entry)):
             pass
