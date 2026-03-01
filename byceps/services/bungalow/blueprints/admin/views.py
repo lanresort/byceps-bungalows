@@ -47,6 +47,11 @@ from byceps.services.ticketing import (
     ticket_bundle_service,
     ticket_category_service,
 )
+from byceps.services.ticketing.models.ticket import (
+    TicketBundle,
+    TicketBundleID,
+    TicketCategoryID,
+)
 from byceps.services.user import user_service
 from byceps.services.user.models import UserID
 from byceps.util.export import serialize_tuples_to_csv
@@ -71,6 +76,7 @@ from .forms import (
     InternalRemarkUpdateForm,
     OccupancyMoveForm,
     OfferCreateForm,
+    TicketBundleOccupyBungalowForm,
 )
 from .models import BungalowTicketBundle
 
@@ -501,6 +507,104 @@ def ticket_bundle_index(party_id: PartyID):
     }
 
 
+@blueprint.get('/ticket_bundles/<uuid:bundle_id>/occupy')
+@permission_required('bungalow.update')
+@templated
+def ticket_bundle_occupy_bungalow_form(
+    bundle_id: TicketBundleID,
+    *,
+    erroneous_form: TicketBundleOccupyBungalowForm | None = None,
+):
+    """Show a form to move the occupancy to another bungalow."""
+    bundle = _get_ticket_bundle_or_404(bundle_id)
+
+    party = party_service.get_party(bundle.party_id)
+
+    bungalow_candidates = (
+        _get_candidate_bungalows_for_occupation_without_reservation(
+            party.id, bundle.ticket_category.id
+        )
+    )
+    if not bungalow_candidates:
+        flash_error('Es sind keine passenden Bungalows frei.')
+        return redirect_to('.ticket_bundle_index', party_id=party.id)
+
+    form = (
+        erroneous_form if erroneous_form else TicketBundleOccupyBungalowForm()
+    )
+    form.set_bungalow_choices(bungalow_candidates)
+
+    return {
+        'party': party,
+        'ticket_bundle': bundle,
+        'form': form,
+    }
+
+
+@blueprint.post('/ticket_bundles/<uuid:bundle_id>')
+@permission_required('bungalow.update')
+def ticket_bundle_occupy_bungalow(bundle_id: TicketBundleID):
+    """Move the occupancy to another bungalow."""
+    bundle = _get_ticket_bundle_or_404(bundle_id)
+
+    party = party_service.get_party(bundle.party_id)
+
+    bungalow_candidates = (
+        _get_candidate_bungalows_for_occupation_without_reservation(
+            party.id, bundle.ticket_category.id
+        )
+    )
+    if not bungalow_candidates:
+        flash_error('Es sind keine passenden Bungalows frei.')
+        return redirect_to('.ticket_bundle_index', party_id=party.id)
+
+    form = TicketBundleOccupyBungalowForm(request.form)
+    form.set_bungalow_choices(bungalow_candidates)
+
+    if not form.validate():
+        return ticket_bundle_occupy_bungalow_form(
+            bundle.id, erroneous_form=form
+        )
+
+    bungalow_id = form.bungalow_id.data
+    bungalow = bungalow_service.get_bungalow(bungalow_id)
+
+    try:
+        match bungalow_occupancy_service.occupy_bungalow_without_reservation(
+            bungalow.id, bundle.id
+        ):
+            case Ok((occupancy, event)):
+                pass
+            case Err(err):
+                flash_error(f'Bungalow konnte nicht zugewiesen werden: {err}')
+                return ticket_bundle_occupy_bungalow_form(
+                    bundle.id, erroneous_form=form
+                )
+    except ValueError as e:
+        flash_error(str(e))
+        return ticket_bundle_occupy_bungalow_form(
+            occupancy.id, erroneous_form=form
+        )
+
+    bungalow_signals.bungalow_occupied.send(None, event=event)
+
+    flash_success('Der Bungalow wurde belegt.')
+
+    return redirect_to('.ticket_bundle_index', party_id=party.id)
+
+
+def _get_candidate_bungalows_for_occupation_without_reservation(
+    party_id: PartyID, ticket_category_id: TicketCategoryID
+) -> list[Bungalow]:
+    return [
+        bungalow
+        for bungalow in bungalow_service.get_available_bungalows_for_party(
+            party_id
+        )
+        if bungalow.category.ticket_category_id == ticket_category_id
+    ]
+
+
 @blueprint.get('/occupancies/<occupancy_id>/manager/update')
 @permission_required('bungalow.update')
 @templated
@@ -920,6 +1024,15 @@ def _get_category_or_404(category_id: BungalowCategoryID) -> BungalowCategory:
         abort(404)
 
     return category
+
+
+def _get_ticket_bundle_or_404(bundle_id: TicketBundleID) -> TicketBundle:
+    db_bundle = ticket_bundle_service.find_bundle(bundle_id)
+
+    if db_bundle is None:
+        abort(404)
+
+    return ticket_bundle_service.db_entity_to_ticket_bundle(db_bundle)
 
 
 def _get_party_or_404(party_id: PartyID) -> Party:

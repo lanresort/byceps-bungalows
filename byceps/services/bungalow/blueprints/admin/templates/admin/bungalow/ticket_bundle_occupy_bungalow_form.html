@@ -1,0 +1,25 @@
+{% extends 'layout/admin/bungalow.html' %}
+{% from 'macros/admin.html' import render_backlink %}
+{% from 'macros/forms.html' import form_buttons, form_field_radio %}
+{% from 'macros/icons.html' import render_icon %}
+{% set current_page_party = party %}
+{% set current_tab = 'offers' %}
+{% set page_title = [_('Ticket bundles'), party.title] %}
+
+{% block before_body %}
+{{ render_backlink(url_for('.ticket_bundle_index', party_id=party.id), _('Ticket bundles')) }}
+{%- endblock %}
+
+{% block body %}
+
+  <h1 class="title">Bungalow zuweisen</h1>
+
+  <form action="{{ url_for('.ticket_bundle_occupy_bungalow', bundle_id=ticket_bundle.id) }}" method="post">
+    <div class="box">
+      {{ form_field_radio(form.bungalow_id, autofocus='autofocus') }}
+    </div>
+
+    {{ form_buttons(_('Assign')) }}
+  </form>
+
+{%- endblock %}

@@ -28,7 +28,7 @@ from .dbmodels.bungalow import DbBungalow
 from .dbmodels.category import DbBungalowCategory
 from .dbmodels.occupancy import DbBungalowOccupancy
 from .model_converters import _db_entity_to_bungalow
-from .models.bungalow import Bungalow, BungalowID
+from .models.bungalow import Bungalow, BungalowID, BungalowOccupationState
 from .models.occupation import BungalowOccupancy
 
 
@@ -69,6 +69,16 @@ def find_bungalow(bungalow_id: BungalowID) -> Bungalow | None:
         return None
 
     return _db_entity_to_bungalow(db_bungalow)
+
+
+def get_bungalow(bungalow_id: BungalowID) -> Bungalow:
+    """Return the bungalow with that ID."""
+    bungalow = find_bungalow(bungalow_id)
+
+    if bungalow is None:
+        raise ValueError('Unknown bungalow ID')
+
+    return bungalow
 
 
 def find_db_bungalow(bungalow_id: BungalowID) -> DbBungalow | None:
@@ -140,6 +150,20 @@ def get_bungalows_extended_for_party(party_id: PartyID) -> Sequence[DbBungalow]:
         .options(db.joinedload(DbBungalow.occupancy))
         .order_by(DbBungalow.number)
     ).all()
+
+
+def get_available_bungalows_for_party(
+    party_id: PartyID,
+) -> list[Bungalow]:
+    """Return all available bungalows for the party, ordered by number."""
+    db_bungalows = db.session.scalars(
+        select(DbBungalow)
+        .filter_by(party_id=party_id)
+        .filter_by(_occupation_state=BungalowOccupationState.available)
+        .order_by(DbBungalow.number)
+    ).all()
+
+    return [_db_entity_to_bungalow(db_bungalow) for db_bungalow in db_bungalows]
 
 
 # -------------------------------------------------------------------- #

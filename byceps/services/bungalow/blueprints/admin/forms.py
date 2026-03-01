@@ -18,6 +18,7 @@ from wtforms.validators import InputRequired, Length, Optional
 
 from byceps.services.bungalow import bungalow_category_service, bungalow_service
 from byceps.services.bungalow.dbmodels.bungalow import DbBungalow
+from byceps.services.bungalow.models.bungalow import Bungalow
 from byceps.services.party.models import PartyID
 from byceps.services.shop.product import product_service
 from byceps.services.shop.shop.models import ShopID
@@ -170,6 +171,17 @@ class InternalRemarkUpdateForm(LocalizedForm):
 
 class AppointManagerForm(LocalizedForm):
     manager = UserScreenNameField(lazy_gettext('Username'), [InputRequired()])
+
+
+class TicketBundleOccupyBungalowForm(LocalizedForm):
+    bungalow_id = RadioField(
+        lazy_gettext('Bungalow'), validators=[InputRequired()]
+    )
+
+    def set_bungalow_choices(self, bungalows: list[Bungalow]) -> None:
+        self.bungalow_id.choices = [
+            (str(bungalow.id), bungalow.number) for bungalow in bungalows
+        ]
 
 
 class OccupancyMoveForm(LocalizedForm):
