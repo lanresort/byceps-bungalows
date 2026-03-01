@@ -176,7 +176,7 @@ def _occupy_bungalow(
     occupancy_id = OccupancyID(UUID(occupancy_id_str))
 
     try:
-        occupation_result = bungalow_occupancy_service.occupy_bungalow(
+        occupation_result = bungalow_occupancy_service.occupy_reserved_bungalow(
             reservation_id,
             occupancy_id,
             ticket_bundle_id,
