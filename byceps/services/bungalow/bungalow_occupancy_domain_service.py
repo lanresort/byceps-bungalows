@@ -225,6 +225,9 @@ def release_bungalow(
     """Release the bungalow occupied by the occupancy so it becomes available
     again.
     """
+    if not bungalow.reserved_or_occupied:
+        return Err('Bungalow is not reserved or occupied.')
+
     event = _build_bungalow_released_event(
         initiator, bungalow.id, bungalow.number
     )
