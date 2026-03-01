@@ -7,7 +7,7 @@
 {% set page_title = 'Bungalow-Kategorie bearbeiten' %}
 
 {% block before_body %}
-{{ render_backlink(url_for('.categories', party_id=party.id), 'Kategorien') }}
+{{ render_backlink(url_for('.category_index', party_id=party.id), 'Kategorien') }}
 {%- endblock %}
 
 {% block body %}

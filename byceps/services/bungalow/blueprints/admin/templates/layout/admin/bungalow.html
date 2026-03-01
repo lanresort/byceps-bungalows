@@ -7,9 +7,9 @@
 {{
   render_main_tabs(
     Navigation(None)
-      .add_item(url_for('.index_for_party', party_id=party.id), 'Angebotene Bungalows', id='offers', required_permission='bungalow.view')
-      .add_item(url_for('.categories', party_id=party.id), 'Kategorien', id='categories', required_permission='bungalow.view')
-      .add_item(url_for('.occupants', party_id=party.id), 'Belegung', id='occupants', required_permission='bungalow.view')
+      .add_item(url_for('.offer_index', party_id=party.id), 'Angebotene Bungalows', id='offers', required_permission='bungalow.view')
+      .add_item(url_for('.category_index', party_id=party.id), 'Kategorien', id='categories', required_permission='bungalow.view')
+      .add_item(url_for('.occupant_index', party_id=party.id), 'Belegung', id='occupants', required_permission='bungalow.view')
     , current_tab
   )
 }}

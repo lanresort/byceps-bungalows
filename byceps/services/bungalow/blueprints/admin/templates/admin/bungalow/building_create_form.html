@@ -7,7 +7,7 @@
 {% set page_title = 'Gebäude hinzufügen' %}
 
 {% block before_body %}
-{{ render_backlink(url_for('.buildings', brand_id=brand.id), 'Gebäude') }}
+{{ render_backlink(url_for('.building_index', brand_id=brand.id), 'Gebäude') }}
 {%- endblock %}
 
 {% block body %}

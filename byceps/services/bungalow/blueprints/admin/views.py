@@ -77,7 +77,7 @@ blueprint = create_blueprint('bungalow_admin', __name__)
 @blueprint.get('/buildings/for_brand/<brand_id>')
 @permission_required('bungalow.view')
 @templated
-def buildings(brand_id):
+def building_index(brand_id):
     """List all buildings and layouts for that brand."""
     brand = _get_brand_or_404(brand_id)
 
@@ -136,13 +136,13 @@ def building_create(brand_id):
         f'für die Marke "{brand.title}" hinzugefügt.'
     )
 
-    return redirect_to('.buildings', brand_id=brand.id)
+    return redirect_to('.building_index', brand_id=brand.id)
 
 
 @blueprint.get('/<party_id>')
 @permission_required('bungalow.view')
 @templated
-def index_for_party(party_id):
+def offer_index(party_id):
     """List all bungalows for the party."""
     party = _get_party_or_404(party_id)
 
@@ -313,7 +313,7 @@ def offer_create(party_id):
         f'Diese Bungalows werden ab sofort angeboten: {building_numbers_text}'
     )
 
-    return redirect_to('.index_for_party', party_id=party.id)
+    return redirect_to('.offer_index', party_id=party.id)
 
 
 def _get_buildings_for_party(party: Party) -> list[BungalowBuilding]:
@@ -342,13 +342,13 @@ def offer_delete(bungalow_id):
 
     flash_success('Der Bungalow wird nun nicht mehr angeboten.')
 
-    return url_for('.index_for_party', party_id=bungalow.party_id)
+    return url_for('.offer_index', party_id=bungalow.party_id)
 
 
 @blueprint.get('/<party_id>/occupants')
 @permission_required('bungalow.view')
 @templated
-def occupants(party_id):
+def occupant_index(party_id):
     party = _get_party_or_404(party_id)
 
     db_bungalows = bungalow_occupancy_service.get_occupied_bungalows_for_party(
@@ -453,7 +453,7 @@ def internal_remark_update(occupancy_id):
         f'Die Anmerkung zu Bungalow {bungalow.number:d} wurde aktualisiert.'
     )
 
-    return redirect_to('.index_for_party', party_id=bungalow.party_id)
+    return redirect_to('.offer_index', party_id=bungalow.party_id)
 
 
 @blueprint.get('/occupancies/<occupancy_id>/manager/update')
@@ -500,7 +500,7 @@ def appoint_manager(occupancy_id):
         case Err(_):
             flash_error('Die Verwaltung konnte nicht übertragen werden.')
 
-    return redirect_to('.index_for_party', party_id=party.id)
+    return redirect_to('.offer_index', party_id=party.id)
 
 
 @blueprint.get('/occupancies/<occupancy_id>/move')
@@ -518,7 +518,7 @@ def occupancy_move_form(occupancy_id, erroneous_form=None):
 
     if not form.target_bungalow_id.choices:
         flash_error('Es sind keine passenden Ziel-Bungalows frei.')
-        return redirect_to('.index_for_party', party_id=party.id)
+        return redirect_to('.offer_index', party_id=party.id)
 
     return {
         'party': party,
@@ -566,13 +566,13 @@ def occupancy_move(occupancy_id):
         f'wurde zu Bungalow {target_bungalow.number:d} verschoben.'
     )
 
-    return redirect_to('.index_for_party', party_id=party.id)
+    return redirect_to('.offer_index', party_id=party.id)
 
 
 @blueprint.get('/categories/<party_id>')
 @permission_required('bungalow.view')
 @templated
-def categories(party_id):
+def category_index(party_id):
     """List bungalow categories for that party."""
     party = _get_party_or_404(party_id)
 
@@ -597,7 +597,7 @@ def category_create_form(party_id, erroneous_form=None):
             'Für die Marke dieser Party ist kein Shop konfiguriert. '
             'Deshalb können keine Bungalowkategorien angelegt werden.'
         )
-        return redirect_to('.categories', party_id=party.id)
+        return redirect_to('.category_index', party_id=party.id)
 
     form = erroneous_form if erroneous_form else CategoryCreateForm(party_id)
     form.set_ticket_category_choices(party.id)
@@ -655,7 +655,7 @@ def category_create(party_id):
         )
     )
 
-    return redirect_to('.categories', party_id=party.id)
+    return redirect_to('.category_index', party_id=party.id)
 
 
 @blueprint.get('/categories/<category_id>/update')
@@ -673,7 +673,7 @@ def category_update_form(category_id, erroneous_form=None):
             'Für die Marke dieser Party ist kein Shop konfiguriert. '
             'Deshalb können keine Bungalowkategorien bearbeitet werden.'
         )
-        return redirect_to('.categories', party_id=party.id)
+        return redirect_to('.category_index', party_id=party.id)
 
     form = (
         erroneous_form
@@ -741,7 +741,7 @@ def category_update(category_id):
 
     flash_success('Die Bungalow-Kategorie wurde aktualisiert.')
 
-    return redirect_to('.categories', party_id=category.party_id)
+    return redirect_to('.category_index', party_id=category.party_id)
 
 
 @blueprint.get('/<party_id>/occupants/export')
