@@ -9,6 +9,7 @@
     Navigation(None)
       .add_item(url_for('.offer_index', party_id=party.id), 'Angebotene Bungalows', id='offers', required_permission='bungalow.view')
       .add_item(url_for('.category_index', party_id=party.id), 'Kategorien', id='categories', required_permission='bungalow.view')
+      .add_item(url_for('.ticket_bundle_index', party_id=party.id), _('Ticket bundles'), id='ticket_bundles', required_permission='bungalow.view')
       .add_item(url_for('.occupant_index', party_id=party.id), 'Belegung', id='occupants', required_permission='bungalow.view')
     , current_tab
   )
