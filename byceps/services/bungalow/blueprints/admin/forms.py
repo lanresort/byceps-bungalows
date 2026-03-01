@@ -23,7 +23,7 @@ from byceps.services.party.models import PartyID
 from byceps.services.shop.product import product_service
 from byceps.services.shop.shop.models import ShopID
 from byceps.services.ticketing import ticket_category_service
-from byceps.util.forms import UserScreenNameField
+from byceps.util.forms import select_sole_choice, UserScreenNameField
 from byceps.util.l10n import LocalizedForm
 
 
@@ -153,6 +153,7 @@ class OfferCreateForm(LocalizedForm):
                 yield str(building.id), label
 
         self.building_ids.choices = list(generate())
+        select_sole_choice(self.building_ids)
 
     def set_bungalow_category_choices(self, categories):
         def generate():
@@ -163,6 +164,7 @@ class OfferCreateForm(LocalizedForm):
         choices = list(generate())
         choices.insert(0, ('', '<' + lazy_gettext('choose') + '>'))
         self.bungalow_category_id.choices = choices
+        select_sole_choice(self.bungalow_category_id)
 
 
 class InternalRemarkUpdateForm(LocalizedForm):
@@ -182,6 +184,7 @@ class TicketBundleOccupyBungalowForm(LocalizedForm):
         self.bungalow_id.choices = [
             (str(bungalow.id), bungalow.number) for bungalow in bungalows
         ]
+        select_sole_choice(self.bungalow_id)
 
 
 class OccupancyMoveForm(LocalizedForm):
@@ -196,6 +199,7 @@ class OccupancyMoveForm(LocalizedForm):
                 source_bungalow
             )
         ]
+        select_sole_choice(self.target_bungalow_id)
 
 
 def _get_occupancy_move_target_bungalows(
