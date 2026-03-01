@@ -569,7 +569,7 @@ def ticket_bundle_occupy_bungalow(bundle_id: TicketBundleID):
     bungalow_id = form.bungalow_id.data
     bungalow = bungalow_service.get_bungalow(bungalow_id)
 
-    initiator = g.user
+    initiator = g.user.as_user()
 
     try:
         match bungalow_occupancy_service.occupy_bungalow_without_reservation(
@@ -641,7 +641,7 @@ def appoint_manager(occupancy_id):
         return appoint_manager_form(occupancy_id, form)
 
     manager = form.manager.data
-    initiator = g.user
+    initiator = g.user.as_user()
 
     match bungalow_occupancy_service.appoint_bungalow_manager(
         occupancy_id, manager, initiator
@@ -696,10 +696,11 @@ def occupancy_move(occupancy_id):
 
     target_bungalow_id = form.target_bungalow_id.data
     target_bungalow = bungalow_service.get_db_bungalow(target_bungalow_id)
+    initiator = g.user.as_user()
 
     try:
         match bungalow_occupancy_service.move_occupancy(
-            occupancy.id, target_bungalow.id, g.user
+            occupancy.id, target_bungalow.id, initiator
         ):
             case Ok(event):
                 pass

@@ -391,7 +391,7 @@ def order_with_preselection(bungalow_id: BungalowID):
         )
         return order_with_preselection_form(bungalow_id)
 
-    user = g.user
+    user = g.user.as_user()
 
     if bungalow_occupancy_service.has_user_occupied_any_bungalow(
         g.party.id, user.id
@@ -565,7 +565,7 @@ def category_order(category_id: BungalowCategoryID):
                     )
                     return category_order_form(category.id)
 
-    user = g.user
+    user = g.user.as_user()
 
     if bungalow_order_service.has_user_ordered_any_bungalow_category(
         user.id, g.party.id
@@ -665,7 +665,7 @@ def occupant_index(number: int):
     """Show occupants management view."""
     db_bungalow = _get_bungalow_for_number_or_404(number)
 
-    user = g.user
+    user = g.user.as_user()
     if (
         not user.authenticated
         or db_bungalow.occupation_state != BungalowOccupationState.occupied
@@ -720,7 +720,7 @@ def occupant_add_form(
 ):
     """Show a form to add a user as an occupant to the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
-    manager = g.user
+    manager = g.user.as_user()
 
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
@@ -753,7 +753,7 @@ def occupant_add_form(
 def occupant_add(ticket_id: TicketID):
     """Add a user as occupant to the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
-    manager = g.user
+    manager = g.user.as_user()
 
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
@@ -801,7 +801,7 @@ def occupant_add(ticket_id: TicketID):
 def occupant_remove_form(ticket_id: TicketID):
     """Show a form to remove an occupant from the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
-    manager = g.user
+    manager = g.user.as_user()
 
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
@@ -832,7 +832,7 @@ def occupant_remove_form(ticket_id: TicketID):
 def occupant_remove(ticket_id: TicketID):
     """Remove an occupant from the bungalow."""
     ticket = _get_ticket_or_404(ticket_id)
-    manager = g.user
+    manager = g.user.as_user()
 
     if not ticket.is_user_managed_by(manager.id):
         abort(403)
@@ -916,7 +916,7 @@ def description_update(occupancy_id: OccupancyID):
     if occupancy.manager_id != g.user.id:
         abort(403)
 
-    manager = g.user
+    manager = g.user.as_user()
 
     form = DescriptionUpdateForm(request.form)
     if not form.validate():
@@ -986,7 +986,7 @@ def avatar_update(occupancy_id: OccupancyID):
     if occupancy.manager_id != g.user.id:
         abort(403)
 
-    manager = g.user
+    manager = g.user.as_user()
 
     # Make `InputRequired` work on `FileField`.
     form_fields = request.form.copy()
