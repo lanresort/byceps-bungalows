@@ -3,7 +3,38 @@
 {% set page_title = 'Belegungsplan' %}
 
 {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='style/bungalow/bungalow.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style/bungalow/bungalow.css') }}">
+<style>
+.bungalows-grid {
+  display: grid;
+  grid-template-areas:
+    "intro"
+    "map"
+    "list"
+    "categories";
+  grid-template-columns: 1fr;
+  margin-top: -2rem;
+}
+
+@media (min-width: 90rem) { /* 1440px / 16px */
+
+  .page-body > .section > .container {
+    --container-max-width: 1600px;
+    width: auto;
+  }
+
+  .bungalows-grid {
+    --column-gap: 3rem;
+    column-gap: var(--column-gap);
+    grid-template-areas:
+      "intro list"
+      "map list"
+      "categories list";
+    grid-template-columns: repeat(2, calc(50% - calc(var(--column-gap) / 2)));
+    grid-template-rows: minmax(0, auto) auto auto;
+  }
+}
+</style>
 {%- endblock %}
 
 {% block subnav %}
@@ -14,14 +45,23 @@
 
   <h1 class="title">{{ page_title }}</h1>
 
+  <div class="bungalows-grid">
+    <div style="grid-area: intro;">
 {{ render_snippet('bungalows_intro', ignore_if_unknown=True)|safe }}
+    </div>
 
+    <div style="grid-area: map;">
 {% include 'site/bungalow/_map.html' %}
+    </div>
 
+    <div style="grid-area: list;">
 {% include 'site/bungalow/_list.html' %}
+    </div>
 
 {%- if bungalows and not g.site.is_intranet %}
+    <div style="grid-area: categories;">
 {% include 'site/bungalow/_categories.html' %}
+    </div>
 {%- endif %}
 
 {%- endblock %}
