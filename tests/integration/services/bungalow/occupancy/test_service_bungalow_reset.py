@@ -23,7 +23,9 @@ def test_release_bungalow(
     bungalow = make_bungalow()
 
     reservation_id, occupancy_id = reserve_bungalow(bungalow.id, orderer.user)
-    occupy_reserved_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
+    occupy_reserved_bungalow(
+        reservation_id, occupancy_id, ticket_bundle, admin_user
+    )
 
     reservation = bungalow_occupancy_service.find_reservation(reservation_id)
     occupancy = bungalow_occupancy_service.find_occupancy(occupancy_id)

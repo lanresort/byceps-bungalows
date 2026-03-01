@@ -10,7 +10,7 @@ from byceps.services.bungalow.models.occupation import (
     OccupancyID,
     ReservationID,
 )
-from byceps.services.ticketing.models.ticket import TicketBundleID
+from byceps.services.ticketing.models.ticket import TicketBundle
 from byceps.services.user.models import User
 
 
@@ -27,10 +27,11 @@ def reserve_bungalow(
 def occupy_reserved_bungalow(
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
-    ticket_bundle_id: TicketBundleID,
+    ticket_bundle: TicketBundle,
+    initiator: User,
 ) -> BungalowOccupancy:
     occupancy, _ = bungalow_occupancy_service.occupy_reserved_bungalow(
-        reservation_id, occupancy_id, ticket_bundle_id
+        reservation_id, occupancy_id, ticket_bundle, initiator
     ).unwrap()
 
     return occupancy

@@ -37,7 +37,9 @@ def test_occupy_reserved_bungalow(
     assert occupancy.ticket_bundle_id is None
     assert occupancy.manager_id == occupier.id
 
-    occupy_reserved_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
+    occupy_reserved_bungalow(
+        reservation_id, occupancy_id, ticket_bundle, occupier
+    )
 
     reservation = bungalow_occupancy_service.find_reservation(reservation_id)
     occupancy = bungalow_occupancy_service.get_occupancy(occupancy_id).unwrap()

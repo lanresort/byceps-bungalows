@@ -43,7 +43,7 @@ def test_is_reserved_or_occupied_when_occupied(
     ticket_bundle = make_ticket_bundle()
 
     reservation_id, occupancy_id = reserve_bungalow(bungalow.id, user)
-    occupy_reserved_bungalow(reservation_id, occupancy_id, ticket_bundle.id)
+    occupy_reserved_bungalow(reservation_id, occupancy_id, ticket_bundle, user)
 
     assert not bungalow.available
     assert bungalow.reserved_or_occupied
