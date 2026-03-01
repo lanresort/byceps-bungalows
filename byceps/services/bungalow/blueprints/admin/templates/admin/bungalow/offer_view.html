@@ -58,6 +58,11 @@
           {%- endif %}
           {%- if bungalow.reserved_or_occupied %}
             <li><a class="dropdown-item" href="{{ url_for('.internal_remark_update_form', occupancy_id=occupancy.id) }}">{{ render_icon('note') }} Anmerkung bearbeiten</a></li>
+            {%- if bungalow.occupied %}
+            <li><a class="dropdown-item" href="{{ url_for('.appoint_manager_form', occupancy_id=occupancy.id) }}">{{ render_icon('arrow-right') }} Verwaltung übertragen</a></li>
+            {%- else %}
+            <li><span class="dropdown-item is-disabled">{{ render_icon('arrow-right') }} Verwaltung übertragen</span></li>
+            {%- endif %}
             <li><a class="dropdown-item" href="{{ url_for('.occupancy_move_form', occupancy_id=occupancy.id) }}">{{ render_icon('arrow-right') }} Belegung verschieben</a></li>
           {%- else %}
             <li class="dropdown-divider"></li>
