@@ -45,7 +45,11 @@ from .events import (
     BungalowReleasedEvent,
     BungalowReservedEvent,
 )
-from .model_converters import _db_entity_to_occupancy, _db_entity_to_reservation
+from .model_converters import (
+    _db_entity_to_bungalow,
+    _db_entity_to_occupancy,
+    _db_entity_to_reservation,
+)
 from .models.bungalow import BungalowID, BungalowOccupationState
 from .models.log import BungalowLogEntry
 from .models.occupation import (
@@ -152,8 +156,10 @@ def reserve_bungalow(
     if not db_bungalow.available:
         return Err('Bungalow is not available')
 
+    bungalow = _db_entity_to_bungalow(db_bungalow)
+
     match bungalow_occupancy_domain_service.reserve_bungalow(
-        db_bungalow.id, db_bungalow.number, occupier
+        bungalow, occupier
     ):
         case Ok((reservation, occupancy, event, log_entry)):
             pass
@@ -309,12 +315,13 @@ def occupy_reserved_bungalow(
         current_occupancy.bungalow_id
     )
 
+    bungalow = _db_entity_to_bungalow(db_bungalow)
+
     occupier_id = current_occupancy.occupied_by_id
     occupier = user_service.get_user(occupier_id)
 
     match bungalow_occupancy_domain_service.occupy_reserved_bungalow(
-        db_bungalow.id,
-        db_bungalow.number,
+        bungalow,
         current_occupancy,
         occupier,
         ticket_bundle_id,
@@ -340,13 +347,14 @@ def occupy_bungalow_without_reservation(
     if not db_bungalow.available:
         return Err('Bungalow is not available')
 
+    bungalow = _db_entity_to_bungalow(db_bungalow)
+
     db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
     occupier = db_ticket_bundle.owned_by
     order_number = db_ticket_bundle.tickets[0].order_number
 
     match bungalow_occupancy_domain_service.occupy_bungalow_without_reservation(
-        db_bungalow.id,
-        db_bungalow.number,
+        bungalow,
         occupier,
         order_number,
         ticket_bundle_id,
@@ -514,8 +522,10 @@ def release_bungalow(
     except ValueError:
         return Err(f'No bungalow found with ID "{occupancy.bungalow_id}"')
 
+    bungalow = _db_entity_to_bungalow(db_bungalow)
+
     match bungalow_occupancy_domain_service.release_bungalow(
-        db_bungalow.id, db_bungalow.number, initiator
+        bungalow, initiator
     ):
         case Ok((event, log_entry)):
             pass

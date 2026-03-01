@@ -21,7 +21,7 @@ from .events import (
     BungalowReleasedEvent,
     BungalowReservedEvent,
 )
-from .models.bungalow import BungalowID
+from .models.bungalow import Bungalow, BungalowID
 from .models.log import BungalowLogEntry
 from .models.occupation import (
     BungalowOccupancy,
@@ -33,7 +33,7 @@ from .models.occupation import (
 
 
 def reserve_bungalow(
-    bungalow_id: BungalowID, bungalow_number: int, occupier: User
+    bungalow: Bungalow, occupier: User
 ) -> Result[
     tuple[
         BungalowReservation,
@@ -44,15 +44,15 @@ def reserve_bungalow(
     str,
 ]:
     """Create a reservation for this bungalow."""
-    reservation = _build_reservation(bungalow_id, occupier)
+    reservation = _build_reservation(bungalow.id, occupier)
 
     occupancy = _build_reservation_occupancy(reservation)
 
     event = _build_bungalow_reserved_event(
-        occupier, bungalow_id, bungalow_number
+        occupier, bungalow.id, bungalow.number
     )
 
-    log_entry = _build_bungalow_reserved_log_entry(bungalow_id, occupier)
+    log_entry = _build_bungalow_reserved_log_entry(bungalow.id, occupier)
 
     return Ok((reservation, occupancy, event, log_entry))
 
@@ -117,8 +117,7 @@ def _build_bungalow_reserved_log_entry(
 
 
 def occupy_reserved_bungalow(
-    bungalow_id: BungalowID,
-    bungalow_number: int,
+    bungalow: Bungalow,
     current_occupancy: BungalowOccupancy,
     occupier: User,
     ticket_bundle_id: TicketBundleID,
@@ -138,17 +137,16 @@ def occupy_reserved_bungalow(
     )
 
     event = _build_bungalow_occupied_event(
-        occupier, bungalow_id, bungalow_number
+        occupier, bungalow.id, bungalow.number
     )
 
-    log_entry = _build_bungalow_occupied_log_entry(bungalow_id, occupier)
+    log_entry = _build_bungalow_occupied_log_entry(bungalow.id, occupier)
 
     return Ok((updated_occupancy, event, log_entry))
 
 
 def occupy_bungalow_without_reservation(
-    bungalow_id: BungalowID,
-    bungalow_number: int,
+    bungalow: Bungalow,
     occupier: User,
     order_number: OrderNumber,
     ticket_bundle_id: TicketBundleID,
@@ -157,14 +155,14 @@ def occupy_bungalow_without_reservation(
 ]:
     """Occupy the bungalow without previous reservation."""
     occupancy = _build_occupancy_without_reservation(
-        bungalow_id, occupier, order_number, ticket_bundle_id
+        bungalow.id, occupier, order_number, ticket_bundle_id
     )
 
     event = _build_bungalow_occupied_event(
-        occupier, bungalow_id, bungalow_number
+        occupier, bungalow.id, bungalow.number
     )
 
-    log_entry = _build_bungalow_occupied_log_entry(bungalow_id, occupier)
+    log_entry = _build_bungalow_occupied_log_entry(bungalow.id, occupier)
 
     return Ok((occupancy, event, log_entry))
 
@@ -216,16 +214,16 @@ def _build_bungalow_occupied_log_entry(
 
 
 def release_bungalow(
-    bungalow_id: BungalowID, bungalow_number: int, initiator: User
+    bungalow: Bungalow, initiator: User
 ) -> Result[tuple[BungalowReleasedEvent, BungalowLogEntry], str]:
     """Release the bungalow occupied by the occupancy so it becomes available
     again.
     """
     event = _build_bungalow_released_event(
-        initiator, bungalow_id, bungalow_number
+        initiator, bungalow.id, bungalow.number
     )
 
-    log_entry = _build_bungalow_released_log_entry(bungalow_id, initiator)
+    log_entry = _build_bungalow_released_log_entry(bungalow.id, initiator)
 
     return Ok((event, log_entry))
 
