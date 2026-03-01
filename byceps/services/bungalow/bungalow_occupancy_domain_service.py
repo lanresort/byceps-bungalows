@@ -44,6 +44,9 @@ def reserve_bungalow(
     str,
 ]:
     """Create a reservation for this bungalow."""
+    if not bungalow.available:
+        return Err('Bungalow is not available.')
+
     reservation = _build_reservation(bungalow.id, occupier)
 
     occupancy = _build_reservation_occupancy(reservation)
@@ -154,6 +157,9 @@ def occupy_bungalow_without_reservation(
     tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
 ]:
     """Occupy the bungalow without previous reservation."""
+    if not bungalow.available:
+        return Err('Bungalow is not available.')
+
     occupancy = _build_occupancy_without_reservation(
         bungalow.id, occupier, order_number, ticket_bundle_id
     )

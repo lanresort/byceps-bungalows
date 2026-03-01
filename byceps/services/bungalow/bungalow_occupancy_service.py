@@ -153,9 +153,6 @@ def reserve_bungalow(
 ]:
     """Create a reservation for this bungalow."""
     db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
-    if not db_bungalow.available:
-        return Err('Bungalow is not available')
-
     bungalow = _db_entity_to_bungalow(db_bungalow)
 
     match bungalow_occupancy_domain_service.reserve_bungalow(
@@ -306,11 +303,6 @@ def occupy_reserved_bungalow(
         case Err(occupancy_lookup_error):
             return Err(occupancy_lookup_error)
 
-    if current_occupancy.state != OccupancyState.reserved:
-        return Err(
-            "Not in state 'reserved', cannot change to state 'occupied'."
-        )
-
     db_bungalow = bungalow_service.get_db_bungalow(
         current_occupancy.bungalow_id
     )
@@ -344,8 +336,6 @@ def occupy_bungalow_without_reservation(
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Occupy the bungalow without previous reservation."""
     db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
-    if not db_bungalow.available:
-        return Err('Bungalow is not available')
 
     bungalow = _db_entity_to_bungalow(db_bungalow)
 
