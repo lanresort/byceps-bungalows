@@ -122,7 +122,6 @@ def _build_bungalow_reserved_log_entry(
 def occupy_reserved_bungalow(
     bungalow: Bungalow,
     current_occupancy: BungalowOccupancy,
-    occupier: User,
     ticket_bundle: TicketBundle,
 ) -> Result[
     tuple[BungalowOccupancy, BungalowOccupiedEvent, BungalowLogEntry], str
@@ -135,6 +134,8 @@ def occupy_reserved_bungalow(
 
     if bungalow.category.ticket_category_id != ticket_bundle.ticket_category.id:
         return Err('Ticket categories do not match.')
+
+    occupier = ticket_bundle.owned_by
 
     updated_occupancy = dataclasses.replace(
         current_occupancy,
@@ -153,7 +154,6 @@ def occupy_reserved_bungalow(
 
 def occupy_bungalow_without_reservation(
     bungalow: Bungalow,
-    occupier: User,
     order_number: OrderNumber,
     ticket_bundle: TicketBundle,
 ) -> Result[
@@ -165,6 +165,8 @@ def occupy_bungalow_without_reservation(
 
     if bungalow.category.ticket_category_id != ticket_bundle.ticket_category.id:
         return Err('Ticket categories do not match.')
+
+    occupier = ticket_bundle.owned_by
 
     occupancy = _build_occupancy_without_reservation(
         bungalow.id, occupier, order_number, ticket_bundle.id
