@@ -87,7 +87,14 @@ def on_cancellation_after_payment(
     """Revoke ticket bundle and release the bungalow that have been created for
     that order.
     """
-    ticket_bundle_id_str = line_item.processing_result['ticket_bundle_id']
+    ticket_bundle_id_str = line_item.processing_result.get('ticket_bundle_id')
+    if not ticket_bundle_id_str:
+        return Err(
+            OrderActionFailedError(
+                'Ticket bundle ID not found in line item processing result.'
+            )
+        )
+
     ticket_bundle_id = TicketBundleID(UUID(ticket_bundle_id_str))
 
     match _revoke_ticket_bundle(ticket_bundle_id, order, initiator):
