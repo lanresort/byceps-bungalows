@@ -43,7 +43,10 @@ from byceps.services.party.models import Party, PartyID
 from byceps.services.shop.order import order_service
 from byceps.services.shop.product import product_service
 from byceps.services.shop.shop import shop_service
-from byceps.services.ticketing import ticket_category_service
+from byceps.services.ticketing import (
+    ticket_bundle_service,
+    ticket_category_service,
+)
 from byceps.services.user import user_service
 from byceps.services.user.models import UserID
 from byceps.util.export import serialize_tuples_to_csv
@@ -69,6 +72,7 @@ from .forms import (
     OccupancyMoveForm,
     OfferCreateForm,
 )
+from .models import BungalowTicketBundle
 
 
 blueprint = create_blueprint('bungalow_admin', __name__)
@@ -454,6 +458,47 @@ def internal_remark_update(occupancy_id):
     )
 
     return redirect_to('.offer_index', party_id=bungalow.party_id)
+
+
+@blueprint.get('/ticket_bundles/for_party/<party_id>')
+@permission_required('bungalow.view')
+@templated
+def ticket_bundle_index(party_id: PartyID):
+    """List ticket bundles for that party."""
+    party = _get_party_or_404(party_id)
+
+    ticket_bundles = [
+        bundle
+        for bundle in ticket_bundle_service.get_bundles_for_party(party.id)
+        if not bundle.revoked
+    ]
+    ticket_bundle_ids = {bundle.id for bundle in ticket_bundles}
+    db_bungalows_by_ticket_bundle_id = (
+        bungalow_occupancy_service.get_bungalows_for_ticket_bundles(
+            ticket_bundle_ids
+        )
+    )
+
+    bungalow_ticket_bundles = []
+    for bundle in ticket_bundles:
+        db_bungalow = db_bungalows_by_ticket_bundle_id.get(bundle.id)
+
+        btb = BungalowTicketBundle(
+            ticket_bundle_id=bundle.id,
+            created_at=bundle.created_at,
+            ticket_category=bundle.ticket_category,
+            ticket_quantity=bundle.ticket_quantity,
+            ticket_bundle_owner=bundle.owned_by,
+            bungalow_id=db_bungalow.id if db_bungalow else None,
+            bungalow_number=db_bungalow.number if db_bungalow else None,
+        )
+
+        bungalow_ticket_bundles.append(btb)
+
+    return {
+        'party': party,
+        'bungalow_ticket_bundles': bungalow_ticket_bundles,
+    }
 
 
 @blueprint.get('/occupancies/<occupancy_id>/manager/update')

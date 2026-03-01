@@ -1,0 +1,43 @@
+{% extends 'layout/admin/bungalow.html' %}
+{% from 'macros/admin.html' import render_extra_in_heading %}
+{% from 'macros/admin/user.html' import render_user_avatar_and_admin_link %}
+{% set current_page_party = party %}
+{% set current_tab = 'offers' %}
+{% set page_title = [_('Ticket bundles'), party.title] %}
+
+{% block body %}
+
+  <h1 class="title">{{ _('Ticket bundles') }} {{ render_extra_in_heading(bungalow_ticket_bundles|length) }}</h1>
+
+  {%- if bungalow_ticket_bundles %}
+  <table class="itemlist is-vcentered is-wide">
+    <thead>
+      <tr>
+        <th>{{ _('ID') }}</th>
+        <th>{{ _('Created') }}</th>
+        <th>{{ _('Category') }}</th>
+        <th>{{ _('Owner') }}</th>
+        <th>Bungalow</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for btb in bungalow_ticket_bundles %}
+      <tr>
+        <td><a href="{{ url_for('ticketing_admin.view_bundle', bundle_id=btb.ticket_bundle_id) }}">{{ btb.ticket_bundle_id }}</a></td>
+        <td>{{ btb.created_at|datetimeformat }}</td>
+        <td>{{ btb.ticket_category.title }}</td>
+        <td>{{ render_user_avatar_and_admin_link(btb.ticket_bundle_owner, size=20) }}</td>
+          {%- if btb.bungalow_id -%}
+        <td class="bignumber"><a href="{{ url_for('.offer_view', bungalow_id=btb.bungalow_id) }}">{{ btb.bungalow_number }}</a></td>
+          {%- else -%}
+        <td>{{ 'keiner'|dim }}</td>
+          {%- endif -%}
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  {%- else %}
+  <div class="box no-data-message">{{ _('none') }}</div>
+  {%- endif %}
+
+{%- endblock %}
