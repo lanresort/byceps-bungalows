@@ -25,7 +25,7 @@ from byceps.services.ticketing import (
     ticket_service,
     ticket_user_management_service,
 )
-from byceps.services.ticketing.models.ticket import TicketBundleID
+from byceps.services.ticketing.models.ticket import TicketBundle, TicketBundleID
 from byceps.services.user import user_service
 from byceps.services.user.models import User, UserForAdmin, UserID
 from byceps.util.result import Err, Ok, Result
@@ -295,7 +295,7 @@ def _build_recipient_orderer(recipient: User) -> Orderer:
 def occupy_reserved_bungalow(
     reservation_id: ReservationID,
     occupancy_id: OccupancyID,
-    ticket_bundle_id: TicketBundleID,
+    ticket_bundle: TicketBundle,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Mark a reserved bungalow as occupied."""
     match get_occupancy(occupancy_id):
@@ -309,11 +309,6 @@ def occupy_reserved_bungalow(
     )
 
     bungalow = _db_entity_to_bungalow(db_bungalow)
-
-    db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
-    ticket_bundle = ticket_bundle_service.db_entity_to_ticket_bundle(
-        db_ticket_bundle
-    )
 
     match bungalow_occupancy_domain_service.occupy_reserved_bungalow(
         bungalow,
@@ -334,17 +329,13 @@ def occupy_reserved_bungalow(
 
 def occupy_bungalow_without_reservation(
     bungalow_id: BungalowID,
-    ticket_bundle_id: TicketBundleID,
+    ticket_bundle: TicketBundle,
 ) -> Result[tuple[BungalowOccupancy, BungalowOccupiedEvent], str]:
     """Occupy the bungalow without previous reservation."""
     db_bungalow = bungalow_service.get_db_bungalow(bungalow_id)
 
     bungalow = _db_entity_to_bungalow(db_bungalow)
 
-    db_ticket_bundle = ticket_bundle_service.get_bundle(ticket_bundle_id)
-    ticket_bundle = ticket_bundle_service.db_entity_to_ticket_bundle(
-        db_ticket_bundle
-    )
     ticket_id = list(ticket_bundle.ticket_ids)[0]
     order_number = ticket_service.get_ticket(ticket_id).order_number
 

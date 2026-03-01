@@ -179,7 +179,7 @@ def _occupy_bungalow(
         occupation_result = bungalow_occupancy_service.occupy_reserved_bungalow(
             reservation_id,
             occupancy_id,
-            ticket_bundle.id,
+            ticket_bundle,
         )
         if occupation_result.is_err():
             return Err(

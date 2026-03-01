@@ -571,7 +571,7 @@ def ticket_bundle_occupy_bungalow(bundle_id: TicketBundleID):
 
     try:
         match bungalow_occupancy_service.occupy_bungalow_without_reservation(
-            bungalow.id, bundle.id
+            bungalow.id, bundle
         ):
             case Ok((occupancy, event)):
                 pass
